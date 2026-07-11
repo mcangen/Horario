@@ -308,10 +308,6 @@
               <label for="fMateria">Materia *</label>
               <input type="text" id="fMateria" required placeholder="Ej. Matemáticas" autocomplete="off" />
             </div>
-            <!-- <div class="row">
-              <label for="fAula">Aula (opcional)</label>
-              <input type="text" id="fAula" placeholder="Ej. 204" autocomplete="off" />
-            </div> -->
             <div class="row">
               <label for="fProfesor">Profesor</label>
               <input type="text" id="fProfesor" placeholder="Ej. Ana Gómez" autocomplete="off" />
@@ -446,7 +442,6 @@
           var a=arr[i], b=arr[j], reasons=[];
           if(norm(a.profesor) && norm(a.profesor)===norm(b.profesor)) reasons.push("mismo profesor");
           if(norm(a.curso)    && norm(a.curso)===norm(b.curso))       reasons.push("mismo curso");
-          if(norm(a.aula)     && norm(a.aula)===norm(b.aula))         reasons.push("misma aula");
           var s = reasons.length ? "hard" : "soft";
           if(sev[a.id]!=="hard") sev[a.id]=s;
           if(sev[b.id]!=="hard") sev[b.id]=s;
@@ -538,7 +533,6 @@
         html+='<span class="b-mat">'+esc(c.materia)+'</span>';
         var sub=[c.curso,c.profesor].filter(Boolean).join(" · ");
         if(sub) html+='<span class="b-line">'+esc(sub)+'</span>';
-        if(c.aula && bh>52) html+='<span class="b-line">Aula '+esc(c.aula)+'</span>';
         if(bh>38) html+='<span class="b-time">'+esc(c.inicio)+'–'+esc(c.fin)+'</span>';
         html+='</div>';
       });
@@ -607,7 +601,7 @@
     sorted.forEach(function(c){
       var flag = sev[c.id]==="hard" ? '<span class="li-flag" title="No permitido">✕</span>'
                : sev[c.id]==="soft" ? '<span class="li-flag" style="color:var(--soft)" title="Cruce">!</span>' : '';
-      var sub=[c.curso,c.profesor,(c.aula?("Aula "+c.aula):"")].filter(Boolean).join(" · ");
+      var sub=[c.curso,c.profesor].filter(Boolean).join(" · ");
       html+='<div class="list-item">';
       html+='<span class="dot" style="background:'+c.color+'"></span>';
       html+='<div class="li-main"><div class="li-mat">'+esc(c.materia)+' '+flag+'</div><div class="li-sub">'+esc(sub||"—")+'</div></div>';
@@ -762,7 +756,7 @@
       .sort(function(a,b){ return (order[a.dia]||0)-(order[b.dia]||0) || t2m(a.inicio)-t2m(b.inicio); });
     editingId=id; editingGrupoId=grupoId;
     $("fMateria").value=c.materia;
-    $("fAula").value=c.aula||""; $("fProfesor").value=c.profesor||"";
+    $("fProfesor").value=c.profesor||"";
     clearSessions();
     group.forEach(function(g){ addSessionRow(g.dia, g.curso, g.inicio, g.fin); });
     setColor(c.color);
@@ -795,7 +789,6 @@
     }
     var common={
       materia:materia,
-      aula:$("fAula").value.trim(),
       profesor:$("fProfesor").value.trim(),
       color:$("fColor").value
     };
@@ -866,7 +859,7 @@
           return {
             id: id,
             grupoId: c.grupoId || id,
-            materia: c.materia||"", curso:c.curso||"", aula:c.aula||"",
+            materia: c.materia||"", curso:c.curso||"",
             profesor:c.profesor||"", dia:c.dia||DAYS_FULL[0],
             inicio:c.inicio||"07:00", fin:c.fin||"08:00",
             color:c.color||PALETTE[0]
@@ -978,7 +971,6 @@
         doc.setFont("helvetica","normal"); doc.setFontSize(6.6); doc.setTextColor(70,80,102);
         var sub2=[c.curso,c.profesor].filter(Boolean).join(" · ");
         if(sub2 && bh>7){ doc.text(fit(doc,sub2,avail), tx, ty); ty+=2.7; }
-        if(c.aula && bh>11){ doc.text(fit(doc,"Aula "+c.aula,avail), tx, ty); ty+=2.7; }
         if(bh>9){ doc.setTextColor(110,118,138); doc.text(c.inicio+"–"+c.fin, tx, ty); }
       });
     });
