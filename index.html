@@ -124,10 +124,14 @@
   .form-actions .btn{flex:1;justify-content:center}
   .hint{font-size:12px;color:var(--ink-3);margin-top:-6px;margin-bottom:12px}
 
-  /* ---------- Sesiones (días/horarios) ---------- */
+  /* ---------- Sesiones (días/cursos/horarios) ---------- */
   #sessionsList{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
-  .session-row{display:grid;grid-template-columns:1fr 98px 98px 32px;gap:6px;align-items:center}
-  .session-row select, .session-row input[type=time]{width:100%}
+  .session-row{border:1px solid var(--line);border-radius:9px;padding:9px;background:var(--paper)}
+  .session-row-top{display:grid;grid-template-columns:1fr 1fr 32px;gap:6px;margin-bottom:6px}
+  .session-row-times{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .session-row select, .session-row input{width:100%}
+  .session-row input[type=text]{padding:8px 9px;font-size:13px}
+  .session-row .s-remove{background:var(--card)}
   .add-session-btn{align-self:flex-start;padding:7px 12px;font-size:12.5px;margin-bottom:4px}
 
   /* ---------- Conflicts panel ---------- */
@@ -304,25 +308,19 @@
               <label for="fMateria">Materia *</label>
               <input type="text" id="fMateria" required placeholder="Ej. Matemáticas" autocomplete="off" />
             </div>
-            <div class="two">
-              <div class="row">
-                <label for="fCurso">Curso</label>
-                <input type="text" id="fCurso" placeholder="Ej. 10-B" autocomplete="off" />
-              </div>
-              <div class="row">
-                <label for="fAula">Aula (opcional)</label>
-                <input type="text" id="fAula" placeholder="Ej. 204" autocomplete="off" />
-              </div>
+            <div class="row">
+              <label for="fAula">Aula (opcional)</label>
+              <input type="text" id="fAula" placeholder="Ej. 204" autocomplete="off" />
             </div>
             <div class="row">
               <label for="fProfesor">Profesor</label>
               <input type="text" id="fProfesor" placeholder="Ej. Ana Gómez" autocomplete="off" />
             </div>
             <div class="row">
-              <label>Días y horarios</label>
+              <label>Días, cursos y horarios</label>
               <div id="sessionsList"></div>
               <button type="button" class="btn ghost add-session-btn" id="addSession">+ Agregar otro día</button>
-              <div class="hint" style="margin-top:2px;margin-bottom:0">Agrega un día por cada sesión de esta materia (puede tener horas distintas cada día).</div>
+              <div class="hint" style="margin-top:2px;margin-bottom:0">Agrega un día por cada sesión de esta materia; el curso y las horas pueden variar en cada una.</div>
             </div>
             <div class="row">
               <label>Color</label>
@@ -637,17 +635,30 @@
     renderList(conf.sev);
   }
 
-  // ---------- Formulario: sesiones (días/horarios) ----------
-  function createSessionRow(day, inicio, fin){
+  // ---------- Formulario: sesiones (días/cursos/horarios) ----------
+  function createSessionRow(day, curso, inicio, fin){
     var row=document.createElement("div");
     row.className="session-row";
 
+    var top=document.createElement("div"); top.className="session-row-top";
     var daySel=document.createElement("select"); daySel.className="s-day";
     activeDays().forEach(function(d){
       var o=document.createElement("option"); o.value=d; o.textContent=d; daySel.appendChild(o);
     });
     if(day) daySel.value=day;
 
+    var cursoInp=document.createElement("input");
+    cursoInp.type="text"; cursoInp.className="s-curso"; cursoInp.placeholder="Curso (Ej. 10-B)"; cursoInp.autocomplete="off";
+    cursoInp.value=curso||"";
+
+    var rm=document.createElement("button");
+    rm.type="button"; rm.className="icon-btn s-remove"; rm.title="Quitar día";
+    rm.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+    rm.addEventListener("click", function(){ removeSessionRow(row); });
+
+    top.appendChild(daySel); top.appendChild(cursoInp); top.appendChild(rm);
+
+    var times=document.createElement("div"); times.className="session-row-times";
     var startInp=document.createElement("input");
     startInp.type="time"; startInp.step=300; startInp.className="s-start"; startInp.required=true;
     startInp.value=inicio||"07:00";
@@ -655,17 +666,13 @@
     var endInp=document.createElement("input");
     endInp.type="time"; endInp.step=300; endInp.className="s-end"; endInp.required=true;
     endInp.value=fin||"08:00";
+    times.appendChild(startInp); times.appendChild(endInp);
 
-    var rm=document.createElement("button");
-    rm.type="button"; rm.className="icon-btn s-remove"; rm.title="Quitar día";
-    rm.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>';
-    rm.addEventListener("click", function(){ removeSessionRow(row); });
-
-    row.appendChild(daySel); row.appendChild(startInp); row.appendChild(endInp); row.appendChild(rm);
+    row.appendChild(top); row.appendChild(times);
     return row;
   }
 
-  function addSessionRow(day, inicio, fin){
+  function addSessionRow(day, curso, inicio, fin){
     var list=$("sessionsList");
     var last=list.lastElementChild;
     if(!day){
@@ -674,9 +681,10 @@
       var days=activeDays();
       day = days.filter(function(d){ return !used[d]; })[0] || (last ? last.querySelector(".s-day").value : days[0]);
     }
+    if(curso==null) curso = last ? last.querySelector(".s-curso").value : "";
     if(!inicio) inicio = last ? last.querySelector(".s-start").value : "07:00";
     if(!fin) fin = last ? last.querySelector(".s-end").value : "08:00";
-    list.appendChild(createSessionRow(day, inicio, fin));
+    list.appendChild(createSessionRow(day, curso, inicio, fin));
     updateSessionRemoveState();
   }
 
@@ -708,7 +716,12 @@
 
   function getSessionsFromForm(){
     return Array.prototype.map.call($("sessionsList").querySelectorAll(".session-row"), function(r){
-      return { dia:r.querySelector(".s-day").value, inicio:r.querySelector(".s-start").value, fin:r.querySelector(".s-end").value };
+      return {
+        dia:r.querySelector(".s-day").value,
+        curso:r.querySelector(".s-curso").value.trim(),
+        inicio:r.querySelector(".s-start").value,
+        fin:r.querySelector(".s-end").value
+      };
     });
   }
 
@@ -733,7 +746,7 @@
   function resetForm(){
     editingId=null; editingGrupoId=null;
     $("classForm").reset();
-    clearSessions(); addSessionRow(null,"07:00","08:00");
+    clearSessions(); addSessionRow(null,"","07:00","08:00");
     $("formTitle").textContent="Agregar clase";
     $("submitBtn").textContent="Agregar al horario";
     $("cancelEdit").style.display="none";
@@ -748,10 +761,10 @@
     var group=state.classes.filter(function(x){ return (x.grupoId||x.id)===grupoId; }).slice()
       .sort(function(a,b){ return (order[a.dia]||0)-(order[b.dia]||0) || t2m(a.inicio)-t2m(b.inicio); });
     editingId=id; editingGrupoId=grupoId;
-    $("fMateria").value=c.materia; $("fCurso").value=c.curso||"";
+    $("fMateria").value=c.materia;
     $("fAula").value=c.aula||""; $("fProfesor").value=c.profesor||"";
     clearSessions();
-    group.forEach(function(g){ addSessionRow(g.dia, g.inicio, g.fin); });
+    group.forEach(function(g){ addSessionRow(g.dia, g.curso, g.inicio, g.fin); });
     setColor(c.color);
     $("formTitle").textContent="Editar clase";
     $("submitBtn").textContent="Guardar cambios";
@@ -782,7 +795,6 @@
     }
     var common={
       materia:materia,
-      curso:$("fCurso").value.trim(),
       aula:$("fAula").value.trim(),
       profesor:$("fProfesor").value.trim(),
       color:$("fColor").value
@@ -792,7 +804,7 @@
       state.classes=state.classes.filter(function(x){ return (x.grupoId||x.id)!==grupoId; });
     }
     sessions.forEach(function(s){
-      var data=Object.assign({}, common, { id:uid(), grupoId:grupoId, dia:s.dia, inicio:s.inicio, fin:s.fin });
+      var data=Object.assign({}, common, { id:uid(), grupoId:grupoId, dia:s.dia, curso:s.curso, inicio:s.inicio, fin:s.fin });
       state.classes.push(data);
     });
     toast(editingId ? "Cambios guardados." : "Clase agregada.");
@@ -1048,7 +1060,7 @@
 
   // ---------- Init ----------
   function init(){
-    addSessionRow(null,"07:00","08:00");
+    addSessionRow(null,"","07:00","08:00");
     buildSwatches();
     setColor(PALETTE[0]);
     syncMetaInputs();
