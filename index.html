@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Generador de Horarios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --paper:#F5F3EE;
+    --card:#FFFFFF;
+    --ink:#182338;
+    --ink-2:#54607A;
+    --ink-3:#8A93A6;
+    --line:#E4E0D6;
+    --line-2:#EFECE3;
+    --accent:#2D6CB2;
+    --accent-ink:#1B4E86;
+    --accent-soft:#E8F0F9;
+    --hard:#C7402F;
+    --hard-soft:#FBECE9;
+    --soft:#B77E14;
+    --soft-soft:#FBF3E0;
+    --ok:#2E8B6F;
+    --radius:12px;
+    --shadow:0 1px 2px rgba(24,35,56,.06), 0 8px 24px rgba(24,35,56,.06);
+    --disp:'Fraunces', Georgia, 'Times New Roman', serif;
+    --body:'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono:ui-monospace, 'SF Mono', 'Roboto Mono', Menlo, monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:var(--body);
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1240px;margin:0 auto;padding:24px 20px 80px}
+
+  /* ---------- Header ---------- */
+  header.top{
+    display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between;
+    padding:8px 4px 20px;border-bottom:2px solid var(--ink);margin-bottom:22px;
+  }
+  .brand h1{
+    font-family:var(--disp);font-weight:800;font-size:clamp(28px,4vw,44px);
+    line-height:1;margin:0;letter-spacing:-.01em;
+  }
+  .brand .kicker{
+    font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent-ink);margin-bottom:8px;
+  }
+  .meta-fields{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+  .field input, .field select{
+    font-family:var(--body);font-size:14px;color:var(--ink);
+    background:var(--card);border:1px solid var(--line);border-radius:9px;
+    padding:9px 11px;min-width:180px;transition:border-color .15s, box-shadow .15s;
+  }
+  .field input:focus, .field select:focus{
+    outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);
+  }
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px}
+  button{font-family:var(--body);cursor:pointer;border:none;font-size:14px}
+  .btn{
+    display:inline-flex;align-items:center;gap:7px;padding:10px 15px;border-radius:10px;
+    font-weight:600;background:var(--card);color:var(--ink);border:1px solid var(--line);
+    transition:transform .08s, box-shadow .15s, background .15s, border-color .15s;
+  }
+  .btn:hover{border-color:var(--ink-3);box-shadow:var(--shadow)}
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .btn.primary:hover{background:#0f1a2e}
+  .btn.accent{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btn.accent:hover{background:var(--accent-ink)}
+  .btn.ghost{background:transparent}
+  .btn .ic{width:16px;height:16px;flex:none}
+  .btn.danger{color:var(--hard)}
+  .btn.danger:hover{background:var(--hard-soft);border-color:var(--hard)}
+
+  /* ---------- Layout ---------- */
+  .layout{display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start}
+  @media (max-width:940px){ .layout{grid-template-columns:1fr} }
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+  .card .card-h{
+    padding:16px 18px 12px;border-bottom:1px solid var(--line-2);
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+  }
+  .card .card-h h2{
+    font-family:var(--disp);font-weight:600;font-size:19px;margin:0;letter-spacing:-.01em;
+  }
+  .card .card-b{padding:16px 18px}
+
+  /* ---------- Form ---------- */
+  form .row{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
+  form label{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3)}
+  form input[type=text], form input[type=time], form select{
+    font-family:var(--body);font-size:14px;color:var(--ink);background:var(--card);
+    border:1px solid var(--line);border-radius:9px;padding:10px 11px;width:100%;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  form input:focus, form select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .color-row{display:flex;align-items:center;gap:12px}
+  .swatches{display:flex;flex-wrap:wrap;gap:7px;flex:1}
+  .sw{width:24px;height:24px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);cursor:pointer;transition:transform .1s}
+  .sw:hover{transform:scale(1.12)}
+  .sw.on{box-shadow:0 0 0 2px var(--ink)}
+  input[type=color]{width:42px;height:34px;padding:2px;border:1px solid var(--line);border-radius:8px;background:var(--card);cursor:pointer}
+  .form-actions{display:flex;gap:9px;margin-top:6px}
+  .form-actions .btn{flex:1;justify-content:center}
+  .hint{font-size:12px;color:var(--ink-3);margin-top:-6px;margin-bottom:12px}
+
+  /* ---------- Conflicts panel ---------- */
+  #conflicts{margin-bottom:20px}
+  .conf-empty{display:flex;align-items:center;gap:10px;color:var(--ok);font-weight:600;font-size:14px}
+  .conf-item{
+    display:flex;gap:11px;align-items:flex-start;padding:11px 12px;border-radius:10px;margin-bottom:9px;
+    font-size:13.5px;border:1px solid transparent;
+  }
+  .conf-item:last-child{margin-bottom:0}
+  .conf-item.hard{background:var(--hard-soft);border-color:#F0CFC9}
+  .conf-item.soft{background:var(--soft-soft);border-color:#EEDCB4}
+  .conf-badge{
+    font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    padding:3px 8px;border-radius:20px;white-space:nowrap;flex:none;margin-top:1px;
+  }
+  .conf-badge.hard{background:var(--hard);color:#fff}
+  .conf-badge.soft{background:var(--soft);color:#fff}
+  .conf-item b{font-weight:700}
+  .conf-item .reason{color:var(--ink-2);display:block;margin-top:2px;font-size:12.5px}
+
+  /* ---------- Calendar ---------- */
+  .cal-scroll{overflow-x:auto}
+  .cal{min-width:640px}
+  .cal-head{display:grid;border-bottom:1px solid var(--line)}
+  .cal-head .corner{border-right:1px solid var(--line-2)}
+  .cal-head .dh{
+    text-align:center;padding:11px 6px;font-weight:700;font-size:13px;
+    color:var(--ink);border-left:1px solid var(--line-2);letter-spacing:.02em;
+  }
+  .cal-body{position:relative;display:grid}
+  .timecol{position:relative;border-right:1px solid var(--line)}
+  .thour{position:absolute;right:8px;font-size:11px;color:var(--ink-3);font-family:var(--mono);transform:translateY(-6px)}
+  .daycol{position:relative;border-left:1px solid var(--line-2)}
+  .hline{position:absolute;left:0;right:0;border-top:1px solid var(--line-2);pointer-events:none}
+  .hline.half{border-top-style:dotted;opacity:.6}
+  .block{
+    position:absolute;border-radius:8px;padding:5px 7px 5px 9px;overflow:hidden;cursor:pointer;
+    font-size:11.5px;line-height:1.25;color:#12203a;border:1px solid rgba(0,0,0,.06);
+    transition:transform .08s, box-shadow .12s, filter .12s;
+  }
+  .block:hover{filter:brightness(.98);box-shadow:0 4px 12px rgba(24,35,56,.14);z-index:5}
+  .block::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:8px 0 0 8px}
+  .block .b-mat{font-weight:700;font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .block .b-line{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85}
+  .block .b-time{font-family:var(--mono);font-size:10px;opacity:.7;display:block;margin-top:1px}
+  .block.conflict-hard{border-color:var(--hard);box-shadow:0 0 0 2px var(--hard) inset}
+  .block.conflict-soft{border-color:var(--soft);box-shadow:0 0 0 2px var(--soft) inset}
+  .block .warn{position:absolute;top:3px;right:4px;font-weight:800;font-size:12px}
+  .block.conflict-hard .warn{color:var(--hard)}
+  .block.conflict-soft .warn{color:var(--soft)}
+  .cal-empty{padding:60px 20px;text-align:center;color:var(--ink-3)}
+  .cal-empty .big{font-family:var(--disp);font-size:22px;color:var(--ink-2);margin-bottom:6px}
+
+  /* ---------- List ---------- */
+  .list-item{
+    display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--line-2);
+  }
+  .list-item:last-child{border-bottom:none}
+  .dot{width:14px;height:14px;border-radius:4px;flex:none}
+  .li-main{flex:1;min-width:0}
+  .li-main .li-mat{font-weight:600;font-size:14px}
+  .li-main .li-sub{font-size:12.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .li-when{font-family:var(--mono);font-size:12px;color:var(--ink-2);white-space:nowrap;text-align:right}
+  .li-actions{display:flex;gap:4px}
+  .icon-btn{
+    width:32px;height:32px;display:grid;place-items:center;border-radius:8px;background:transparent;
+    border:1px solid transparent;color:var(--ink-3);transition:.12s;
+  }
+  .icon-btn:hover{background:var(--paper);color:var(--ink);border-color:var(--line)}
+  .icon-btn.del:hover{color:var(--hard);border-color:#F0CFC9;background:var(--hard-soft)}
+  .li-flag{color:var(--hard);font-weight:800;font-size:13px}
+
+  /* ---------- Settings drawer ---------- */
+  .settings{display:none;margin-bottom:20px}
+  .settings.open{display:block}
+  .settings .card-b{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end}
+
+  .stat-row{display:flex;gap:18px;font-size:13px;color:var(--ink-2);margin-top:2px}
+  .stat-row b{color:var(--ink)}
+
+  .toast{
+    position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;
+    box-shadow:0 12px 32px rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:.25s;z-index:100;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="kicker">Planificador académico</div>
+      <h1>Generador de Horarios</h1>
+    </div>
+    <div class="meta-fields">
+      <div class="field">
+        <label for="metaTitle">Título del horario</label>
+        <input type="text" id="metaTitle" placeholder="Ej. Horario 2026-1" />
+      </div>
+      <div class="field">
+        <label for="metaAuthor">Elaborado por</label>
+        <input type="text" id="metaAuthor" placeholder="Tu nombre" />
+      </div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <button class="btn" id="btnSettings" type="button" title="Ajustes de días y horas">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Ajustes
+    </button>
+    <button class="btn accent" id="btnPDF" type="button">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15h6"/></svg>
+      Exportar PDF
+    </button>
+    <button class="btn primary" id="btnSave" type="button">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+      Guardar archivo
+    </button>
+    <button class="btn" id="btnLoad" type="button">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>
+      Cargar / editar
+    </button>
+    <input type="file" id="fileInput" accept=".json,application/json" class="sr" />
+    <button class="btn danger ghost" id="btnClear" type="button">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+      Vaciar
+    </button>
+  </div>
+
+  <!-- Settings -->
+  <div class="card settings" id="settingsPanel">
+    <div class="card-h"><h2>Ajustes del horario</h2></div>
+    <div class="card-b">
+      <div class="field">
+        <label for="setDays">Días de la semana</label>
+        <select id="setDays">
+          <option value="5">Lunes a Viernes</option>
+          <option value="6">Lunes a Sábado</option>
+          <option value="7">Lunes a Domingo</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="setStart">Inicio del día</label>
+        <input type="time" id="setStart" step="1800" />
+      </div>
+      <div class="field">
+        <label for="setEnd">Fin del día</label>
+        <input type="time" id="setEnd" step="1800" />
+      </div>
+      <div class="stat-row" style="width:100%;margin-top:4px">
+        Las horas se ampliarán automáticamente si agregas clases fuera de este rango.
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- Left: form -->
+    <div>
+      <div class="card" id="formCard">
+        <div class="card-h"><h2 id="formTitle">Agregar clase</h2></div>
+        <div class="card-b">
+          <form id="classForm">
+            <div class="row">
+              <label for="fMateria">Materia *</label>
+              <input type="text" id="fMateria" required placeholder="Ej. Matemáticas" autocomplete="off" />
+            </div>
+            <div class="two">
+              <div class="row">
+                <label for="fCurso">Curso</label>
+                <input type="text" id="fCurso" placeholder="Ej. 10-B" autocomplete="off" />
+              </div>
+              <div class="row">
+                <label for="fAula">Aula (opcional)</label>
+                <input type="text" id="fAula" placeholder="Ej. 204" autocomplete="off" />
+              </div>
+            </div>
+            <div class="row">
+              <label for="fProfesor">Profesor</label>
+              <input type="text" id="fProfesor" placeholder="Ej. Ana Gómez" autocomplete="off" />
+            </div>
+            <div class="row">
+              <label for="fDia">Día</label>
+              <select id="fDia"></select>
+            </div>
+            <div class="two">
+              <div class="row">
+                <label for="fInicio">Hora inicio</label>
+                <input type="time" id="fInicio" step="300" value="07:00" required />
+              </div>
+              <div class="row">
+                <label for="fFin">Hora fin</label>
+                <input type="time" id="fFin" step="300" value="08:00" required />
+              </div>
+            </div>
+            <div class="row">
+              <label>Color</label>
+              <div class="color-row">
+                <div class="swatches" id="swatches"></div>
+                <input type="color" id="fColor" value="#4C7BD9" title="Color personalizado" />
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn accent" id="submitBtn">Agregar al horario</button>
+              <button type="button" class="btn ghost" id="cancelEdit" style="display:none;flex:0 0 auto">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: conflicts + calendar + list -->
+    <div>
+      <div class="card" id="conflicts">
+        <div class="card-h">
+          <h2>Revisión de cruces</h2>
+          <span class="stat-row"><span id="confCount">—</span></span>
+        </div>
+        <div class="card-b" id="conflictsBody"></div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-h">
+          <h2>Vista semanal</h2>
+          <div class="stat-row"><span><b id="statClasses">0</b> clases</span></div>
+        </div>
+        <div class="card-b" style="padding:0">
+          <div class="cal-scroll">
+            <div id="calendar"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h2>Todas las clases</h2></div>
+        <div class="card-b" id="listBody"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- Constantes ----------
+  var DAYS_FULL = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+  var PALETTE = ["#4C7BD9","#E0654E","#2FA98C","#B45FBD","#E0A32E","#5B8C3A","#D6547E","#7A6FD1","#3AA0C9","#C9773A"];
+  var HOUR_PX = 58; // altura de una hora en la vista
+
+  // ---------- Estado ----------
+  var state = {
+    meta:   { title:"", author:"" },
+    settings:{ days:5, dayStart:"07:00", dayEnd:"19:00" },
+    classes:[]
+  };
+  var editingId = null;
+  var selectedColor = PALETTE[0];
+
+  // ---------- Utilidades ----------
+  function $(id){ return document.getElementById(id); }
+  function uid(){ return "c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+  function t2m(t){ if(!t) return 0; var p=t.split(":"); return (+p[0])*60+(+p[1]); }
+  function m2t(m){ var h=Math.floor(m/60), mm=m%60; return (h<10?"0":"")+h+":"+(mm<10?"0":"")+mm; }
+  function norm(s){ return (s||"").trim().toLowerCase(); }
+  function activeDays(){ return DAYS_FULL.slice(0, state.settings.days); }
+
+  function toast(msg){
+    var el=$("toast"); el.textContent=msg; el.classList.add("show");
+    clearTimeout(el._t); el._t=setTimeout(function(){ el.classList.remove("show"); }, 2400);
+  }
+
+  // ---------- Color por materia ----------
+  function colorForMateria(mat){
+    var n = norm(mat);
+    for(var i=0;i<state.classes.length;i++){
+      if(norm(state.classes[i].materia)===n && n) return state.classes[i].color;
+    }
+    // nueva materia: siguiente color de la paleta poco usado
+    var used = {};
+    state.classes.forEach(function(c){ used[c.color]=(used[c.color]||0)+1; });
+    var best=PALETTE[0], min=Infinity;
+    PALETTE.forEach(function(p){ var u=used[p]||0; if(u<min){min=u;best=p;} });
+    return best;
+  }
+
+  // ---------- Rango horario dinámico ----------
+  function timeRange(){
+    var start=t2m(state.settings.dayStart), end=t2m(state.settings.dayEnd);
+    state.classes.forEach(function(c){
+      start=Math.min(start, t2m(c.inicio));
+      end=Math.max(end, t2m(c.fin));
+    });
+    start=Math.floor(start/60)*60;
+    end=Math.ceil(end/60)*60;
+    if(end<=start) end=start+60;
+    return {start:start,end:end};
+  }
+
+  // ---------- Detección de cruces ----------
+  function overlap(a,b){ return t2m(a.inicio)<t2m(b.fin) && t2m(b.inicio)<t2m(a.fin); }
+
+  function computeConflicts(){
+    var list=[];               // detalle para el panel
+    var sev={};                // id -> "hard" | "soft"
+    var byDay={};
+    state.classes.forEach(function(c){ (byDay[c.dia]=byDay[c.dia]||[]).push(c); });
+    Object.keys(byDay).forEach(function(day){
+      var arr=byDay[day];
+      for(var i=0;i<arr.length;i++){
+        for(var j=i+1;j<arr.length;j++){
+          if(!overlap(arr[i],arr[j])) continue;
+          var a=arr[i], b=arr[j], reasons=[];
+          if(norm(a.profesor) && norm(a.profesor)===norm(b.profesor)) reasons.push("mismo profesor");
+          if(norm(a.curso)    && norm(a.curso)===norm(b.curso))       reasons.push("mismo curso");
+          if(norm(a.aula)     && norm(a.aula)===norm(b.aula))         reasons.push("misma aula");
+          var s = reasons.length ? "hard" : "soft";
+          if(sev[a.id]!=="hard") sev[a.id]=s;
+          if(sev[b.id]!=="hard") sev[b.id]=s;
+          list.push({ day:day, a:a, b:b, sev:s, reasons:reasons });
+        }
+      }
+    });
+    // ordenar: primero hard
+    list.sort(function(x,y){ return (x.sev==="hard"?0:1)-(y.sev==="hard"?0:1); });
+    return { list:list, sev:sev };
+  }
+
+  // ---------- Layout de bloques (carriles) ----------
+  function layoutDay(items){
+    items.sort(function(a,b){ return t2m(a.inicio)-t2m(b.inicio) || t2m(a.fin)-t2m(b.fin); });
+    var i=0;
+    while(i<items.length){
+      var clusterEnd=t2m(items[i].fin), j=i+1, cluster=[items[i]];
+      while(j<items.length && t2m(items[j].inicio) < clusterEnd){
+        cluster.push(items[j]); clusterEnd=Math.max(clusterEnd, t2m(items[j].fin)); j++;
+      }
+      var laneEnds=[];
+      cluster.forEach(function(it){
+        var placed=false;
+        for(var k=0;k<laneEnds.length;k++){
+          if(t2m(it.inicio) >= laneEnds[k]){ laneEnds[k]=t2m(it.fin); it._lane=k; placed=true; break; }
+        }
+        if(!placed){ it._lane=laneEnds.length; laneEnds.push(t2m(it.fin)); }
+      });
+      cluster.forEach(function(it){ it._lanes=laneEnds.length; });
+      i=j;
+    }
+  }
+
+  // ---------- Render calendario ----------
+  function renderCalendar(sev){
+    var cal=$("calendar");
+    var days=activeDays();
+    if(state.classes.length===0){
+      cal.innerHTML='<div class="cal-empty"><div class="big">Aún no hay clases</div><div>Agrega tu primera clase con el formulario de la izquierda.</div></div>';
+      return;
+    }
+    var r=timeRange(), start=r.start, end=r.end;
+    var totalMin=end-start;
+    var bodyH=totalMin/60*HOUR_PX;
+    var gridCols="64px repeat("+days.length+", minmax(96px, 1fr))";
+
+    var html='<div class="cal">';
+    // encabezado
+    html+='<div class="cal-head" style="grid-template-columns:'+gridCols+'"><div class="corner"></div>';
+    days.forEach(function(d){ html+='<div class="dh">'+esc(d)+'</div>'; });
+    html+='</div>';
+    // cuerpo
+    html+='<div class="cal-body" style="grid-template-columns:'+gridCols+'">';
+    // columna de horas
+    html+='<div class="timecol" style="height:'+bodyH+'px">';
+    for(var m=start;m<=end;m+=60){
+      var top=(m-start)/60*HOUR_PX;
+      html+='<div class="thour" style="top:'+top+'px">'+m2t(m)+'</div>';
+    }
+    html+='</div>';
+    // columnas de días
+    days.forEach(function(d){
+      html+='<div class="daycol" style="height:'+bodyH+'px">';
+      // líneas de hora
+      for(var mm=start;mm<=end;mm+=30){
+        var tp=(mm-start)/60*HOUR_PX;
+        var half=(mm%60!==0)?" half":"";
+        html+='<div class="hline'+half+'" style="top:'+tp+'px"></div>';
+      }
+      // bloques del día
+      var items=state.classes.filter(function(c){ return c.dia===d; }).slice();
+      layoutDay(items);
+      items.forEach(function(c){
+        var bt=(t2m(c.inicio)-start)/60*HOUR_PX;
+        var bh=Math.max(22,(t2m(c.fin)-t2m(c.inicio))/60*HOUR_PX-2);
+        var lanes=c._lanes||1, lane=c._lane||0;
+        var wpc=100/lanes;
+        var left="calc("+(lane*wpc)+"% + 2px)";
+        var width="calc("+wpc+"% - 4px)";
+        var cls="block";
+        if(sev[c.id]==="hard") cls+=" conflict-hard";
+        else if(sev[c.id]==="soft") cls+=" conflict-soft";
+        var warn = sev[c.id]==="hard" ? '<span class="warn" title="No permitido">✕</span>'
+                 : sev[c.id]==="soft" ? '<span class="warn" title="Cruce de horario">!</span>' : '';
+        html+='<div class="'+cls+'" data-id="'+c.id+'" title="Editar" style="top:'+bt+'px;height:'+bh+'px;left:'+left+';width:'+width+';background:'+tint(c.color,.82)+';">';
+        html+='<span style="position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:8px 0 0 8px;background:'+c.color+'"></span>';
+        html+=warn;
+        html+='<span class="b-mat">'+esc(c.materia)+'</span>';
+        var sub=[c.curso,c.profesor].filter(Boolean).join(" · ");
+        if(sub) html+='<span class="b-line">'+esc(sub)+'</span>';
+        if(c.aula && bh>52) html+='<span class="b-line">Aula '+esc(c.aula)+'</span>';
+        if(bh>38) html+='<span class="b-time">'+esc(c.inicio)+'–'+esc(c.fin)+'</span>';
+        html+='</div>';
+      });
+      html+='</div>';
+    });
+    html+='</div></div>';
+    cal.innerHTML=html;
+
+    // click para editar
+    Array.prototype.forEach.call(cal.querySelectorAll(".block"), function(b){
+      b.addEventListener("click", function(){ startEdit(b.getAttribute("data-id")); });
+    });
+  }
+
+  // mezcla un hex con blanco (amount 0..1 = cantidad de color original)
+  function hexToRgb(hex){
+    hex=hex.replace("#",""); if(hex.length===3) hex=hex.split("").map(function(x){return x+x;}).join("");
+    return { r:parseInt(hex.slice(0,2),16), g:parseInt(hex.slice(2,4),16), b:parseInt(hex.slice(4,6),16) };
+  }
+  function tint(hex, whiteAmt){
+    var c=hexToRgb(hex), w=whiteAmt;
+    var r=Math.round(c.r+(255-c.r)*w), g=Math.round(c.g+(255-c.g)*w), b=Math.round(c.b+(255-c.b)*w);
+    return "rgb("+r+","+g+","+b+")";
+  }
+
+  // ---------- Render panel de cruces ----------
+  function renderConflicts(conf){
+    var body=$("conflictsBody"), count=$("confCount");
+    if(state.classes.length===0){
+      body.innerHTML='<div class="conf-empty" style="color:var(--ink-3)">Agrega clases para revisar posibles cruces.</div>';
+      count.textContent="—"; return;
+    }
+    if(conf.list.length===0){
+      body.innerHTML='<div class="conf-empty"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg> Sin cruces. El horario es válido.</div>';
+      count.textContent="0 cruces";
+      return;
+    }
+    var hard=conf.list.filter(function(c){return c.sev==="hard";}).length;
+    var soft=conf.list.length-hard;
+    count.innerHTML='<b style="color:var(--hard)">'+hard+'</b> no permitidos · <b style="color:var(--soft)">'+soft+'</b> cruces';
+    var html="";
+    conf.list.forEach(function(c){
+      var label = c.sev==="hard" ? "No se puede" : "Cruce";
+      var reason = c.reasons.length ? ("Coincide: "+c.reasons.join(", ")+".") : "Se solapan en el mismo horario (revisa si es intencional).";
+      html+='<div class="conf-item '+c.sev+'">';
+      html+='<span class="conf-badge '+c.sev+'">'+label+'</span>';
+      html+='<div><b>'+esc(c.a.materia)+'</b> y <b>'+esc(c.b.materia)+'</b> · '+esc(c.day)+' '
+           + esc(c.a.inicio)+'–'+esc(c.a.fin)+' / '+esc(c.b.inicio)+'–'+esc(c.b.fin);
+      html+='<span class="reason">'+esc(reason)+'</span></div></div>';
+    });
+    body.innerHTML=html;
+  }
+
+  // ---------- Render lista ----------
+  function renderList(sev){
+    var body=$("listBody");
+    if(state.classes.length===0){
+      body.innerHTML='<div style="color:var(--ink-3);font-size:14px">No hay clases todavía.</div>';
+      return;
+    }
+    var order={}; activeDays().forEach(function(d,i){ order[d]=i; });
+    var sorted=state.classes.slice().sort(function(a,b){
+      return (order[a.dia]-order[b.dia]) || (t2m(a.inicio)-t2m(b.inicio));
+    });
+    var html="";
+    sorted.forEach(function(c){
+      var flag = sev[c.id]==="hard" ? '<span class="li-flag" title="No permitido">✕</span>'
+               : sev[c.id]==="soft" ? '<span class="li-flag" style="color:var(--soft)" title="Cruce">!</span>' : '';
+      var sub=[c.curso,c.profesor,(c.aula?("Aula "+c.aula):"")].filter(Boolean).join(" · ");
+      html+='<div class="list-item">';
+      html+='<span class="dot" style="background:'+c.color+'"></span>';
+      html+='<div class="li-main"><div class="li-mat">'+esc(c.materia)+' '+flag+'</div><div class="li-sub">'+esc(sub||"—")+'</div></div>';
+      html+='<div class="li-when">'+esc(c.dia)+'<br>'+esc(c.inicio)+'–'+esc(c.fin)+'</div>';
+      html+='<div class="li-actions">';
+      html+='<button class="icon-btn" data-edit="'+c.id+'" title="Editar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>';
+      html+='<button class="icon-btn del" data-del="'+c.id+'" title="Eliminar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>';
+      html+='</div></div>';
+    });
+    body.innerHTML=html;
+    Array.prototype.forEach.call(body.querySelectorAll("[data-edit]"),function(b){
+      b.addEventListener("click",function(){ startEdit(b.getAttribute("data-edit")); });
+    });
+    Array.prototype.forEach.call(body.querySelectorAll("[data-del]"),function(b){
+      b.addEventListener("click",function(){ removeClass(b.getAttribute("data-del")); });
+    });
+  }
+
+  // ---------- Render maestro ----------
+  function render(){
+    var conf=computeConflicts();
+    $("statClasses").textContent=state.classes.length;
+    renderConflicts(conf);
+    renderCalendar(conf.sev);
+    renderList(conf.sev);
+  }
+
+  // ---------- Formulario ----------
+  function buildDaySelect(){
+    var sel=$("fDia"); sel.innerHTML="";
+    activeDays().forEach(function(d){
+      var o=document.createElement("option"); o.value=d; o.textContent=d; sel.appendChild(o);
+    });
+  }
+  function buildSwatches(){
+    var wrap=$("swatches"); wrap.innerHTML="";
+    PALETTE.forEach(function(p){
+      var s=document.createElement("button");
+      s.type="button"; s.className="sw"+(p===selectedColor?" on":"");
+      s.style.background=p; s.setAttribute("data-color",p); s.title=p;
+      s.addEventListener("click",function(){ setColor(p); });
+      wrap.appendChild(s);
+    });
+  }
+  function setColor(hex){
+    selectedColor=hex; $("fColor").value=hex;
+    Array.prototype.forEach.call($("swatches").children,function(s){
+      s.classList.toggle("on", s.getAttribute("data-color")===hex);
+    });
+  }
+
+  function resetForm(){
+    editingId=null;
+    $("classForm").reset();
+    $("fInicio").value="07:00"; $("fFin").value="08:00";
+    $("formTitle").textContent="Agregar clase";
+    $("submitBtn").textContent="Agregar al horario";
+    $("cancelEdit").style.display="none";
+    setColor(PALETTE[0]);
+  }
+
+  function startEdit(id){
+    var c=state.classes.filter(function(x){return x.id===id;})[0];
+    if(!c) return;
+    editingId=id;
+    $("fMateria").value=c.materia; $("fCurso").value=c.curso||"";
+    $("fAula").value=c.aula||""; $("fProfesor").value=c.profesor||"";
+    $("fDia").value=c.dia; $("fInicio").value=c.inicio; $("fFin").value=c.fin;
+    setColor(c.color);
+    $("formTitle").textContent="Editar clase";
+    $("submitBtn").textContent="Guardar cambios";
+    $("cancelEdit").style.display="inline-flex";
+    $("formCard").scrollIntoView({behavior:"smooth",block:"start"});
+    $("fMateria").focus();
+  }
+
+  function removeClass(id){
+    state.classes=state.classes.filter(function(x){return x.id!==id;});
+    if(editingId===id) resetForm();
+    render(); toast("Clase eliminada.");
+  }
+
+  function onSubmit(e){
+    e.preventDefault();
+    var materia=$("fMateria").value.trim();
+    var inicio=$("fInicio").value, fin=$("fFin").value;
+    if(!materia){ toast("Escribe el nombre de la materia."); return; }
+    if(t2m(fin)<=t2m(inicio)){ toast("La hora de fin debe ser mayor a la de inicio."); return; }
+    var data={
+      materia:materia,
+      curso:$("fCurso").value.trim(),
+      aula:$("fAula").value.trim(),
+      profesor:$("fProfesor").value.trim(),
+      dia:$("fDia").value,
+      inicio:inicio, fin:fin,
+      color:$("fColor").value
+    };
+    if(editingId){
+      var idx=state.classes.map(function(x){return x.id;}).indexOf(editingId);
+      if(idx>-1){ data.id=editingId; state.classes[idx]=data; }
+      toast("Cambios guardados.");
+    }else{
+      data.id=uid(); state.classes.push(data);
+      toast("Clase agregada.");
+    }
+    resetForm();
+    render();
+  }
+
+  // Sugerir color según materia mientras se escribe
+  function onMateriaInput(){
+    if(editingId) return; // en edición no reasignamos
+    var suggested=colorForMateria($("fMateria").value);
+    setColor(suggested);
+  }
+
+  // ---------- Meta / settings binding ----------
+  function bindMeta(){
+    $("metaTitle").addEventListener("input",function(){ state.meta.title=this.value; });
+    $("metaAuthor").addEventListener("input",function(){ state.meta.author=this.value; });
+    $("setDays").addEventListener("change",function(){
+      state.settings.days=parseInt(this.value,10); buildDaySelect(); render();
+    });
+    $("setStart").addEventListener("change",function(){ state.settings.dayStart=this.value||"07:00"; render(); });
+    $("setEnd").addEventListener("change",function(){ state.settings.dayEnd=this.value||"19:00"; render(); });
+  }
+  function syncMetaInputs(){
+    $("metaTitle").value=state.meta.title||"";
+    $("metaAuthor").value=state.meta.author||"";
+    $("setDays").value=String(state.settings.days);
+    $("setStart").value=state.settings.dayStart;
+    $("setEnd").value=state.settings.dayEnd;
+  }
+
+  // ---------- Guardar / cargar archivo ----------
+  function slug(s){ return (s||"horario").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40)||"horario"; }
+
+  function saveFile(){
+    var payload={ app:"generador-horarios", version:1, savedAt:new Date().toISOString(),
+                  meta:state.meta, settings:state.settings, classes:state.classes };
+    var blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement("a");
+    a.href=url; a.download=slug(state.meta.title)+".horario.json";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); },800);
+    toast("Archivo guardado. Podrás volver a cargarlo para editar.");
+  }
+
+  function loadFile(file){
+    var reader=new FileReader();
+    reader.onload=function(){
+      try{
+        var data=JSON.parse(reader.result);
+        var classes = Array.isArray(data.classes) ? data.classes : (Array.isArray(data) ? data : null);
+        if(!classes) throw new Error("estructura");
+        state.meta = data.meta || {title:"",author:""};
+        state.settings = Object.assign({days:5,dayStart:"07:00",dayEnd:"19:00"}, data.settings||{});
+        state.classes = classes.map(function(c){
+          return {
+            id: c.id || uid(),
+            materia: c.materia||"", curso:c.curso||"", aula:c.aula||"",
+            profesor:c.profesor||"", dia:c.dia||DAYS_FULL[0],
+            inicio:c.inicio||"07:00", fin:c.fin||"08:00",
+            color:c.color||PALETTE[0]
+          };
+        });
+        if(state.settings.days<5) state.settings.days=5;
+        if(state.settings.days>7) state.settings.days=7;
+        syncMetaInputs(); buildDaySelect(); resetForm(); render();
+        toast("Horario cargado. Ya puedes editarlo.");
+      }catch(err){
+        toast("No se pudo leer el archivo. ¿Es un .horario.json válido?");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // ---------- Exportar PDF ----------
+  function exportPDF(){
+    if(!window.jspdf || !window.jspdf.jsPDF){ toast("No se pudo cargar el generador de PDF. Revisa tu conexión."); return; }
+    var jsPDF=window.jspdf.jsPDF;
+    var doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
+    var pageW=doc.internal.pageSize.getWidth();
+    var pageH=doc.internal.pageSize.getHeight();
+    var M=12;
+    var days=activeDays();
+
+    // Encabezado
+    doc.setFont("helvetica","bold"); doc.setFontSize(20); doc.setTextColor(24,35,56);
+    doc.text(state.meta.title || "Horario semanal", M, M+4);
+    doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(84,96,122);
+    var sub=[];
+    if(state.meta.author) sub.push("Elaborado por: "+state.meta.author);
+    sub.push("Generado: "+new Date().toLocaleDateString("es",{year:"numeric",month:"long",day:"numeric"}));
+    doc.text(sub.join("      "), M, M+10);
+
+    var gridTop=M+16;
+    var r=timeRange(), start=r.start, end=r.end, totalMin=end-start;
+    var timeW=16;
+    var gridLeft=M+timeW;
+    var gridW=pageW-M-gridLeft;
+    var colW=gridW/days.length;
+    var headH=8;
+    var gridBottom=pageH-M-6;
+    var gridH=gridBottom-(gridTop+headH);
+    var pxPerMin=gridH/totalMin;
+
+    // Cabecera de días
+    doc.setFillColor(24,35,56); doc.rect(gridLeft, gridTop, gridW, headH, "F");
+    doc.setTextColor(255,255,255); doc.setFont("helvetica","bold"); doc.setFontSize(9);
+    days.forEach(function(d,i){
+      doc.text(d, gridLeft+colW*i+colW/2, gridTop+headH-2.6, {align:"center"});
+    });
+
+    var bodyTop=gridTop+headH;
+    // Líneas de hora + etiquetas
+    doc.setFontSize(7.5); doc.setFont("helvetica","normal");
+    for(var m=start;m<=end;m+=60){
+      var y=bodyTop+(m-start)*pxPerMin;
+      doc.setDrawColor(228,224,214); doc.setLineWidth(0.2);
+      doc.line(gridLeft, y, gridLeft+gridW, y);
+      doc.setTextColor(140,147,166);
+      doc.text(m2t(m), gridLeft-2, y+2.4, {align:"right"});
+    }
+    // Líneas verticales de días
+    doc.setDrawColor(228,224,214);
+    for(var i=0;i<=days.length;i++){
+      var x=gridLeft+colW*i;
+      doc.line(x, bodyTop, x, gridBottom);
+    }
+    doc.setDrawColor(24,35,56); doc.setLineWidth(0.3);
+    doc.line(gridLeft, gridBottom, gridLeft+gridW, gridBottom);
+
+    var conf=computeConflicts();
+
+    // Bloques
+    days.forEach(function(d,di){
+      var items=state.classes.filter(function(c){return c.dia===d;}).slice();
+      layoutDay(items);
+      items.forEach(function(c){
+        var lanes=c._lanes||1, lane=c._lane||0;
+        var cw=colW/lanes;
+        var bx=gridLeft+colW*di+cw*lane+0.6;
+        var by=bodyTop+(t2m(c.inicio)-start)*pxPerMin+0.6;
+        var bw=cw-1.2;
+        var bh=(t2m(c.fin)-t2m(c.inicio))*pxPerMin-1.2;
+        if(bh<4) bh=4;
+        // fondo
+        var tc=hexToRgb(c.color);
+        var fr=Math.round(tc.r+(255-tc.r)*0.82), fg=Math.round(tc.g+(255-tc.g)*0.82), fb=Math.round(tc.b+(255-tc.b)*0.82);
+        doc.setFillColor(fr,fg,fb);
+        doc.roundedRect(bx,by,bw,bh,1.2,1.2,"F");
+        // barra lateral
+        doc.setFillColor(tc.r,tc.g,tc.b);
+        doc.rect(bx,by,1.3,bh,"F");
+        // borde de conflicto
+        var s=conf.sev[c.id];
+        if(s){
+          if(s==="hard"){ doc.setDrawColor(199,64,47); } else { doc.setDrawColor(183,126,20); }
+          doc.setLineWidth(0.5);
+          doc.roundedRect(bx,by,bw,bh,1.2,1.2,"S");
+        }
+        // texto
+        var pad=2.4, tx=bx+pad, ty=by+3.2, avail=bw-pad-1.2;
+        doc.setTextColor(18,32,58);
+        doc.setFont("helvetica","bold"); doc.setFontSize(7.5);
+        var mat=fit(doc, c.materia, avail);
+        if(s==="hard") mat="✕ "+mat; else if(s==="soft") mat="! "+mat;
+        doc.text(mat, tx, ty); ty+=3.1;
+        doc.setFont("helvetica","normal"); doc.setFontSize(6.6); doc.setTextColor(70,80,102);
+        var sub2=[c.curso,c.profesor].filter(Boolean).join(" · ");
+        if(sub2 && bh>7){ doc.text(fit(doc,sub2,avail), tx, ty); ty+=2.7; }
+        if(c.aula && bh>11){ doc.text(fit(doc,"Aula "+c.aula,avail), tx, ty); ty+=2.7; }
+        if(bh>9){ doc.setTextColor(110,118,138); doc.text(c.inicio+"–"+c.fin, tx, ty); }
+      });
+    });
+
+    // Página de cruces
+    if(conf.list.length>0){
+      doc.addPage("a4","landscape");
+      doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(24,35,56);
+      doc.text("Revisión de cruces", M, M+4);
+      var yy=M+13;
+      doc.setFontSize(9);
+      conf.list.forEach(function(c){
+        if(yy>pageH-M){ doc.addPage("a4","landscape"); yy=M+6; }
+        if(c.sev==="hard") doc.setTextColor(199,64,47); else doc.setTextColor(183,126,20);
+        doc.setFont("helvetica","bold");
+        doc.text((c.sev==="hard"?"[No se puede] ":"[Cruce] "), M, yy);
+        doc.setFont("helvetica","normal"); doc.setTextColor(40,48,66);
+        var reason=c.reasons.length?("Coincide: "+c.reasons.join(", ")):"Se solapan en el mismo horario";
+        var line=c.a.materia+" y "+c.b.materia+" — "+c.day+" "+c.a.inicio+"–"+c.a.fin+" / "+c.b.inicio+"–"+c.b.fin+". "+reason+".";
+        var wrapped=doc.splitTextToSize(line, pageW-M*2-30);
+        doc.text(wrapped, M+28, yy);
+        yy+=wrapped.length*4.6+2.5;
+      });
+    }
+
+    doc.save(slug(state.meta.title)+".pdf");
+    toast("PDF generado.");
+  }
+
+  // truncar texto a un ancho en mm con "…"
+  function fit(doc, text, maxW){
+    text=String(text||"");
+    if(doc.getTextWidth(text)<=maxW) return text;
+    var ell="…";
+    while(text.length>1 && doc.getTextWidth(text+ell)>maxW){ text=text.slice(0,-1); }
+    return text+ell;
+  }
+
+  // ---------- Init ----------
+  function init(){
+    buildDaySelect();
+    buildSwatches();
+    setColor(PALETTE[0]);
+    syncMetaInputs();
+    bindMeta();
+
+    $("classForm").addEventListener("submit", onSubmit);
+    $("fMateria").addEventListener("input", onMateriaInput);
+    $("fColor").addEventListener("input", function(){ setColor(this.value); });
+    $("cancelEdit").addEventListener("click", resetForm);
+    $("btnSettings").addEventListener("click", function(){ $("settingsPanel").classList.toggle("open"); });
+    $("btnPDF").addEventListener("click", exportPDF);
+    $("btnSave").addEventListener("click", saveFile);
+    $("btnLoad").addEventListener("click", function(){ $("fileInput").click(); });
+    $("fileInput").addEventListener("change", function(){
+      if(this.files && this.files[0]) loadFile(this.files[0]);
+      this.value="";
+    });
+    $("btnClear").addEventListener("click", function(){
+      if(state.classes.length===0){ toast("El horario ya está vacío."); return; }
+      if(confirm("¿Vaciar todo el horario? Esta acción no se puede deshacer (guarda un archivo antes si quieres conservarlo).")){
+        state.classes=[]; resetForm(); render(); toast("Horario vaciado.");
+      }
+    });
+
+    render();
+  }
+
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();
+</script>
+</body>
+</html>
