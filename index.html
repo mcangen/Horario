@@ -981,6 +981,37 @@
               </form>
             </div>
           </div>
+
+          <div class="card" id="savedCard" style="margin-top: 20px">
+            <div class="card-h"><h2>Horarios guardados</h2></div>
+            <div class="card-b">
+              <div class="field" style="margin-bottom: 6px">
+                <label for="saveName">Guardar el horario actual como</label>
+                <div style="display: flex; gap: 8px">
+                  <input
+                    type="text"
+                    id="saveName"
+                    placeholder="Ej. Semestre 2026-1"
+                    autocomplete="off"
+                    style="flex: 1; min-width: 0"
+                  />
+                  <button
+                    class="btn accent"
+                    id="btnSaveNamed"
+                    type="button"
+                    title="Guardar en este navegador"
+                  >
+                    Guardar
+                  </button>
+                </div>
+              </div>
+              <div class="hint" style="margin-bottom: 14px">
+                Se guarda en este navegador (sin descargar nada). Si usas un
+                nombre existente, lo reemplaza.
+              </div>
+              <div id="savedList"></div>
+            </div>
+          </div>
         </div>
 
         <!-- Right: conflicts + calendar + list -->
@@ -1046,6 +1077,7 @@
         var HOUR_PX = 58; // altura de una hora en la vista
         var STORAGE_KEY = "generadorHorarios:v1";
         var THEME_KEY = "generadorHorarios:theme";
+        var SAVED_KEY = "generadorHorarios:saved";
         var storageOK = true; // se pone en falso si localStorage no está disponible (p. ej. vista previa dentro de Claude)
 
         // ---------- Estado ----------
@@ -1208,6 +1240,175 @@
           try {
             if (storageOK) localStorage.removeItem(STORAGE_KEY);
           } catch (e) {}
+        }
+
+        // ---------- Horarios guardados con nombre (varias ranuras en el navegador) ----------
+        function getSavedList() {
+          try {
+            var raw = localStorage.getItem(SAVED_KEY);
+            var list = raw ? JSON.parse(raw) : [];
+            return Array.isArray(list) ? list : [];
+          } catch (e) {
+            storageOK = false;
+            return [];
+          }
+        }
+        function setSavedList(list) {
+          try {
+            localStorage.setItem(SAVED_KEY, JSON.stringify(list));
+          } catch (e) {
+            storageOK = false;
+          }
+        }
+        function saveNamedSchedule(name) {
+          name = (name || "").trim();
+          if (!name) {
+            toast("Escribe un nombre para guardar este horario.");
+            return;
+          }
+          var list = getSavedList();
+          var existing = list.filter(function (x) {
+            return norm(x.name) === norm(name);
+          })[0];
+          var entry = {
+            id: existing ? existing.id : uid(),
+            name: name,
+            savedAt: new Date().toISOString(),
+            meta: state.meta,
+            settings: state.settings,
+            classes: state.classes,
+          };
+          if (existing) {
+            list = list.map(function (x) {
+              return x.id === existing.id ? entry : x;
+            });
+          } else {
+            list.unshift(entry);
+          }
+          setSavedList(list);
+          renderSavedList();
+          toast(
+            (existing
+              ? 'Horario "' + name + '" actualizado.'
+              : 'Horario "' + name + '" guardado.') + " (en este navegador)",
+          );
+        }
+        function loadNamedSchedule(id) {
+          var entry = getSavedList().filter(function (x) {
+            return x.id === id;
+          })[0];
+          if (!entry) return;
+          state.meta = Object.assign(
+            { title: "", author: "" },
+            entry.meta || {},
+          );
+          state.settings = Object.assign(
+            { days: 5, dayStart: "07:00", dayEnd: "19:00" },
+            entry.settings || {},
+          );
+          state.classes = (entry.classes || []).map(function (c) {
+            var id2 = c.id || uid();
+            return {
+              id: id2,
+              grupoId: c.grupoId || id2,
+              materia: c.materia || "",
+              curso: c.curso || "",
+              profesor: c.profesor || "",
+              dia: c.dia || DAYS_FULL[0],
+              inicio: c.inicio || "07:00",
+              fin: c.fin || "08:00",
+              color: c.color || PALETTE[0],
+            };
+          });
+          if (state.settings.days < 5) state.settings.days = 5;
+          if (state.settings.days > 7) state.settings.days = 7;
+          syncMetaInputs();
+          refreshSessionDayOptions();
+          resetForm();
+          render();
+          toast('Horario "' + entry.name + '" cargado.');
+        }
+        function deleteNamedSchedule(id) {
+          var entry = getSavedList().filter(function (x) {
+            return x.id === id;
+          })[0];
+          if (!entry) return;
+          if (
+            !confirm(
+              '¿Eliminar el horario guardado "' +
+                entry.name +
+                '"? Esta acción no se puede deshacer.',
+            )
+          )
+            return;
+          setSavedList(
+            getSavedList().filter(function (x) {
+              return x.id !== id;
+            }),
+          );
+          renderSavedList();
+          toast('Horario "' + entry.name + '" eliminado.');
+        }
+        function renderSavedList() {
+          var body = $("savedList");
+          if (!body) return;
+          var list = getSavedList();
+          if (list.length === 0) {
+            body.innerHTML =
+              '<div style="color:var(--ink-3);font-size:13px">Aún no has guardado horarios con nombre aquí. Escribe un nombre arriba y presiona "Guardar".</div>';
+            return;
+          }
+          list.sort(function (a, b) {
+            return new Date(b.savedAt) - new Date(a.savedAt);
+          });
+          var html = "";
+          list.forEach(function (entry) {
+            var d = new Date(entry.savedAt);
+            var when = isNaN(d.getTime())
+              ? ""
+              : d.toLocaleDateString("es", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                });
+            var count = (entry.classes || []).length;
+            html += '<div class="list-item">';
+            html +=
+              '<div class="li-main"><div class="li-mat">' +
+              esc(entry.name) +
+              '</div><div class="li-sub">' +
+              count +
+              (count === 1 ? " clase" : " clases") +
+              (when ? " · " + esc(when) : "") +
+              "</div></div>";
+            html += '<div class="li-actions">';
+            html +=
+              '<button class="icon-btn" data-load-saved="' +
+              entry.id +
+              '" title="Cargar este horario"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg></button>';
+            html +=
+              '<button class="icon-btn del" data-del-saved="' +
+              entry.id +
+              '" title="Eliminar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>';
+            html += "</div></div>";
+          });
+          body.innerHTML = html;
+          Array.prototype.forEach.call(
+            body.querySelectorAll("[data-load-saved]"),
+            function (b) {
+              b.addEventListener("click", function () {
+                loadNamedSchedule(b.getAttribute("data-load-saved"));
+              });
+            },
+          );
+          Array.prototype.forEach.call(
+            body.querySelectorAll("[data-del-saved]"),
+            function (b) {
+              b.addEventListener("click", function () {
+                deleteNamedSchedule(b.getAttribute("data-del-saved"));
+              });
+            },
+          );
         }
 
         // ---------- Color por materia ----------
@@ -2352,6 +2553,17 @@
             toggleTheme();
             render();
           });
+          $("btnSaveNamed").addEventListener("click", function () {
+            saveNamedSchedule($("saveName").value);
+            $("saveName").value = "";
+          });
+          $("saveName").addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              $("btnSaveNamed").click();
+            }
+          });
+          renderSavedList();
           $("btnSettings").addEventListener("click", function () {
             $("settingsPanel").classList.toggle("open");
           });
