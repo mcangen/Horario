@@ -1044,6 +1044,9 @@
           "#C9773A",
         ];
         var HOUR_PX = 58; // altura de una hora en la vista
+        var STORAGE_KEY = "generadorHorarios:v1";
+        var THEME_KEY = "generadorHorarios:theme";
+        var storageOK = true; // se pone en falso si localStorage no está disponible (p. ej. vista previa dentro de Claude)
 
         // ---------- Estado ----------
         var state = {
@@ -1115,8 +1118,21 @@
                 ? "Cambiar a modo claro"
                 : "Cambiar a modo oscuro",
             );
+          try {
+            if (storageOK) localStorage.setItem(THEME_KEY, theme);
+          } catch (e) {}
         }
         function initTheme() {
+          var saved = null;
+          try {
+            saved = localStorage.getItem(THEME_KEY);
+          } catch (e) {
+            storageOK = false;
+          }
+          if (saved === "dark" || saved === "light") {
+            applyTheme(saved);
+            return;
+          }
           var prefersDark =
             window.matchMedia &&
             window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -1128,6 +1144,70 @@
               ? "dark"
               : "light";
           applyTheme(current === "dark" ? "light" : "dark");
+        }
+
+        // ---------- Autoguardado (localStorage) ----------
+        function saveState() {
+          if (!storageOK) return;
+          try {
+            localStorage.setItem(
+              STORAGE_KEY,
+              JSON.stringify({
+                savedAt: new Date().toISOString(),
+                meta: state.meta,
+                settings: state.settings,
+                classes: state.classes,
+              }),
+            );
+          } catch (e) {
+            storageOK = false;
+          }
+        }
+        function loadState() {
+          var raw = null;
+          try {
+            raw = localStorage.getItem(STORAGE_KEY);
+          } catch (e) {
+            storageOK = false;
+            return false;
+          }
+          if (!raw) return false;
+          try {
+            var data = JSON.parse(raw);
+            var classes = Array.isArray(data.classes) ? data.classes : [];
+            state.meta = Object.assign(
+              { title: "", author: "" },
+              data.meta || {},
+            );
+            state.settings = Object.assign(
+              { days: 5, dayStart: "07:00", dayEnd: "19:00" },
+              data.settings || {},
+            );
+            state.classes = classes.map(function (c) {
+              var id = c.id || uid();
+              return {
+                id: id,
+                grupoId: c.grupoId || id,
+                materia: c.materia || "",
+                curso: c.curso || "",
+                profesor: c.profesor || "",
+                dia: c.dia || DAYS_FULL[0],
+                inicio: c.inicio || "07:00",
+                fin: c.fin || "08:00",
+                color: c.color || PALETTE[0],
+              };
+            });
+            if (state.settings.days < 5) state.settings.days = 5;
+            if (state.settings.days > 7) state.settings.days = 7;
+            return true;
+          } catch (e) {
+            return false;
+          }
+        }
+        function clearStorage() {
+          try {
+            if (storageOK) localStorage.removeItem(STORAGE_KEY);
+          } catch (e) {}
         }
 
         // ---------- Color por materia ----------
@@ -1548,6 +1628,7 @@
           renderConflicts(conf);
           renderCalendar(conf.sev);
           renderList(conf.sev);
+          saveState();
         }
 
         // ---------- Formulario: sesiones (días/cursos/horarios) ----------
@@ -2251,6 +2332,7 @@
         // ---------- Init ----------
         function init() {
           initTheme();
+          var restored = loadState();
           addSessionRow(null, "", "07:00", "08:00");
           buildSwatches();
           setColor(PALETTE[0]);
@@ -2294,6 +2376,10 @@
               )
             ) {
               state.classes = [];
+              state.meta = { title: "", author: "" };
+              state.settings = { days: 5, dayStart: "07:00", dayEnd: "19:00" };
+              clearStorage();
+              syncMetaInputs();
               resetForm();
               render();
               toast("Horario vaciado.");
@@ -2301,6 +2387,13 @@
           });
 
           render();
+          if (restored && state.classes.length > 0) {
+            toast("Horario restaurado de tu última sesión.");
+          } else if (!storageOK) {
+            toast(
+              "Aviso: el guardado automático no está disponible en esta vista.",
+            );
+          }
         }
 
         if (document.readyState === "loading")
