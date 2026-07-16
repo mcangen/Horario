@@ -423,6 +423,17 @@
         .today-item .tt {
           font-size: 11px;
         }
+        #currentSavedBanner {
+          flex-direction: column;
+          align-items: stretch !important;
+        }
+        #currentSavedBanner > div:last-child {
+          width: 100%;
+        }
+        #currentSavedBanner > div:last-child .btn {
+          flex: 1;
+          justify-content: center;
+        }
       }
 
       .card {
@@ -1194,58 +1205,6 @@
         }
       }
 
-      /* @media (max-width: 425px){
-        #formCard{
-          width: 400px !important;
-        }
-        #savedCard{
-          width: 400px !important;
-        }
-        #conflicts{
-          width: 400px !important;
-        }
-        #total-class{
-          width: 400px !important;
-        }
-        #calendar-fix{
-          width: 400px !important;
-        }
-      }
-      @media (max-width: 375px){
-        #formCard{
-          width: 350px !important;
-        }
-        #savedCard{
-          width: 350px !important;
-        }
-        #conflicts{
-          width: 350px !important;
-        }
-        #total-class{
-          width: 350px !important;
-        }
-        #calendar-fix{
-          width: 350px !important;
-        }
-      }
-      @media (max-width: 320px){
-        #formCard{
-          width: 300px !important;
-        }
-        #savedCard{
-          width: 300px !important;
-        }
-        #conflicts{
-          width: 300px !important;
-        }
-        #total-class{
-          width: 300px !important;
-        }
-        #calendar-fix{
-          width: 300px !important;
-        }
-      } */
-
       .card{
             width:100% !important;
             max-width:100% !important;
@@ -1528,6 +1487,44 @@
           <div class="card" id="savedCard" style="margin-top: 20px">
             <div class="card-h"><h2>Horarios guardados</h2></div>
             <div class="card-b">
+              <div
+                id="currentSavedBanner"
+                style="
+                  display: none;
+                  margin-bottom: 14px;
+                  padding: 10px 12px;
+                  background: var(--accent-soft);
+                  border: 1px solid var(--accent);
+                  border-radius: 9px;
+                  align-items: center;
+                  justify-content: space-between;
+                  gap: 10px;
+                  flex-wrap: wrap;
+                "
+              >
+                <div style="font-size: 13px; color: var(--ink)">
+                  Editando: <b id="currentSavedName"></b>
+                </div>
+                <div style="display: flex; gap: 8px">
+                  <button
+                    class="btn accent"
+                    id="btnSaveChanges"
+                    type="button"
+                    style="padding: 7px 12px; font-size: 13px"
+                  >
+                    Guardar cambios
+                  </button>
+                  <button
+                    class="btn ghost"
+                    id="btnStopEditing"
+                    type="button"
+                    style="padding: 7px 12px; font-size: 13px"
+                    title="Dejar de editar este horario guardado (para guardar como uno nuevo abajo)"
+                  >
+                    Guardar como otro
+                  </button>
+                </div>
+              </div>
               <div class="field" style="margin-bottom: 6px">
                 <label for="saveName">Guardar el horario actual como</label>
                 <div style="display: flex; gap: 8px">
@@ -1700,6 +1697,7 @@
         var viewMode = "week"; // "week" | "today"
         var calRange = null; // rango visible del calendario para la línea de "ahora"
         var lastCombos = []; // combinaciones generadas por el armador
+        var currentSavedId = null; // id del horario guardado que se está editando actualmente (o null)
 
         // ---------- Utilidades ----------
         function $(id) {
@@ -1902,6 +1900,58 @@
           } catch (e) {}
         }
 
+        // ---------- Vínculo con el horario guardado que se está editando ----------
+        function updateSavedBanner() {
+          var banner = $("currentSavedBanner");
+          if (!banner) return;
+          if (currentSavedId) {
+            var entry = getSavedList().filter(function (x) {
+              return x.id === currentSavedId;
+            })[0];
+            if (!entry) {
+              currentSavedId = null;
+              banner.style.display = "none";
+              return;
+            }
+            $("currentSavedName").textContent = entry.name;
+            banner.style.display = "flex";
+          } else {
+            banner.style.display = "none";
+          }
+        }
+        function saveChangesToCurrent() {
+          if (!currentSavedId) return;
+          var list = getSavedList();
+          var entry = list.filter(function (x) {
+            return x.id === currentSavedId;
+          })[0];
+          if (!entry) {
+            toast("Ese horario guardado ya no existe.");
+            currentSavedId = null;
+            updateSavedBanner();
+            return;
+          }
+          var updated = {
+            id: entry.id,
+            name: entry.name,
+            savedAt: new Date().toISOString(),
+            meta: state.meta,
+            settings: state.settings,
+            classes: state.classes,
+          };
+          list = list.map(function (x) {
+            return x.id === entry.id ? updated : x;
+          });
+          setSavedList(list);
+          renderSavedList();
+          toast('Cambios guardados en "' + entry.name + '".');
+        }
+        function stopEditingSaved() {
+          currentSavedId = null;
+          updateSavedBanner();
+          $("saveName").focus();
+        }
+
         // ---------- Horarios guardados con nombre (varias ranuras en el navegador) ----------
         function getSavedList() {
           try {
@@ -1946,7 +1996,9 @@
             list.unshift(entry);
           }
           setSavedList(list);
+          currentSavedId = entry.id;
           renderSavedList();
+          updateSavedBanner();
           toast(
             (existing
               ? 'Horario "' + name + '" actualizado.'
@@ -1982,10 +2034,12 @@
           });
           if (state.settings.days < 5) state.settings.days = 5;
           if (state.settings.days > 7) state.settings.days = 7;
+          currentSavedId = entry.id;
           syncMetaInputs();
           refreshSessionDayOptions();
           resetForm();
           render();
+          updateSavedBanner();
           toast('Horario "' + entry.name + '" cargado.');
         }
         function renameNamedSchedule(id) {
@@ -2021,6 +2075,7 @@
             }),
           );
           renderSavedList();
+          updateSavedBanner();
           toast('"' + oldName + '" ahora se llama "' + name + '".');
         }
         function deleteNamedSchedule(id) {
@@ -2041,7 +2096,9 @@
               return x.id !== id;
             }),
           );
+          if (currentSavedId === id) currentSavedId = null;
           renderSavedList();
+          updateSavedBanner();
           toast('Horario "' + entry.name + '" eliminado.');
         }
         function renderSavedList() {
@@ -2072,6 +2129,9 @@
             html +=
               '<div class="li-main"><div class="li-mat">' +
               esc(entry.name) +
+              (entry.id === currentSavedId
+                ? ' <span style="color:var(--accent-ink);font-weight:600">· editando</span>'
+                : "") +
               '</div><div class="li-sub">' +
               count +
               (count === 1 ? " clase" : " clases") +
@@ -3066,9 +3126,11 @@
               });
               if (state.settings.days < 5) state.settings.days = 5;
               if (state.settings.days > 7) state.settings.days = 7;
+              currentSavedId = null;
               syncMetaInputs();
               resetForm();
               render();
+              updateSavedBanner();
               toast("Horario cargado. Ya puedes editarlo.");
             } catch (err) {
               toast("No se pudo leer el archivo. ¿Es un .horario.json válido?");
@@ -3578,6 +3640,7 @@
               state.meta = data.meta;
               state.settings = data.settings;
               state.classes = data.classes;
+              currentSavedId = null;
               loaded = true;
             }
           } catch (e) {
@@ -3978,6 +4041,8 @@
             toggleTheme();
             render();
           });
+          $("btnSaveChanges").addEventListener("click", saveChangesToCurrent);
+          $("btnStopEditing").addEventListener("click", stopEditingSaved);
           $("btnSaveNamed").addEventListener("click", function () {
             saveNamedSchedule($("saveName").value);
             $("saveName").value = "";
@@ -3990,6 +4055,7 @@
           });
           renderSavedList();
           refreshCompareSelects();
+          updateSavedBanner();
           Array.prototype.forEach.call(
             $("viewToggle").querySelectorAll(".seg-btn"),
             function (b) {
@@ -4029,10 +4095,12 @@
               state.classes = [];
               state.meta = { title: "", author: "" };
               state.settings = { days: 5, dayStart: "07:00", dayEnd: "19:00" };
+              currentSavedId = null;
               clearStorage();
               syncMetaInputs();
               resetForm();
               render();
+              updateSavedBanner();
               toast("Horario vaciado.");
             }
           });
