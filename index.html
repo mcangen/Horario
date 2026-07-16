@@ -399,6 +399,30 @@
         #savedCard .card-b > .field > div {
           flex-wrap: wrap;
         }
+        /* Nuevas funciones adaptadas a móvil */
+        .compare-selects {
+          grid-template-columns: 1fr;
+        }
+        #compareCard .btn {
+          width: 100%;
+          justify-content: center;
+        }
+        .toolbar #btnShare {
+          grid-column: 1 / -1;
+        }
+        .head-tools {
+          width: 100%;
+          justify-content: space-between;
+        }
+        .combo-h {
+          flex-wrap: wrap;
+        }
+        .cmp-free {
+          white-space: normal;
+        }
+        .today-item .tt {
+          font-size: 11px;
+        }
       }
 
       .card {
@@ -864,6 +888,276 @@
         color: var(--ink);
       }
 
+      /* ---------- Toggle Semana / Hoy ---------- */
+      .head-tools {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .seg {
+        display: inline-flex;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        overflow: hidden;
+        background: var(--paper);
+      }
+      .seg-btn {
+        padding: 6px 12px;
+        font-size: 12.5px;
+        font-weight: 600;
+        background: transparent;
+        color: var(--ink-2);
+        border: none;
+      }
+      .seg-btn.on {
+        background: var(--ink);
+        color: var(--paper);
+      }
+
+      /* ---------- Línea de "ahora" ---------- */
+      .now-line {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 0;
+        border-top: 2px solid var(--hard);
+        z-index: 6;
+        pointer-events: none;
+      }
+      .now-line::before {
+        content: "";
+        position: absolute;
+        left: -1px;
+        top: -4px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--hard);
+      }
+      .block.now {
+        outline: 2px solid var(--accent);
+        outline-offset: -1px;
+      }
+
+      /* ---------- Vista "solo hoy" ---------- */
+      .today-list {
+        padding: 16px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .today-item {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--accent);
+        border-radius: 10px;
+        padding: 10px 12px;
+        cursor: pointer;
+        background: var(--card);
+        transition: box-shadow 0.12s;
+      }
+      .today-item:hover {
+        box-shadow: var(--shadow);
+      }
+      .today-item.now {
+        outline: 2px solid var(--accent);
+        outline-offset: -1px;
+      }
+      .today-item .tt {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--ink-2);
+        white-space: nowrap;
+        text-align: right;
+      }
+      .today-item .tm {
+        display: block;
+        font-weight: 700;
+        font-size: 14px;
+      }
+      .today-item .ts {
+        display: block;
+        font-size: 12.5px;
+        color: var(--ink-2);
+      }
+      .today-gap {
+        font-size: 12px;
+        color: var(--ink-3);
+        padding-left: 10px;
+      }
+      .now-chip {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        background: var(--accent);
+        color: #fff;
+        border-radius: 20px;
+        padding: 2px 7px;
+        vertical-align: 2px;
+        margin-left: 4px;
+      }
+
+      /* ---------- Estadísticas ---------- */
+      .stat-line {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 13px;
+        padding: 7px 0;
+        border-bottom: 1px solid var(--line-2);
+      }
+      .stat-line .sv {
+        font-weight: 700;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+      }
+      .stat-mat {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        padding: 5px 0;
+      }
+      .stat-mat .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+      }
+      .stat-mat .sn {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .stat-mat .sv {
+        font-weight: 600;
+        font-size: 12px;
+        color: var(--ink-2);
+        white-space: nowrap;
+      }
+
+      /* ---------- Comparador ---------- */
+      .compare-selects {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 10px;
+        align-items: end;
+      }
+      #compareCard select {
+        min-width: 0;
+        width: 100%;
+      }
+      .cmp-total {
+        font-size: 13px;
+        font-weight: 700;
+        margin: 4px 0 10px;
+      }
+      .cmp-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        font-size: 11.5px;
+        color: var(--ink-2);
+        margin-bottom: 10px;
+      }
+      .cmp-legend i {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+        margin-right: 5px;
+        vertical-align: -2px;
+      }
+      .cmp-day {
+        margin-bottom: 12px;
+      }
+      .cmp-day-name {
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .cmp-bar {
+        position: relative;
+        height: 20px;
+        border-radius: 6px;
+        background: var(--line-2);
+        overflow: hidden;
+      }
+      .cmp-seg {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+      }
+      .cmp-seg.f {
+        background: rgba(46, 139, 111, 0.25);
+      }
+      .cmp-seg.a {
+        background: rgba(76, 123, 217, 0.55);
+      }
+      .cmp-seg.b {
+        background: rgba(180, 95, 189, 0.55);
+      }
+      .cmp-free {
+        font-size: 11.5px;
+        color: var(--ink-2);
+        margin-top: 3px;
+        font-family: var(--mono);
+      }
+
+      /* ---------- Armado de horario ---------- */
+      .combo {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 11px 12px;
+        margin-bottom: 10px;
+        background: var(--paper);
+      }
+      .combo-h {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+      }
+      .combo-h b {
+        font-size: 13.5px;
+      }
+      .combo-meta {
+        font-size: 11.5px;
+        color: var(--ink-3);
+        white-space: nowrap;
+      }
+      .combo-line {
+        display: flex;
+        gap: 8px;
+        font-size: 12.5px;
+        padding: 4px 0;
+        align-items: flex-start;
+      }
+      .combo-line .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        margin-top: 4px;
+        flex: none;
+      }
+      .combo .btn {
+        margin-top: 8px;
+        width: 100%;
+        justify-content: center;
+        padding: 8px;
+        font-size: 13px;
+      }
+      #calendar-fix {
+        overflow: hidden;
+      }
+
       .toast {
         position: fixed;
         bottom: 22px;
@@ -897,6 +1191,24 @@
       @media (prefers-reduced-motion: reduce) {
         * {
           transition: none !important;
+        }
+      }
+
+      @media (max-width: 430px){
+        #formCard{
+          width: 400px !important;
+        }
+        #savedCard{
+          width: 400px !important;
+        }
+        #conflicts{
+          width: 400px !important;
+        }
+        #total-class{
+          width: 400px !important;
+        }
+        #calendar-fix{
+          width: 400px !important;
         }
       }
     </style>
@@ -1037,6 +1349,26 @@
           accept=".json,application/json"
           class="sr"
         />
+        <button
+          class="btn"
+          id="btnShare"
+          type="button"
+          title="Copiar enlace para compartir este horario"
+        >
+          <svg
+            class="ic"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="18" cy="5" r="3" />
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="19" r="3" />
+            <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" />
+          </svg>
+          Compartir enlace
+        </button>
         <button class="btn danger ghost" id="btnClear" type="button">
           <svg
             class="ic"
@@ -1093,7 +1425,7 @@
                     type="text"
                     id="fMateria"
                     required
-                    placeholder="Ej. Matemáticas"
+                    placeholder="Ej. Edos"
                     autocomplete="off"
                   />
                 </div>
@@ -1102,7 +1434,7 @@
                   <input
                     type="text"
                     id="fProfesor"
-                    placeholder="Ej. Ana Gómez"
+                    placeholder="Ej. Esteban Ruiz"
                     autocomplete="off"
                   />
                 </div>
@@ -1180,6 +1512,11 @@
               <div id="savedList"></div>
             </div>
           </div>
+
+          <div class="card" id="statsCard" style="margin-top: 20px">
+            <div class="card-h"><h2>Estadísticas</h2></div>
+            <div class="card-b" id="statsBody"></div>
+          </div>
         </div>
 
         <!-- Right: conflicts + calendar + list -->
@@ -1192,11 +1529,21 @@
             <div class="card-b" id="conflictsBody"></div>
           </div>
 
-          <div class="card" style="margin-bottom: 20px">
+          <div class="card" id="calendar-fix" style="margin-bottom: 20px">
             <div class="card-h">
-              <h2>Vista semanal</h2>
-              <div class="stat-row">
-                <span><b id="statClasses">0</b> clases</span>
+              <h2 id="calTitle">Vista semanal</h2>
+              <div class="head-tools">
+                <div class="seg" id="viewToggle">
+                  <button type="button" class="seg-btn on" data-view="week">
+                    Semana
+                  </button>
+                  <button type="button" class="seg-btn" data-view="today">
+                    Hoy
+                  </button>
+                </div>
+                <div class="stat-row">
+                  <span><b id="statClasses">0</b> clases</span>
+                </div>
               </div>
             </div>
             <div class="card-b" style="padding: 0">
@@ -1206,10 +1553,58 @@
             </div>
           </div>
 
-          <div class="card">
+          <div class="card" id="total-class">
             <div class="card-h"><h2>Todas las clases</h2></div>
             <div class="card-b" id="listBody"></div>
           </div>
+
+          <div class="card" id="compareCard" style="margin-top: 20px">
+            <div class="card-h"><h2>Comparar horarios</h2></div>
+            <div class="card-b">
+              <div class="compare-selects">
+                <div class="field">
+                  <label for="cmpA">Horario A</label>
+                  <select id="cmpA"></select>
+                </div>
+                <div class="field">
+                  <label for="cmpB">Horario B</label>
+                  <select id="cmpB"></select>
+                </div>
+                <button class="btn accent" id="btnCompare" type="button">
+                  Comparar
+                </button>
+              </div>
+              <div class="hint" style="margin-top: 10px; margin-bottom: 10px">
+                Superpone dos horarios y encuentra las franjas en que ambos
+                están libres (mínimo 30 min) — ideal para cuadrar trabajos en
+                grupo. Guarda el horario de tu compañero en "Horarios
+                guardados" para poder elegirlo aquí.
+              </div>
+              <div id="compareResults"></div>
+            </div>
+          </div>
+
+          <div class="card" id="builderCard" style="margin-top: 20px">
+            <div class="card-h"><h2>Armado de horario</h2></div>
+            <div class="card-b">
+              <div class="hint" style="margin-top: 0">
+                Agrega cada grupo alternativo de una materia como una clase
+                aparte con el <b>mismo nombre</b> (Ej. una clase "Cálculo" con
+                el grupo A y otra "Cálculo" con el grupo B). Luego genera aquí
+                las combinaciones posibles sin cruces.
+              </div>
+              <button
+                class="btn accent"
+                id="btnBuild"
+                type="button"
+                style="width: 100%; justify-content: center"
+              >
+                Generar combinaciones
+              </button>
+              <div id="builderResults" style="margin-top: 12px"></div>
+            </div>
+          </div>
+          
         </div>
       </div>
     </div>
@@ -1230,6 +1625,7 @@
           "Sábado",
           "Domingo",
         ];
+        var DAYS_ABBR = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
         var PALETTE = [
           "#4C7BD9",
           "#E0654E",
@@ -1246,6 +1642,7 @@
         var STORAGE_KEY = "generadorHorarios:v1";
         var THEME_KEY = "generadorHorarios:theme";
         var SAVED_KEY = "generadorHorarios:saved";
+        var VIEW_KEY = "generadorHorarios:view";
         var storageOK = true; // se pone en falso si localStorage no está disponible (p. ej. vista previa dentro de Claude)
 
         // ---------- Estado ----------
@@ -1257,6 +1654,9 @@
         var editingId = null;
         var editingGrupoId = null;
         var selectedColor = PALETTE[0];
+        var viewMode = "week"; // "week" | "today"
+        var calRange = null; // rango visible del calendario para la línea de "ahora"
+        var lastCombos = []; // combinaciones generadas por el armador
 
         // ---------- Utilidades ----------
         function $(id) {
@@ -1295,6 +1695,55 @@
         }
         function activeDays() {
           return DAYS_FULL.slice(0, state.settings.days);
+        }
+        function fmtDur(min) {
+          min = Math.max(0, Math.round(min));
+          var h = Math.floor(min / 60),
+            m = min % 60;
+          if (h && m) return h + " h " + m + " min";
+          if (h) return h + " h";
+          return m + " min";
+        }
+        function todayIndex() {
+          return (new Date().getDay() + 6) % 7; // Lunes = 0
+        }
+        function nowMinutes() {
+          var d = new Date();
+          return d.getHours() * 60 + d.getMinutes();
+        }
+        function mergeIntervals(list) {
+          list = list.slice().sort(function (x, y) {
+            return x[0] - y[0];
+          });
+          var out = [];
+          list.forEach(function (iv) {
+            if (out.length && iv[0] <= out[out.length - 1][1]) {
+              out[out.length - 1][1] = Math.max(out[out.length - 1][1], iv[1]);
+            } else {
+              out.push([iv[0], iv[1]]);
+            }
+          });
+          return out;
+        }
+        function copyText(t) {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(t);
+          }
+          return new Promise(function (resolve, reject) {
+            var ta = document.createElement("textarea");
+            ta.value = t;
+            ta.style.position = "fixed";
+            ta.style.left = "-9999px";
+            document.body.appendChild(ta);
+            ta.select();
+            var ok = false;
+            try {
+              ok = document.execCommand("copy");
+            } catch (e) {}
+            document.body.removeChild(ta);
+            if (ok) resolve();
+            else reject(new Error("copy"));
+          });
         }
 
         function toast(msg) {
@@ -1559,6 +2008,7 @@
           if (list.length === 0) {
             body.innerHTML =
               '<div style="color:var(--ink-3);font-size:13px">Aún no has guardado horarios con nombre aquí. Escribe un nombre arriba y presiona "Guardar".</div>';
+            refreshCompareSelects();
             return;
           }
           list.sort(function (a, b) {
@@ -1624,6 +2074,7 @@
               });
             },
           );
+          refreshCompareSelects();
         }
 
         // ---------- Color por materia ----------
@@ -1744,6 +2195,13 @@
         function renderCalendar(sev) {
           var cal = $("calendar");
           var days = activeDays();
+          var title = $("calTitle");
+          if (viewMode === "today") {
+            renderTodayView(sev);
+            return;
+          }
+          if (title) title.textContent = "Vista semanal";
+          calRange = null;
           if (state.classes.length === 0) {
             cal.innerHTML =
               '<div class="cal-empty"><div class="big">Aún no hay clases</div><div>Agrega tu primera clase con el formulario de la izquierda.</div></div>';
@@ -1785,7 +2243,12 @@
           html += "</div>";
           // columnas de días
           days.forEach(function (d) {
-            html += '<div class="daycol" style="height:' + bodyH + 'px">';
+            html +=
+              '<div class="daycol" data-day="' +
+              esc(d) +
+              '" style="height:' +
+              bodyH +
+              'px">';
             // líneas de hora
             for (var mm = start; mm <= end; mm += 30) {
               var tp = ((mm - start) / 60) * HOUR_PX;
@@ -1829,6 +2292,12 @@
                 cls +
                 '" data-id="' +
                 c.id +
+                '" data-dia="' +
+                esc(c.dia) +
+                '" data-ini="' +
+                t2m(c.inicio) +
+                '" data-fin="' +
+                t2m(c.fin) +
                 '" title="Editar" style="top:' +
                 bt +
                 "px;height:" +
@@ -1871,6 +2340,125 @@
               });
             },
           );
+
+          calRange = { start: start, end: end };
+          updateNowIndicators();
+        }
+
+        // ---------- Vista "solo hoy" ----------
+        function renderTodayView(sev) {
+          var cal = $("calendar");
+          var ti = todayIndex();
+          var dayName = DAYS_FULL[ti];
+          var title = $("calTitle");
+          if (title) title.textContent = "Hoy · " + dayName;
+          calRange = null;
+          if (activeDays().indexOf(dayName) === -1) {
+            cal.innerHTML =
+              '<div class="cal-empty"><div class="big">Hoy es ' +
+              esc(dayName) +
+              '</div><div>Tu horario solo cubre de ' +
+              esc(activeDays()[0]) +
+              " a " +
+              esc(activeDays()[activeDays().length - 1]) +
+              ".</div></div>";
+            return;
+          }
+          var items = state.classes
+            .filter(function (c) {
+              return c.dia === dayName;
+            })
+            .slice()
+            .sort(function (a, b) {
+              return t2m(a.inicio) - t2m(b.inicio);
+            });
+          if (items.length === 0) {
+            cal.innerHTML =
+              '<div class="cal-empty"><div class="big">No tienes clases hoy</div><div>Disfruta el día libre.</div></div>';
+            return;
+          }
+          var nm = nowMinutes();
+          var html = '<div class="today-list">';
+          items.forEach(function (c, i) {
+            if (i > 0) {
+              var gap = t2m(c.inicio) - t2m(items[i - 1].fin);
+              if (gap > 0)
+                html +=
+                  '<div class="today-gap">' + fmtDur(gap) + " libre</div>";
+            }
+            var cur = nm >= t2m(c.inicio) && nm < t2m(c.fin);
+            var flag =
+              sev[c.id] === "hard"
+                ? ' <span class="li-flag" title="No permitido">✕</span>'
+                : sev[c.id] === "soft"
+                  ? ' <span class="li-flag" style="color:var(--soft)" title="Cruce">!</span>'
+                  : "";
+            var sub = [c.curso, c.profesor].filter(Boolean).join(" · ");
+            html +=
+              '<div class="today-item' +
+              (cur ? " now" : "") +
+              '" data-id="' +
+              c.id +
+              '" style="border-left-color:' +
+              c.color +
+              '" title="Editar">' +
+              '<span class="tt">' +
+              esc(c.inicio) +
+              "<br>" +
+              esc(c.fin) +
+              "</span>" +
+              '<span style="flex:1;min-width:0"><span class="tm">' +
+              esc(c.materia) +
+              flag +
+              (cur ? ' <span class="now-chip">Ahora</span>' : "") +
+              "</span>" +
+              (sub ? '<span class="ts">' + esc(sub) + "</span>" : "") +
+              "</span></div>";
+          });
+          html += "</div>";
+          cal.innerHTML = html;
+          Array.prototype.forEach.call(
+            cal.querySelectorAll(".today-item"),
+            function (b) {
+              b.addEventListener("click", function () {
+                startEdit(b.getAttribute("data-id"));
+              });
+            },
+          );
+        }
+
+        // ---------- Línea de "ahora" ----------
+        function updateNowIndicators() {
+          var cal = $("calendar");
+          if (!cal) return;
+          Array.prototype.forEach.call(
+            cal.querySelectorAll(".now-line"),
+            function (n) {
+              n.parentNode.removeChild(n);
+            },
+          );
+          var dayName = DAYS_FULL[todayIndex()];
+          var nm = nowMinutes();
+          Array.prototype.forEach.call(
+            cal.querySelectorAll(".block"),
+            function (b) {
+              var cur =
+                b.getAttribute("data-dia") === dayName &&
+                nm >= +b.getAttribute("data-ini") &&
+                nm < +b.getAttribute("data-fin");
+              b.classList.toggle("now", cur);
+            },
+          );
+          if (!calRange) return;
+          if (activeDays().indexOf(dayName) === -1) return;
+          if (nm < calRange.start || nm > calRange.end) return;
+          var col = cal.querySelector('.daycol[data-day="' + dayName + '"]');
+          if (!col) return;
+          var line = document.createElement("div");
+          line.className = "now-line";
+          line.style.top =
+            ((nm - calRange.start) / 60) * HOUR_PX + "px";
+          col.appendChild(line);
         }
 
         // mezcla un hex con blanco (amount 0..1 = cantidad de color original)
@@ -2044,6 +2632,7 @@
           renderConflicts(conf);
           renderCalendar(conf.sev);
           renderList(conf.sev);
+          renderStats();
           saveState();
         }
 
@@ -2067,7 +2656,7 @@
           var cursoInp = document.createElement("input");
           cursoInp.type = "text";
           cursoInp.className = "s-curso";
-          cursoInp.placeholder = "Curso (Ej. 10-B)";
+          cursoInp.placeholder = "Ej. MCS 201";
           cursoInp.autocomplete = "off";
           cursoInp.value = curso || "";
 
@@ -2745,10 +3334,588 @@
           return text + ell;
         }
 
+        // ---------- Estadísticas ----------
+        function renderStats() {
+          var body = $("statsBody");
+          if (!body) return;
+          if (state.classes.length === 0) {
+            body.innerHTML =
+              '<div style="color:var(--ink-3);font-size:13px">Agrega clases para ver estadísticas de tu semana.</div>';
+            return;
+          }
+          var total = 0,
+            byMat = {},
+            order = [],
+            byDay = {};
+          state.classes.forEach(function (c) {
+            var dmin = t2m(c.fin) - t2m(c.inicio);
+            total += dmin;
+            var k = norm(c.materia);
+            if (!byMat[k]) {
+              byMat[k] = { name: c.materia, color: c.color, min: 0 };
+              order.push(k);
+            }
+            byMat[k].min += dmin;
+            byDay[c.dia] = (byDay[c.dia] || 0) + dmin;
+          });
+          var heavy = null;
+          Object.keys(byDay).forEach(function (d) {
+            if (heavy === null || byDay[d] > byDay[heavy]) heavy = d;
+          });
+          var gaps = 0;
+          activeDays().forEach(function (d) {
+            var iv = mergeIntervals(
+              state.classes
+                .filter(function (c) {
+                  return c.dia === d;
+                })
+                .map(function (c) {
+                  return [t2m(c.inicio), t2m(c.fin)];
+                }),
+            );
+            for (var i = 1; i < iv.length; i++) gaps += iv[i][0] - iv[i - 1][1];
+          });
+          var html = "";
+          html +=
+            '<div class="stat-line"><span>Horas de clase / semana</span><span class="sv">' +
+            fmtDur(total) +
+            "</span></div>";
+          html +=
+            '<div class="stat-line"><span>Día más pesado</span><span class="sv">' +
+            esc(heavy) +
+            " · " +
+            fmtDur(byDay[heavy]) +
+            "</span></div>";
+          html +=
+            '<div class="stat-line"><span>Huecos entre clases</span><span class="sv">' +
+            fmtDur(gaps) +
+            "</span></div>";
+          var mats = order
+            .map(function (k) {
+              return byMat[k];
+            })
+            .sort(function (a, b) {
+              return b.min - a.min;
+            });
+          html += '<div style="margin-top:8px">';
+          mats.forEach(function (m) {
+            html +=
+              '<div class="stat-mat"><span class="dot" style="background:' +
+              m.color +
+              '"></span><span class="sn">' +
+              esc(m.name) +
+              '</span><span class="sv">' +
+              fmtDur(m.min) +
+              "</span></div>";
+          });
+          html += "</div>";
+          body.innerHTML = html;
+        }
+
+        // ---------- Toggle Semana / Hoy ----------
+        function syncViewToggle() {
+          var t = $("viewToggle");
+          if (!t) return;
+          Array.prototype.forEach.call(
+            t.querySelectorAll(".seg-btn"),
+            function (b) {
+              b.classList.toggle(
+                "on",
+                b.getAttribute("data-view") === viewMode,
+              );
+            },
+          );
+        }
+        function setViewMode(m) {
+          viewMode = m === "today" ? "today" : "week";
+          try {
+            localStorage.setItem(VIEW_KEY, viewMode);
+          } catch (e) {}
+          syncViewToggle();
+          render();
+        }
+
+        // ---------- Compartir por enlace ----------
+        function encodeShare() {
+          var gmap = {},
+            gi = 0;
+          var payload = {
+            v: 1,
+            t: state.meta.title || "",
+            a: state.meta.author || "",
+            d: state.settings.days,
+            s: state.settings.dayStart,
+            e: state.settings.dayEnd,
+            c: state.classes.map(function (c) {
+              var g = c.grupoId || c.id;
+              if (!(g in gmap)) gmap[g] = gi++;
+              return [
+                c.materia,
+                c.curso || "",
+                c.profesor || "",
+                DAYS_FULL.indexOf(c.dia),
+                c.inicio,
+                c.fin,
+                c.color,
+                gmap[g],
+              ];
+            }),
+          };
+          var json = JSON.stringify(payload);
+          return btoa(unescape(encodeURIComponent(json)))
+            .replace(/\+/g, "-")
+            .replace(/\//g, "_")
+            .replace(/=+$/, "");
+        }
+        function decodeShare(str) {
+          str = str.replace(/-/g, "+").replace(/_/g, "/");
+          while (str.length % 4) str += "=";
+          var json = decodeURIComponent(escape(atob(str)));
+          var p = JSON.parse(json);
+          if (!p || !Array.isArray(p.c)) throw new Error("estructura");
+          var gmap = {};
+          var classes = p.c.map(function (a) {
+            var g = "g" + a[7];
+            if (!gmap[g]) gmap[g] = uid();
+            return {
+              id: uid(),
+              grupoId: gmap[g],
+              materia: String(a[0] || ""),
+              curso: String(a[1] || ""),
+              profesor: String(a[2] || ""),
+              dia: DAYS_FULL[a[3]] || DAYS_FULL[0],
+              inicio: a[4] || "07:00",
+              fin: a[5] || "08:00",
+              color: a[6] || PALETTE[0],
+            };
+          });
+          return {
+            meta: { title: String(p.t || ""), author: String(p.a || "") },
+            settings: {
+              days: Math.min(7, Math.max(5, +p.d || 5)),
+              dayStart: p.s || "07:00",
+              dayEnd: p.e || "19:00",
+            },
+            classes: classes,
+          };
+        }
+        function shareLink() {
+          if (state.classes.length === 0) {
+            toast("Agrega clases antes de compartir.");
+            return;
+          }
+          var url =
+            location.origin + location.pathname + "#h=" + encodeShare();
+          copyText(url)
+            .then(function () {
+              toast(
+                "Enlace copiado. Pégalo en WhatsApp o donde quieras compartirlo.",
+              );
+            })
+            .catch(function () {
+              prompt("Copia este enlace:", url);
+            });
+        }
+        function importFromHash() {
+          var h = location.hash || "";
+          if (h.indexOf("#h=") !== 0) return false;
+          var loaded = false;
+          try {
+            var data = decodeShare(h.slice(3));
+            var name = data.meta.title || "sin título";
+            if (
+              confirm(
+                'Este enlace contiene un horario compartido ("' +
+                  name +
+                  '", ' +
+                  data.classes.length +
+                  " clases). ¿Quieres cargarlo? Reemplazará tu horario actual.",
+              )
+            ) {
+              state.meta = data.meta;
+              state.settings = data.settings;
+              state.classes = data.classes;
+              loaded = true;
+            }
+          } catch (e) {
+            toast("El enlace compartido no es válido.");
+          }
+          try {
+            history.replaceState(null, "", location.pathname + location.search);
+          } catch (e2) {
+            location.hash = "";
+          }
+          return loaded;
+        }
+
+        // ---------- Comparador de horarios ----------
+        function refreshCompareSelects() {
+          var a = $("cmpA"),
+            b = $("cmpB");
+          if (!a || !b) return;
+          var va = a.value,
+            vb = b.value;
+          var opts = '<option value="current">Horario actual</option>';
+          getSavedList().forEach(function (e) {
+            opts +=
+              '<option value="' + e.id + '">' + esc(e.name) + "</option>";
+          });
+          a.innerHTML = opts;
+          b.innerHTML = opts;
+          a.value = va || "current";
+          if (a.selectedIndex < 0) a.value = "current";
+          b.value = vb || "current";
+          if (b.selectedIndex < 0) b.value = "current";
+        }
+        function scheduleFor(val) {
+          if (val === "current")
+            return {
+              name: state.meta.title || "Horario actual",
+              classes: state.classes,
+              settings: state.settings,
+            };
+          var e = getSavedList().filter(function (x) {
+            return x.id === val;
+          })[0];
+          if (!e) return null;
+          return {
+            name: e.name,
+            classes: e.classes || [],
+            settings: Object.assign(
+              { days: 5, dayStart: "07:00", dayEnd: "19:00" },
+              e.settings || {},
+            ),
+          };
+        }
+        function subtractFree(range, busy) {
+          var free = [],
+            cur = range[0];
+          busy.forEach(function (iv) {
+            if (iv[0] > cur) free.push([cur, Math.min(iv[0], range[1])]);
+            cur = Math.max(cur, iv[1]);
+          });
+          if (cur < range[1]) free.push([cur, range[1]]);
+          return free.filter(function (f) {
+            return f[1] - f[0] >= 30;
+          });
+        }
+        function runCompare() {
+          var out = $("compareResults");
+          if ($("cmpA").value === $("cmpB").value) {
+            toast("Elige dos horarios distintos para comparar.");
+            return;
+          }
+          var A = scheduleFor($("cmpA").value),
+            B = scheduleFor($("cmpB").value);
+          if (!A || !B) {
+            toast("No se pudo cargar alguno de los horarios.");
+            return;
+          }
+          if (A.classes.length === 0 || B.classes.length === 0) {
+            toast("Ambos horarios necesitan tener clases para comparar.");
+            return;
+          }
+          var nDays = Math.max(A.settings.days || 5, B.settings.days || 5);
+          var days = DAYS_FULL.slice(0, nDays);
+          var start = Math.min(
+              t2m(A.settings.dayStart),
+              t2m(B.settings.dayStart),
+            ),
+            end = Math.max(t2m(A.settings.dayEnd), t2m(B.settings.dayEnd));
+          A.classes.concat(B.classes).forEach(function (c) {
+            start = Math.min(start, t2m(c.inicio));
+            end = Math.max(end, t2m(c.fin));
+          });
+          start = Math.floor(start / 60) * 60;
+          end = Math.ceil(end / 60) * 60;
+          var span = end - start;
+          var totalFree = 0;
+          var html =
+            '<div class="cmp-legend"><span><i style="background:rgba(76,123,217,.55)"></i>' +
+            esc(A.name) +
+            '</span><span><i style="background:rgba(180,95,189,.55)"></i>' +
+            esc(B.name) +
+            '</span><span><i style="background:rgba(46,139,111,.25)"></i>Libres ambos</span></div>';
+          function segs(list, cls) {
+            return list
+              .map(function (iv) {
+                return (
+                  '<span class="cmp-seg ' +
+                  cls +
+                  '" style="left:' +
+                  ((iv[0] - start) / span) * 100 +
+                  "%;width:" +
+                  ((iv[1] - iv[0]) / span) * 100 +
+                  '%"></span>'
+                );
+              })
+              .join("");
+          }
+          days.forEach(function (d) {
+            function busyOf(sch) {
+              return mergeIntervals(
+                sch.classes
+                  .filter(function (c) {
+                    return c.dia === d;
+                  })
+                  .map(function (c) {
+                    return [t2m(c.inicio), t2m(c.fin)];
+                  }),
+              );
+            }
+            var ba = busyOf(A),
+              bb = busyOf(B);
+            var both = mergeIntervals(ba.concat(bb));
+            var free = subtractFree([start, end], both);
+            free.forEach(function (f) {
+              totalFree += f[1] - f[0];
+            });
+            html +=
+              '<div class="cmp-day"><div class="cmp-day-name">' +
+              esc(d) +
+              '</div><div class="cmp-bar">' +
+              segs(free, "f") +
+              segs(ba, "a") +
+              segs(bb, "b") +
+              "</div>";
+            html +=
+              '<div class="cmp-free">' +
+              (free.length
+                ? "Libres ambos: " +
+                  free
+                    .map(function (f) {
+                      return m2t(f[0]) + "–" + m2t(f[1]);
+                    })
+                    .join(", ")
+                : "Sin franjas libres en común.") +
+              "</div></div>";
+          });
+          html =
+            '<div class="cmp-total">' +
+            fmtDur(totalFree) +
+            " libres en común a la semana (entre " +
+            m2t(start) +
+            " y " +
+            m2t(end) +
+            ").</div>" +
+            html;
+          out.innerHTML = html;
+        }
+
+        // ---------- Modo "armado de horario" ----------
+        function comboConflicts(chosenClasses, opt) {
+          for (var i = 0; i < opt.length; i++) {
+            for (var j = 0; j < chosenClasses.length; j++) {
+              if (
+                opt[i].dia === chosenClasses[j].dia &&
+                overlap(opt[i], chosenClasses[j])
+              )
+                return true;
+            }
+          }
+          return false;
+        }
+        function generateCombos() {
+          var res = $("builderResults");
+          lastCombos = [];
+          if (state.classes.length === 0) {
+            res.innerHTML =
+              '<div class="hint" style="margin:0">Primero agrega clases al horario.</div>';
+            return;
+          }
+          var mats = {},
+            orderKeys = [];
+          state.classes.forEach(function (c) {
+            var k = norm(c.materia);
+            if (!mats[k]) {
+              mats[k] = { name: c.materia, groups: {} };
+              orderKeys.push(k);
+            }
+            var g = c.grupoId || c.id;
+            (mats[k].groups[g] = mats[k].groups[g] || []).push(c);
+          });
+          var matList = orderKeys.map(function (k) {
+            return {
+              name: mats[k].name,
+              options: Object.keys(mats[k].groups).map(function (g) {
+                return mats[k].groups[g];
+              }),
+            };
+          });
+          var hasAlt = matList.some(function (m) {
+            return m.options.length > 1;
+          });
+          if (!hasAlt) {
+            res.innerHTML =
+              '<div class="hint" style="margin:0">Cada materia tiene un solo grupo, así que solo existe una combinación (la actual). Agrega grupos alternativos como clases separadas con el mismo nombre de materia.</div>';
+            return;
+          }
+          matList.sort(function (a, b) {
+            return a.options.length - b.options.length;
+          });
+          var combos = [],
+            iter = 0,
+            MAX_ITER = 60000,
+            MAX_COMBOS = 300;
+          (function bt(i, chosenOpts, flatCls) {
+            if (iter++ > MAX_ITER || combos.length >= MAX_COMBOS) return;
+            if (i === matList.length) {
+              combos.push(chosenOpts.slice());
+              return;
+            }
+            for (var o = 0; o < matList[i].options.length; o++) {
+              var opt = matList[i].options[o];
+              if (!comboConflicts(flatCls, opt))
+                bt(i + 1, chosenOpts.concat([opt]), flatCls.concat(opt));
+            }
+          })(0, [], []);
+          if (combos.length === 0) {
+            res.innerHTML =
+              '<div class="conf-item hard" style="margin:0"><span class="conf-badge hard">Sin opciones</span><div>No existe ninguna combinación sin cruces con los grupos actuales. Revisa los horarios de los grupos.</div></div>';
+            return;
+          }
+          var scored = combos
+            .map(function (opts) {
+              var cls = [];
+              opts.forEach(function (o) {
+                cls = cls.concat(o);
+              });
+              var gapsMin = 0,
+                daysUsed = {};
+              activeDays().forEach(function (d) {
+                var iv = mergeIntervals(
+                  cls
+                    .filter(function (c) {
+                      return c.dia === d;
+                    })
+                    .map(function (c) {
+                      return [t2m(c.inicio), t2m(c.fin)];
+                    }),
+                );
+                if (iv.length) daysUsed[d] = 1;
+                for (var i = 1; i < iv.length; i++)
+                  gapsMin += iv[i][0] - iv[i - 1][1];
+              });
+              var nd = Object.keys(daysUsed).length;
+              return {
+                opts: opts,
+                cls: cls,
+                gaps: gapsMin,
+                days: nd,
+                score: gapsMin + nd * 15,
+              };
+            })
+            .sort(function (a, b) {
+              return a.score - b.score;
+            })
+            .slice(0, 5);
+          lastCombos = scored;
+          var countTxt =
+            combos.length >= MAX_COMBOS
+              ? "Más de " + MAX_COMBOS
+              : String(combos.length);
+          var html =
+            '<div class="hint" style="margin:0 0 10px">' +
+            countTxt +
+            (combos.length === 1
+              ? " combinación válida"
+              : " combinaciones válidas sin cruces") +
+            (combos.length > 5
+              ? " · mostrando las 5 mejores (menos huecos y menos días)."
+              : ".") +
+            "</div>";
+          scored.forEach(function (s, idx) {
+            html +=
+              '<div class="combo"><div class="combo-h"><b>Opción ' +
+              (idx + 1) +
+              '</b><span class="combo-meta">' +
+              fmtDur(s.gaps) +
+              " de huecos · " +
+              s.days +
+              (s.days === 1 ? " día" : " días") +
+              "</span></div>";
+            s.opts.forEach(function (opt) {
+              var c0 = opt[0];
+              var when = opt
+                .slice()
+                .sort(function (a, b) {
+                  return (
+                    DAYS_FULL.indexOf(a.dia) - DAYS_FULL.indexOf(b.dia) ||
+                    t2m(a.inicio) - t2m(b.inicio)
+                  );
+                })
+                .map(function (c) {
+                  return (
+                    DAYS_ABBR[DAYS_FULL.indexOf(c.dia)] +
+                    " " +
+                    c.inicio +
+                    "–" +
+                    c.fin
+                  );
+                })
+                .join(", ");
+              var sub = [c0.curso, c0.profesor].filter(Boolean).join(" · ");
+              html +=
+                '<div class="combo-line"><span class="dot" style="background:' +
+                c0.color +
+                '"></span><span style="flex:1;min-width:0"><b>' +
+                esc(c0.materia) +
+                "</b>" +
+                (sub ? " · " + esc(sub) : "") +
+                '<br><span style="font-family:var(--mono);font-size:11px;color:var(--ink-2)">' +
+                esc(when) +
+                "</span></span></div>";
+            });
+            html +=
+              '<button class="btn accent" data-apply-combo="' +
+              idx +
+              '" type="button">Usar esta combinación</button></div>';
+          });
+          res.innerHTML = html;
+          Array.prototype.forEach.call(
+            res.querySelectorAll("[data-apply-combo]"),
+            function (b) {
+              b.addEventListener("click", function () {
+                applyCombo(+b.getAttribute("data-apply-combo"));
+              });
+            },
+          );
+        }
+        function applyCombo(idx) {
+          var s = lastCombos[idx];
+          if (!s) return;
+          if (
+            !confirm(
+              "Se conservarán solo los grupos de esta combinación y se quitarán los demás. Tu horario actual (con todos los grupos) se respaldará automáticamente en \"Horarios guardados\". ¿Continuar?",
+            )
+          )
+            return;
+          var d = new Date();
+          var backupName =
+            "Respaldo con todos los grupos (" +
+            d.toLocaleDateString("es", { day: "2-digit", month: "short" }) +
+            " " +
+            m2t(d.getHours() * 60 + d.getMinutes()) +
+            ")";
+          saveNamedSchedule(backupName);
+          state.classes = s.cls.slice();
+          resetForm();
+          render();
+          $("builderResults").innerHTML = "";
+          lastCombos = [];
+          toast(
+            "Combinación aplicada. El respaldo quedó en Horarios guardados.",
+          );
+        }
+
         // ---------- Init ----------
         function init() {
           initTheme();
           var restored = loadState();
+          var shared = importFromHash();
+          try {
+            if (localStorage.getItem(VIEW_KEY) === "today") viewMode = "today";
+          } catch (e) {}
           addSessionRow(null, "", "07:00", "08:00");
           buildSwatches();
           setColor(PALETTE[0]);
@@ -2779,6 +3946,20 @@
             }
           });
           renderSavedList();
+          refreshCompareSelects();
+          Array.prototype.forEach.call(
+            $("viewToggle").querySelectorAll(".seg-btn"),
+            function (b) {
+              b.addEventListener("click", function () {
+                setViewMode(b.getAttribute("data-view"));
+              });
+            },
+          );
+          syncViewToggle();
+          $("btnShare").addEventListener("click", shareLink);
+          $("btnCompare").addEventListener("click", runCompare);
+          $("btnBuild").addEventListener("click", generateCombos);
+          setInterval(updateNowIndicators, 30000);
           $("btnSettings").addEventListener("click", function () {
             $("settingsPanel").classList.toggle("open");
           });
@@ -2814,7 +3995,9 @@
           });
 
           render();
-          if (restored && state.classes.length > 0) {
+          if (shared) {
+            toast("Horario compartido cargado.");
+          } else if (restored && state.classes.length > 0) {
             toast("Horario restaurado de tu última sesión.");
           } else if (!storageOK) {
             toast(
