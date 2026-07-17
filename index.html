@@ -16,6 +16,7 @@
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
       :root {
         --paper: #f5f3ee;
@@ -1106,13 +1107,17 @@
         bottom: 0;
       }
       .cmp-seg.f {
-        background: rgba(46, 139, 111, 0.25);
+        background: #C7DB94;
       }
       .cmp-seg.a {
-        background: rgba(76, 123, 217, 0.55);
+        background: #1B4079;
       }
       .cmp-seg.b {
-        background: rgba(180, 95, 189, 0.55);
+        background:#68c7e4;
+        
+      }
+      .cmp-seg.x {
+        background: #7F9C96;
       }
       .cmp-free {
         font-size: 11.5px;
@@ -1213,6 +1218,279 @@
       .layout > div{
             min-width:0 !important;
         }
+
+      /* ---------- Chips reutilizables ---------- */
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+      }
+      .chip {
+        font-family: var(--body);
+        font-size: 12.5px;
+        font-weight: 600;
+        padding: 6px 11px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--ink-2);
+        cursor: pointer;
+        transition: 0.12s;
+        user-select: none;
+      }
+      .chip:hover { border-color: var(--ink-3); }
+      .chip.on {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+
+      /* ---------- Actividades / Agenda ---------- */
+      .act-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .act-form .fw { grid-column: 1 / -1; }
+      .act-form label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        display: block;
+        margin-bottom: 4px;
+      }
+      .act-form input,
+      .act-form select {
+        font-family: var(--body);
+        font-size: 14px;
+        color: var(--ink);
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 9px 11px;
+        width: 100%;
+      }
+      .act-form input:focus,
+      .act-form select:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-soft);
+      }
+      .act-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line-2);
+      }
+      .act-item:last-child { border-bottom: none; }
+      .act-item .act-bar {
+        width: 4px;
+        align-self: stretch;
+        border-radius: 3px;
+        flex: none;
+        min-height: 34px;
+      }
+      .act-item .act-main { flex: 1; min-width: 0; }
+      .act-item .act-top {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .act-tag {
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 2px 8px;
+        border-radius: 999px;
+        color: #fff;
+      }
+      .act-item .act-mat {
+        font-weight: 700;
+        font-size: 14px;
+      }
+      .act-item .act-sub {
+        font-size: 12px;
+        color: var(--ink-2);
+        margin-top: 2px;
+        font-family: var(--mono);
+      }
+      .act-item .act-note {
+        font-size: 12.5px;
+        color: var(--ink-2);
+        margin-top: 3px;
+      }
+      .act-when {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 9px;
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+      .act-when.soon { background: var(--hard-soft); color: var(--hard); }
+      .act-when.mid  { background: var(--soft-soft); color: var(--soft); }
+      .act-when.far  { background: var(--line-2); color: var(--ink-2); }
+      .act-when.past { background: var(--line-2); color: var(--ink-3); }
+      .act-item.done .act-mat,
+      .act-item.done .act-note { text-decoration: line-through; opacity: 0.55; }
+      .act-item .act-acts { display: flex; gap: 4px; flex: none; }
+
+      /* ---------- Filtros del armador ---------- */
+      .bp {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 12px;
+        background: var(--paper);
+      }
+      .bp-title {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--ink-2);
+        margin: 0 0 9px;
+      }
+      .bp + .bp { margin-top: 0; }
+      .bp-times {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .bp-times label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--ink-3);
+        display: block;
+        margin-bottom: 4px;
+      }
+      .bp-times input {
+        font-family: var(--body);
+        font-size: 14px;
+        color: var(--ink);
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 8px 10px;
+        width: 100%;
+      }
+      .pin-row {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 7px 0;
+        border-bottom: 1px solid var(--line-2);
+        font-size: 13px;
+      }
+      .pin-row:last-child { border-bottom: none; }
+      .pin-row input[type="checkbox"] {
+        width: 17px; height: 17px; flex: none; accent-color: var(--accent);
+        cursor: pointer;
+      }
+      .pin-row .dot { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+      .pin-row .pin-main { flex: 1; min-width: 0; }
+      .pin-row .pin-sub {
+        font-size: 11px; color: var(--ink-2); font-family: var(--mono);
+      }
+      .win-row {
+        display: grid;
+        grid-template-columns: 1fr auto auto auto;
+        gap: 7px;
+        align-items: center;
+        margin-bottom: 7px;
+      }
+      .win-row select, .win-row input {
+        font-family: var(--body);
+        font-size: 13px;
+        color: var(--ink);
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 7px 8px;
+        min-width: 0;
+      }
+      @media (max-width: 640px) {
+        .win-row { grid-template-columns: 1fr 1fr; }
+        .act-form { grid-template-columns: 1fr; }
+      }
+
+      /* ---------- Estrella "Principal" en guardados ---------- */
+      .star-btn { color: var(--ink-3); }
+      .star-btn.on { color: var(--soft); }
+      .li-badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 1px 7px;
+        border-radius: 999px;
+        background: var(--soft-soft);
+        color: var(--soft);
+        margin-left: 6px;
+        vertical-align: 1px;
+      }
+
+      /* ---------- Modal QR ---------- */
+      .modal-back {
+        position: fixed;
+        inset: 0;
+        background: rgba(18, 26, 38, 0.55);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 200;
+        padding: 20px;
+      }
+      .modal-back.show { display: flex; }
+      .modal {
+        background: var(--card);
+        color: var(--ink);
+        border-radius: 16px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+        width: 100%;
+        max-width: 360px;
+        padding: 22px;
+        text-align: center;
+      }
+      .modal h3 {
+        font-family: var(--disp);
+        font-weight: 800;
+        margin: 0 0 4px;
+        font-size: 22px;
+      }
+      .modal p { font-size: 12.5px; color: var(--ink-2); margin: 0 0 16px; }
+      #qrHost {
+        display: inline-flex;
+        background: #fff;
+        padding: 14px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+      }
+      #qrHost img, #qrHost canvas { display: block; }
+      .modal-url {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--ink-2);
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 8px 10px;
+        margin: 16px 0 14px;
+        word-break: break-all;
+        max-height: 62px;
+        overflow: auto;
+        text-align: left;
+      }
+      #btnQR{
+        grid-column: 1 / -1;
+      }
+      .modal-actions { display: flex; gap: 8px; justify-content: center; }
     </style>
   </head>
   <body>
@@ -1371,6 +1649,26 @@
           </svg>
           Compartir enlace
         </button>
+        <button
+          class="btn"
+          id="btnQR"
+          type="button"
+          title="Mostrar código QR para compartir este horario"
+        >
+          <svg
+            class="ic"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+            <path d="M14 14h3v3M21 14v7h-7v-3M17 21h4" />
+          </svg>
+          Código QR
+        </button>
         <button class="btn danger ghost" id="btnClear" type="button">
           <svg
             class="ic"
@@ -1427,7 +1725,7 @@
                     type="text"
                     id="fMateria"
                     required
-                    placeholder="Ej. Edos"
+                    placeholder="Ej. Digitales"
                     autocomplete="off"
                   />
                 </div>
@@ -1547,7 +1845,7 @@
               </div>
               <div class="hint" style="margin-bottom: 14px">
                 Se guarda en este navegador (sin descargar nada). Si usas un
-                nombre existente, lo reemplaza.
+                nombre existente, lo reemplaza. <br> <b>(Antes de entrar a un link de horario, no olvides guardar o guardar los cambios de tu horario actual)</b>
               </div>
               <div id="savedList"></div>
             </div>
@@ -1556,6 +1854,61 @@
           <div class="card" id="statsCard" style="margin-top: 20px">
             <div class="card-h"><h2>Estadísticas</h2></div>
             <div class="card-b" id="statsBody"></div>
+          </div>
+
+          <div class="card" id="activitiesCard" style="margin-top: 20px">
+            <div class="card-h">
+              <h2>Actividades por materia</h2>
+              <span class="stat-row"><span id="actCount">—</span></span>
+            </div>
+            <div class="card-b">
+              <div class="hint" style="margin-top: 0; margin-bottom: 12px">
+                Agenda parciales, talleres, exposiciones o proyectos con su
+                fecha. Se guardan en este navegador (y viajan con el horario
+                cuando lo guardas, exportas o compartes). Quítalos con la ✕
+                cuando ya no los necesites.
+              </div>
+              <form id="actForm" class="act-form">
+                <div class="fw">
+                  <label for="actMateria">Materia</label>
+                  <input
+                    type="text"
+                    id="actMateria"
+                    list="actMateriaList"
+                    placeholder="Ej. Programación I"
+                    autocomplete="off"
+                  />
+                  <datalist id="actMateriaList"></datalist>
+                </div>
+                <div>
+                  <label for="actTipo">Tipo</label>
+                  <select id="actTipo"></select>
+                </div>
+                <div>
+                  <label for="actFecha">Fecha</label>
+                  <input type="date" id="actFecha" />
+                </div>
+                <div class="fw">
+                  <label for="actNota">Nota (opcional)</label>
+                  <input
+                    type="text"
+                    id="actNota"
+                    placeholder="Ej. Condicionales anidados"
+                    autocomplete="off"
+                  />
+                </div>
+                <div class="fw">
+                  <button
+                    type="submit"
+                    class="btn accent"
+                    style="width: 100%; justify-content: center"
+                  >
+                    Agendar actividad
+                  </button>
+                </div>
+              </form>
+              <div id="actList"></div>
+            </div>
           </div>
         </div>
 
@@ -1630,9 +1983,82 @@
               <div class="hint" style="margin-top: 0">
                 Agrega cada grupo alternativo de una materia como una clase
                 aparte con el <b>mismo nombre</b> (Ej. una clase "Cálculo" con
-                el grupo A y otra "Cálculo" con el grupo B). Luego genera aquí
-                las combinaciones posibles sin cruces.
+                el grupo A y otra "Cálculo" con el grupo B). Luego elige tus
+                prioridades y genera las combinaciones posibles sin cruces.
               </div>
+
+              <div class="bp" id="bpPin">
+                <div class="bp-title">Fijar grupos (prioridad sí o sí)</div>
+                <div class="hint" style="margin-top: 0; margin-bottom: 8px">
+                  Marca el grupo/profesor que quieres conservar obligatoriamente.
+                  Todas las combinaciones lo incluirán.
+                </div>
+                <div id="pinList"></div>
+              </div>
+
+              <div class="bp">
+                <div class="bp-title">Sin clases estos días</div>
+                <div class="chips" id="bpDays"></div>
+              </div>
+
+              <div class="bp">
+                <div class="bp-title">Límites de horario</div>
+                <div class="bp-times">
+                  <div>
+                    <label for="bpEarliest">Nada antes de</label>
+                    <input type="time" id="bpEarliest" step="1800" />
+                  </div>
+                  <div>
+                    <label for="bpLatest">Nada después de</label>
+                    <input type="time" id="bpLatest" step="1800" />
+                  </div>
+                </div>
+                <div class="hint" style="margin-bottom: 0">
+                  "Nada antes" descarta grupos que empiecen antes de esa hora;
+                  "nada después" descarta los que terminen después.
+                </div>
+              </div>
+
+              <div class="bp">
+                <div class="bp-title">Bloquear franjas específicas</div>
+                <div class="hint" style="margin-top: 0; margin-bottom: 8px">
+                  Ej. "no quiero clase el Martes de 12:00 a 14:00".
+                </div>
+                <div id="winList"></div>
+                <button
+                  type="button"
+                  class="btn ghost"
+                  id="btnAddWin"
+                  style="padding: 7px 12px; font-size: 13px"
+                >
+                  + Agregar franja bloqueada
+                </button>
+              </div>
+
+              <div
+                style="
+                  display: flex;
+                  gap: 8px;
+                  align-items: center;
+                  flex-wrap: wrap;
+                  margin-bottom: 10px;
+                "
+              >
+                <button
+                  class="btn ghost"
+                  id="btnClearFilters"
+                  type="button"
+                  style="padding: 8px 12px; font-size: 13px"
+                >
+                  Limpiar filtros
+                </button>
+                <span
+                  id="bpSummary"
+                  class="hint"
+                  style="margin: 0"
+                ></span>
+              </div>
+
               <button
                 class="btn accent"
                 id="btnBuild"
@@ -1650,6 +2076,24 @@
     </div>
 
     <div class="toast" id="toast"></div>
+
+    <div class="modal-back" id="qrModal">
+      <div class="modal">
+        <h3>Compartir por QR</h3>
+        <p id="qrDesc">
+          Escanea este código con la cámara del celular para abrir el horario.
+        </p>
+        <div id="qrHost"></div>
+        <div class="modal-url" id="qrUrl"></div>
+        <div class="modal-actions">
+          <button class="btn accent" id="qrDownload" type="button">
+            Descargar PNG
+          </button>
+          <button class="btn" id="qrCopy" type="button">Copiar enlace</button>
+          <button class="btn ghost" id="qrClose" type="button">Cerrar</button>
+        </div>
+      </div>
+    </div>
 
     <script>
       (function () {
@@ -1683,13 +2127,44 @@
         var THEME_KEY = "generadorHorarios:theme";
         var SAVED_KEY = "generadorHorarios:saved";
         var VIEW_KEY = "generadorHorarios:view";
+        var PRINCIPAL_KEY = "generadorHorarios:principal";
+        var BUILD_KEY = "generadorHorarios:builderPrefs";
         var storageOK = true; // se pone en falso si localStorage no está disponible (p. ej. vista previa dentro de Claude)
+
+        // Tipos de actividad y su color de etiqueta
+        var TIPOS = [
+          "Parcial",
+          "Taller",
+          "Exposición",
+          "Proyecto",
+          "Quiz",
+          "Entrega",
+          "Otro",
+        ];
+        var TIPO_COLOR = {
+          Parcial: "#C7402F",
+          Taller: "#2D6CB2",
+          Exposición: "#B45FBD",
+          Proyecto: "#2E8B6F",
+          Quiz: "#B77E14",
+          Entrega: "#D6547E",
+          Otro: "#54607A",
+        };
 
         // ---------- Estado ----------
         var state = {
           meta: { title: "", author: "" },
           settings: { days: 5, dayStart: "07:00", dayEnd: "19:00" },
           classes: [],
+          activities: [], // {id, materia, tipo, fecha:"YYYY-MM-DD", nota, done}
+        };
+        // Preferencias del armador (se recuerdan en este navegador)
+        var builderPrefs = {
+          pinned: {}, // { grupoId: true }
+          noDays: {}, // { "Sábado": true }
+          earliest: "", // "HH:MM" o ""
+          latest: "", // "HH:MM" o ""
+          windows: [], // [{dia, desde, hasta}]
         };
         var editingId = null;
         var editingGrupoId = null;
@@ -1733,6 +2208,25 @@
         }
         function norm(s) {
           return (s || "").trim().toLowerCase();
+        }
+        function sanitizeActivities(arr) {
+          if (!Array.isArray(arr)) return [];
+          return arr
+            .map(function (a) {
+              if (!a) return null;
+              var tipo = TIPOS.indexOf(a.tipo) >= 0 ? a.tipo : "Otro";
+              return {
+                id: a.id || uid(),
+                materia: String(a.materia || "").trim(),
+                tipo: tipo,
+                fecha: /^\d{4}-\d{2}-\d{2}$/.test(a.fecha) ? a.fecha : "",
+                nota: String(a.nota || "").trim(),
+                done: !!a.done,
+              };
+            })
+            .filter(function (a) {
+              return a && (a.materia || a.nota) && a.fecha;
+            });
         }
         function activeDays() {
           return DAYS_FULL.slice(0, state.settings.days);
@@ -1847,6 +2341,8 @@
                 meta: state.meta,
                 settings: state.settings,
                 classes: state.classes,
+                activities: state.activities,
+                currentSavedId: currentSavedId,
               }),
             );
           } catch (e) {
@@ -1887,6 +2383,16 @@
                 color: c.color || PALETTE[0],
               };
             });
+            state.activities = sanitizeActivities(data.activities);
+            currentSavedId = data.currentSavedId || null;
+            // si esa ranura ya no existe (la borraron), volver a "sin nombre"
+            if (
+              currentSavedId &&
+              !getSavedList().some(function (x) {
+                return x.id === currentSavedId;
+              })
+            )
+              currentSavedId = null;
             if (state.settings.days < 5) state.settings.days = 5;
             if (state.settings.days > 7) state.settings.days = 7;
             return true;
@@ -1938,6 +2444,7 @@
             meta: state.meta,
             settings: state.settings,
             classes: state.classes,
+            activities: state.activities,
           };
           list = list.map(function (x) {
             return x.id === entry.id ? updated : x;
@@ -1987,6 +2494,7 @@
             meta: state.meta,
             settings: state.settings,
             classes: state.classes,
+            activities: state.activities,
           };
           if (existing) {
             list = list.map(function (x) {
@@ -2005,11 +2513,43 @@
               : 'Horario "' + name + '" guardado.') + " (en este navegador)",
           );
         }
+        function hasUnsavedChanges() {
+          var snap = JSON.stringify({
+            meta: state.meta,
+            settings: state.settings,
+            classes: state.classes,
+            activities: state.activities,
+          });
+          if (currentSavedId) {
+            var entry = getSavedList().filter(function (x) {
+              return x.id === currentSavedId;
+            })[0];
+            if (!entry) return state.classes.length > 0;
+            return (
+              snap !==
+              JSON.stringify({
+                meta: entry.meta,
+                settings: entry.settings,
+                classes: entry.classes,
+                activities: entry.activities || [],
+              })
+            );
+          }
+          // horario sin nombre: si tiene contenido, también cuenta como no guardado
+          return state.classes.length > 0 || state.activities.length > 0;
+        }
         function loadNamedSchedule(id) {
+          if (id !== currentSavedId && hasUnsavedChanges()) {
+            toast(
+              'Tienes cambios sin guardar. Usa "Guardar cambios" o guárdalo con otro nombre antes de cargar otro horario.',
+            );
+            return;
+          }
           var entry = getSavedList().filter(function (x) {
             return x.id === id;
           })[0];
           if (!entry) return;
+
           state.meta = Object.assign(
             { title: "", author: "" },
             entry.meta || {},
@@ -2032,6 +2572,7 @@
               color: c.color || PALETTE[0],
             };
           });
+          state.activities = sanitizeActivities(entry.activities);
           if (state.settings.days < 5) state.settings.days = 5;
           if (state.settings.days > 7) state.settings.days = 7;
           currentSavedId = entry.id;
@@ -2105,6 +2646,7 @@
           var body = $("savedList");
           if (!body) return;
           var list = getSavedList();
+          var principalId = getPrincipalId();
           if (list.length === 0) {
             body.innerHTML =
               '<div style="color:var(--ink-3);font-size:13px">Aún no has guardado horarios con nombre aquí. Escribe un nombre arriba y presiona "Guardar".</div>';
@@ -2129,8 +2671,11 @@
             html +=
               '<div class="li-main"><div class="li-mat">' +
               esc(entry.name) +
+              (entry.id === principalId
+                ? '<span class="li-badge">★ Mi horario</span>'
+                : "") +
               (entry.id === currentSavedId
-                ? ' <span style="color:var(--accent-ink);font-weight:600">· editando</span>'
+                ? ' <span style="color:var(--accent-ink);font-weight:600">· Guardado</span>'
                 : "") +
               '</div><div class="li-sub">' +
               count +
@@ -2138,6 +2683,14 @@
               (when ? " · " + esc(when) : "") +
               "</div></div>";
             html += '<div class="li-actions">';
+            html +=
+              '<button class="icon-btn star-btn' +
+              (entry.id === principalId ? " on" : "") +
+              '" data-star-saved="' +
+              entry.id +
+              '" title="Marcar como mi horario principal"><svg width="16" height="16" viewBox="0 0 24 24" fill="' +
+              (entry.id === principalId ? "currentColor" : "none") +
+              '" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>';
             html +=
               '<button class="icon-btn" data-load-saved="' +
               entry.id +
@@ -2174,6 +2727,14 @@
             function (b) {
               b.addEventListener("click", function () {
                 deleteNamedSchedule(b.getAttribute("data-del-saved"));
+              });
+            },
+          );
+          Array.prototype.forEach.call(
+            body.querySelectorAll("[data-star-saved]"),
+            function (b) {
+              b.addEventListener("click", function () {
+                setPrincipalId(b.getAttribute("data-star-saved"));
               });
             },
           );
@@ -2736,6 +3297,8 @@
           renderCalendar(conf.sev);
           renderList(conf.sev);
           renderStats();
+          renderActivities();
+          renderBuilderFilters();
           saveState();
         }
 
@@ -3077,6 +3640,7 @@
             meta: state.meta,
             settings: state.settings,
             classes: state.classes,
+            activities: state.activities,
           };
           var blob = new Blob([JSON.stringify(payload, null, 2)], {
             type: "application/json",
@@ -3124,6 +3688,7 @@
                   color: c.color || PALETTE[0],
                 };
               });
+              state.activities = sanitizeActivities(data.activities);
               if (state.settings.days < 5) state.settings.days = 5;
               if (state.settings.days > 7) state.settings.days = 7;
               currentSavedId = null;
@@ -3565,6 +4130,9 @@
                 gmap[g],
               ];
             }),
+            k: state.activities.map(function (a) {
+              return [a.materia, TIPOS.indexOf(a.tipo), a.fecha, a.nota, a.done ? 1 : 0];
+            }),
           };
           var json = JSON.stringify(payload);
           return btoa(unescape(encodeURIComponent(json)))
@@ -3594,6 +4162,17 @@
               color: a[6] || PALETTE[0],
             };
           });
+          var activities = sanitizeActivities(
+            (Array.isArray(p.k) ? p.k : []).map(function (a) {
+              return {
+                materia: a[0],
+                tipo: TIPOS[a[1]] || "Otro",
+                fecha: a[2],
+                nota: a[3],
+                done: !!a[4],
+              };
+            }),
+          );
           return {
             meta: { title: String(p.t || ""), author: String(p.a || "") },
             settings: {
@@ -3602,6 +4181,7 @@
               dayEnd: p.e || "19:00",
             },
             classes: classes,
+            activities: activities,
           };
         }
         function shareLink() {
@@ -3640,6 +4220,7 @@
               state.meta = data.meta;
               state.settings = data.settings;
               state.classes = data.classes;
+              state.activities = data.activities || [];
               currentSavedId = null;
               loaded = true;
             }
@@ -3661,10 +4242,16 @@
           if (!a || !b) return;
           var va = a.value,
             vb = b.value;
+          var principalId = getPrincipalId();
           var opts = '<option value="current">Horario actual</option>';
           getSavedList().forEach(function (e) {
             opts +=
-              '<option value="' + e.id + '">' + esc(e.name) + "</option>";
+              '<option value="' +
+              e.id +
+              '">' +
+              (e.id === principalId ? "★ " : "") +
+              esc(e.name) +
+              "</option>";
           });
           a.innerHTML = opts;
           b.innerHTML = opts;
@@ -3705,6 +4292,16 @@
             return f[1] - f[0] >= 30;
           });
         }
+        function intersectIntervals(a, b) {
+          var out = [];
+          for (var i = 0; i < a.length; i++)
+            for (var j = 0; j < b.length; j++) {
+              var s = Math.max(a[i][0], b[j][0]),
+                e = Math.min(a[i][1], b[j][1]);
+              if (s < e) out.push([s, e]);
+            }
+          return mergeIntervals(out);
+        }
         function runCompare() {
           var out = $("compareResults");
           if ($("cmpA").value === $("cmpB").value) {
@@ -3737,11 +4334,11 @@
           var span = end - start;
           var totalFree = 0;
           var html =
-            '<div class="cmp-legend"><span><i style="background:rgba(76,123,217,.55)"></i>' +
+            '<div class="cmp-legend"><span><i style="background: #1B4079"></i>' +
             esc(A.name) +
-            '</span><span><i style="background:rgba(180,95,189,.55)"></i>' +
+            '</span><span><i style="background:#68c7e4"></i>' +
             esc(B.name) +
-            '</span><span><i style="background:rgba(46,139,111,.25)"></i>Libres ambos</span></div>';
+            '</span><span><i style="background: #C7DB94;"></i>Libres ambos</span><span><i style="background: #7F9C96"></i>Ocupados ambos</span></div>';
           function segs(list, cls) {
             return list
               .map(function (iv) {
@@ -3771,7 +4368,9 @@
             }
             var ba = busyOf(A),
               bb = busyOf(B);
+            var overlapBoth = intersectIntervals(ba, bb);
             var both = mergeIntervals(ba.concat(bb));
+            
             var free = subtractFree([start, end], both);
             free.forEach(function (f) {
               totalFree += f[1] - f[0];
@@ -3783,6 +4382,7 @@
               segs(free, "f") +
               segs(ba, "a") +
               segs(bb, "b") +
+              segs(overlapBoth, "x") +
               "</div>";
             html +=
               '<div class="cmp-free">' +
@@ -3794,7 +4394,17 @@
                     })
                     .join(", ")
                 : "Sin franjas libres en común.") +
-              "</div></div>";
+              "</div>" +
+              (overlapBoth.length
+                ? '<div class="cmp-free">Ocupados ambos: ' +
+                  overlapBoth
+                    .map(function (f) {
+                      return m2t(f[0]) + "–" + m2t(f[1]);
+                    })
+                    .join(", ") +
+                  "</div>"
+                : "") +
+              "</div>";
           });
           html =
             '<div class="cmp-total">' +
@@ -3840,6 +4450,18 @@
             var g = c.grupoId || c.id;
             (mats[k].groups[g] = mats[k].groups[g] || []).push(c);
           });
+          // Leer prioridades/restricciones desde la interfaz
+          readBuilderPrefs();
+          var prefs = builderPrefs;
+          var filtersActive =
+            Object.keys(prefs.pinned).length > 0 ||
+            Object.keys(prefs.noDays).length > 0 ||
+            !!prefs.earliest ||
+            !!prefs.latest ||
+            prefs.windows.filter(function (w) {
+              return w.dia && w.desde && w.hasta;
+            }).length > 0;
+
           var matList = orderKeys.map(function (k) {
             return {
               name: mats[k].name,
@@ -3848,10 +4470,35 @@
               }),
             };
           });
+
+          // Aplicar "fijar grupo" (prioridad sí o sí) y restricciones
+          var blocked = [];
+          matList.forEach(function (m) {
+            var pinnedOpts = m.options.filter(function (opt) {
+              return prefs.pinned[groupIdOf(opt)];
+            });
+            var base = pinnedOpts.length ? pinnedOpts : m.options;
+            var ok = base.filter(function (opt) {
+              // los grupos fijados se conservan aunque toquen un límite
+              return (
+                prefs.pinned[groupIdOf(opt)] || groupAllowed(opt, prefs)
+              );
+            });
+            if (ok.length === 0) blocked.push(m.name);
+            m.options = ok;
+          });
+          if (blocked.length) {
+            res.innerHTML =
+              '<div class="conf-item hard" style="margin:0"><span class="conf-badge hard">Sin opciones</span><div>Con estos filtros no queda ningún grupo disponible para: <b>' +
+              esc(blocked.join(", ")) +
+              "</b>. Relaja alguna restricción o desmarca una prioridad.</div></div>";
+            return;
+          }
+
           var hasAlt = matList.some(function (m) {
             return m.options.length > 1;
           });
-          if (!hasAlt) {
+          if (!hasAlt && !filtersActive) {
             res.innerHTML =
               '<div class="hint" style="margin:0">Cada materia tiene un solo grupo, así que solo existe una combinación (la actual). Agrega grupos alternativos como clases separadas con el mismo nombre de materia.</div>';
             return;
@@ -4014,9 +4661,520 @@
           );
         }
 
+        // ---------- Actividades por materia ----------
+        function fillActivityControls() {
+          var sel = $("actTipo");
+          if (sel && !sel.options.length) {
+            sel.innerHTML = TIPOS.map(function (t) {
+              return '<option value="' + t + '">' + t + "</option>";
+            }).join("");
+          }
+          var dl = $("actMateriaList");
+          if (dl) {
+            var seen = {},
+              opts = "";
+            state.classes.forEach(function (c) {
+              var k = norm(c.materia);
+              if (c.materia && !seen[k]) {
+                seen[k] = 1;
+                opts += '<option value="' + esc(c.materia) + '"></option>';
+              }
+            });
+            dl.innerHTML = opts;
+          }
+        }
+        function onActSubmit(e) {
+          e.preventDefault();
+          var materia = $("actMateria").value.trim();
+          var fecha = $("actFecha").value;
+          if (!materia) {
+            toast("Escribe la materia de la actividad.");
+            return;
+          }
+          if (!fecha) {
+            toast("Elige la fecha de la actividad.");
+            return;
+          }
+          state.activities.push({
+            id: uid(),
+            materia: materia,
+            tipo: $("actTipo").value || "Otro",
+            fecha: fecha,
+            nota: $("actNota").value.trim(),
+            done: false,
+          });
+          $("actMateria").value = "";
+          $("actNota").value = "";
+          $("actFecha").value = "";
+          toast("Actividad agendada.");
+          render();
+        }
+        function deleteActivity(id) {
+          state.activities = state.activities.filter(function (a) {
+            return a.id !== id;
+          });
+          render();
+          toast("Actividad eliminada.");
+        }
+        function toggleActivityDone(id) {
+          state.activities.forEach(function (a) {
+            if (a.id === id) a.done = !a.done;
+          });
+          render();
+        }
+        function daysUntil(fecha) {
+          var d = new Date(fecha + "T00:00:00");
+          if (isNaN(d.getTime())) return null;
+          var today = new Date();
+          today.setHours(0, 0, 0, 0);
+          return Math.round((d - today) / 86400000);
+        }
+        function renderActivities() {
+          fillActivityControls();
+          var body = $("actList");
+          var cnt = $("actCount");
+          if (!body) return;
+          var pending = state.activities.filter(function (a) {
+            return !a.done;
+          }).length;
+          if (cnt)
+            cnt.textContent = state.activities.length
+              ? pending + " pendiente" + (pending === 1 ? "" : "s")
+              : "—";
+          if (state.activities.length === 0) {
+            body.innerHTML =
+              '<div style="color:var(--ink-3);font-size:13px">Aún no has agendado actividades. Llena el formulario de arriba para agregar la primera.</div>';
+            return;
+          }
+          var list = state.activities.slice().sort(function (a, b) {
+            if (a.done !== b.done) return a.done ? 1 : -1;
+            return (a.fecha || "").localeCompare(b.fecha || "");
+          });
+          var html = "";
+          list.forEach(function (a) {
+            var dleft = daysUntil(a.fecha);
+            var when = "",
+              cls = "far";
+            if (a.done) {
+              when = "Hecho";
+              cls = "past";
+            } else if (dleft === null) {
+              when = "—";
+            } else if (dleft < 0) {
+              when = "Hace " + -dleft + (dleft === -1 ? " día" : " días");
+              cls = "past";
+            } else if (dleft === 0) {
+              when = "¡Hoy!";
+              cls = "soon";
+            } else if (dleft === 1) {
+              when = "Mañana";
+              cls = "soon";
+            } else {
+              when = "En " + dleft + " días";
+              cls = dleft <= 3 ? "soon" : dleft <= 7 ? "mid" : "far";
+            }
+            var color = TIPO_COLOR[a.tipo] || "#54607A";
+            var matColor = colorForMateria(a.materia);
+            var fechaTxt = "";
+            var fd = new Date(a.fecha + "T00:00:00");
+            if (!isNaN(fd.getTime()))
+              fechaTxt = fd.toLocaleDateString("es", {
+                weekday: "short",
+                day: "2-digit",
+                month: "short",
+              });
+            html +=
+              '<div class="act-item' +
+              (a.done ? " done" : "") +
+              '"><span class="act-bar" style="background:' +
+              matColor +
+              '"></span><div class="act-main"><div class="act-top">' +
+              '<span class="act-tag" style="background:' +
+              color +
+              '">' +
+              esc(a.tipo) +
+              "</span>" +
+              '<span class="act-mat">' +
+              esc(a.materia) +
+              "</span>" +
+              '<span class="act-when ' +
+              cls +
+              '">' +
+              esc(when) +
+              "</span></div>" +
+              '<div class="act-sub">' +
+              esc(fechaTxt) +
+              "</div>" +
+              (a.nota
+                ? '<div class="act-note">' + esc(a.nota) + "</div>"
+                : "") +
+              '</div><div class="act-acts">' +
+              '<button class="icon-btn" data-done-act="' +
+              a.id +
+              '" title="' +
+              (a.done ? "Marcar como pendiente" : "Marcar como hecha") +
+              '"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></button>' +
+              '<button class="icon-btn del" data-del-act="' +
+              a.id +
+              '" title="Quitar actividad"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>' +
+              "</div></div>";
+          });
+          body.innerHTML = html;
+          Array.prototype.forEach.call(
+            body.querySelectorAll("[data-del-act]"),
+            function (b) {
+              b.addEventListener("click", function () {
+                deleteActivity(b.getAttribute("data-del-act"));
+              });
+            },
+          );
+          Array.prototype.forEach.call(
+            body.querySelectorAll("[data-done-act]"),
+            function (b) {
+              b.addEventListener("click", function () {
+                toggleActivityDone(b.getAttribute("data-done-act"));
+              });
+            },
+          );
+        }
+
+        // ---------- Horario principal (el mío) ----------
+        function getPrincipalId() {
+          try {
+            return localStorage.getItem(PRINCIPAL_KEY) || "";
+          } catch (e) {
+            return "";
+          }
+        }
+        function setPrincipalId(id) {
+          var cur = getPrincipalId();
+          try {
+            if (cur === id) localStorage.removeItem(PRINCIPAL_KEY);
+            else localStorage.setItem(PRINCIPAL_KEY, id);
+          } catch (e) {
+            storageOK = false;
+          }
+          renderSavedList();
+          refreshCompareSelects();
+          toast(
+            cur === id
+              ? "Ya no está marcado como tu horario principal."
+              : "Marcado como tu horario principal.",
+          );
+        }
+
+        // ---------- Filtros / prioridades del armador ----------
+        function groupIdOf(opt) {
+          return opt[0].grupoId || opt[0].id;
+        }
+        function groupAllowed(opt, prefs) {
+          for (var i = 0; i < opt.length; i++) {
+            var c = opt[i];
+            if (prefs.noDays[c.dia]) return false;
+            var s = t2m(c.inicio),
+              e = t2m(c.fin);
+            if (prefs.earliest && s < t2m(prefs.earliest)) return false;
+            if (prefs.latest && e > t2m(prefs.latest)) return false;
+            for (var w = 0; w < prefs.windows.length; w++) {
+              var win = prefs.windows[w];
+              if (!win.dia || !win.desde || !win.hasta) continue;
+              if (c.dia !== win.dia) continue;
+              if (s < t2m(win.hasta) && e > t2m(win.desde)) return false;
+            }
+          }
+          return true;
+        }
+        function loadBuilderPrefs() {
+          try {
+            var raw = localStorage.getItem(BUILD_KEY);
+            if (raw) {
+              var p = JSON.parse(raw);
+              builderPrefs = {
+                pinned: p.pinned || {},
+                noDays: p.noDays || {},
+                earliest: p.earliest || "",
+                latest: p.latest || "",
+                windows: Array.isArray(p.windows) ? p.windows : [],
+              };
+            }
+          } catch (e) {}
+        }
+        function saveBuilderPrefs() {
+          try {
+            localStorage.setItem(BUILD_KEY, JSON.stringify(builderPrefs));
+          } catch (e) {}
+        }
+        function readBuilderPrefs() {
+          // lee horas y franjas desde la interfaz hacia el estado
+          builderPrefs.earliest = $("bpEarliest") ? $("bpEarliest").value : "";
+          builderPrefs.latest = $("bpLatest") ? $("bpLatest").value : "";
+          var rows = $("winList")
+            ? $("winList").querySelectorAll(".win-row")
+            : [];
+          var wins = [];
+          Array.prototype.forEach.call(rows, function (r) {
+            wins.push({
+              dia: r.querySelector(".win-dia").value,
+              desde: r.querySelector(".win-desde").value,
+              hasta: r.querySelector(".win-hasta").value,
+            });
+          });
+          builderPrefs.windows = wins;
+          saveBuilderPrefs();
+        }
+        function bpSummaryText() {
+          var p = builderPrefs;
+          var bits = [];
+          var np = Object.keys(p.pinned).length;
+          if (np) bits.push(np + (np === 1 ? " grupo fijado" : " grupos fijados"));
+          var nd = Object.keys(p.noDays).length;
+          if (nd) bits.push(nd + (nd === 1 ? " día bloqueado" : " días bloqueados"));
+          if (p.earliest) bits.push("desde " + p.earliest);
+          if (p.latest) bits.push("hasta " + p.latest);
+          var nw = p.windows.filter(function (w) {
+            return w.dia && w.desde && w.hasta;
+          }).length;
+          if (nw) bits.push(nw + (nw === 1 ? " franja" : " franjas"));
+          return bits.length ? "Filtros activos: " + bits.join(" · ") : "";
+        }
+        function renderBuilderFilters() {
+          // Chips de días
+          var daysHost = $("bpDays");
+          if (daysHost) {
+            var dh = "";
+            activeDays().forEach(function (d) {
+              dh +=
+                '<span class="chip' +
+                (builderPrefs.noDays[d] ? " on" : "") +
+                '" data-noday="' +
+                esc(d) +
+                '">' +
+                esc(d) +
+                "</span>";
+            });
+            daysHost.innerHTML = dh;
+            Array.prototype.forEach.call(
+              daysHost.querySelectorAll("[data-noday]"),
+              function (b) {
+                b.addEventListener("click", function () {
+                  var d = b.getAttribute("data-noday");
+                  if (builderPrefs.noDays[d]) delete builderPrefs.noDays[d];
+                  else builderPrefs.noDays[d] = true;
+                  saveBuilderPrefs();
+                  renderBuilderFilters();
+                });
+              },
+            );
+          }
+          // Horas
+          if ($("bpEarliest")) $("bpEarliest").value = builderPrefs.earliest || "";
+          if ($("bpLatest")) $("bpLatest").value = builderPrefs.latest || "";
+          // Lista de grupos para fijar
+          var pinHost = $("pinList");
+          if (pinHost) {
+            var groups = {},
+              order = [];
+            state.classes.forEach(function (c) {
+              var g = c.grupoId || c.id;
+              if (!groups[g]) {
+                groups[g] = { g: g, materia: c.materia, profesor: c.profesor, color: c.color, cls: [] };
+                order.push(g);
+              }
+              groups[g].cls.push(c);
+            });
+            if (order.length === 0) {
+              pinHost.innerHTML =
+                '<div class="hint" style="margin:0">Agrega clases para poder fijar un grupo.</div>';
+            } else {
+              var ph = "";
+              order.forEach(function (g) {
+                var grp = groups[g];
+                var when = grp.cls
+                  .slice()
+                  .sort(function (a, b) {
+                    return (
+                      DAYS_FULL.indexOf(a.dia) - DAYS_FULL.indexOf(b.dia) ||
+                      t2m(a.inicio) - t2m(b.inicio)
+                    );
+                  })
+                  .map(function (c) {
+                    return (
+                      DAYS_ABBR[DAYS_FULL.indexOf(c.dia)] +
+                      " " +
+                      c.inicio +
+                      "–" +
+                      c.fin
+                    );
+                  })
+                  .join(", ");
+                var sub = [grp.profesor, when].filter(Boolean).join(" · ");
+                ph +=
+                  '<label class="pin-row"><input type="checkbox" data-pin="' +
+                  esc(g) +
+                  '"' +
+                  (builderPrefs.pinned[g] ? " checked" : "") +
+                  '><span class="dot" style="background:' +
+                  grp.color +
+                  '"></span><span class="pin-main"><b>' +
+                  esc(grp.materia) +
+                  "</b><div class=\"pin-sub\">" +
+                  esc(sub) +
+                  "</div></span></label>";
+              });
+              pinHost.innerHTML = ph;
+              Array.prototype.forEach.call(
+                pinHost.querySelectorAll("[data-pin]"),
+                function (b) {
+                  b.addEventListener("change", function () {
+                    var g = b.getAttribute("data-pin");
+                    if (b.checked) builderPrefs.pinned[g] = true;
+                    else delete builderPrefs.pinned[g];
+                    saveBuilderPrefs();
+                    $("bpSummary").textContent = bpSummaryText();
+                  });
+                },
+              );
+            }
+          }
+          // Lista de franjas bloqueadas
+          renderWinList();
+          if ($("bpSummary")) $("bpSummary").textContent = bpSummaryText();
+        }
+        function renderWinList() {
+          var host = $("winList");
+          if (!host) return;
+          if (builderPrefs.windows.length === 0) {
+            host.innerHTML = "";
+            return;
+          }
+          var dayOpts = activeDays()
+            .map(function (d) {
+              return '<option value="' + esc(d) + '">' + esc(d) + "</option>";
+            })
+            .join("");
+          var html = "";
+          builderPrefs.windows.forEach(function (w, i) {
+            html +=
+              '<div class="win-row" data-win="' +
+              i +
+              '"><select class="win-dia">' +
+              dayOpts +
+              '</select><input class="win-desde" type="time" step="1800" value="' +
+              (w.desde || "") +
+              '"><input class="win-hasta" type="time" step="1800" value="' +
+              (w.hasta || "") +
+              '"><button type="button" class="icon-btn del" data-rmwin="' +
+              i +
+              '" title="Quitar"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>';
+          });
+          host.innerHTML = html;
+          builderPrefs.windows.forEach(function (w, i) {
+            var row = host.querySelector('[data-win="' + i + '"]');
+            if (row) row.querySelector(".win-dia").value = w.dia || activeDays()[0];
+          });
+          Array.prototype.forEach.call(
+            host.querySelectorAll(".win-dia, .win-desde, .win-hasta"),
+            function (el) {
+              el.addEventListener("change", function () {
+                readBuilderPrefs();
+                $("bpSummary").textContent = bpSummaryText();
+              });
+            },
+          );
+          Array.prototype.forEach.call(
+            host.querySelectorAll("[data-rmwin]"),
+            function (b) {
+              b.addEventListener("click", function () {
+                var idx = +b.getAttribute("data-rmwin");
+                builderPrefs.windows.splice(idx, 1);
+                saveBuilderPrefs();
+                renderWinList();
+                $("bpSummary").textContent = bpSummaryText();
+              });
+            },
+          );
+        }
+        function addWinRow() {
+          readBuilderPrefs();
+          builderPrefs.windows.push({
+            dia: activeDays()[0],
+            desde: "12:00",
+            hasta: "14:00",
+          });
+          saveBuilderPrefs();
+          renderWinList();
+          $("bpSummary").textContent = bpSummaryText();
+        }
+        function clearBuilderFilters() {
+          builderPrefs = {
+            pinned: {},
+            noDays: {},
+            earliest: "",
+            latest: "",
+            windows: [],
+          };
+          saveBuilderPrefs();
+          renderBuilderFilters();
+          toast("Filtros del armador restablecidos.");
+        }
+
+        // ---------- Compartir por QR ----------
+        var qrLastUrl = "";
+        function openQR() {
+          if (state.classes.length === 0) {
+            toast("Agrega clases antes de generar el QR.");
+            return;
+          }
+          if (typeof QRCode === "undefined") {
+            toast("No se pudo cargar el generador de QR. Revisa tu conexión.");
+            return;
+          }
+          var url = location.origin + location.pathname + "#h=" + encodeShare();
+          qrLastUrl = url;
+          var host = $("qrHost");
+          host.innerHTML = "";
+          try {
+            new QRCode(host, {
+              text: url,
+              width: 232,
+              height: 232,
+              correctLevel: QRCode.CorrectLevel.L,
+            });
+          } catch (e) {
+            host.innerHTML = "";
+            $("qrDesc").textContent =
+              "Este horario es demasiado grande para un QR. Usa el botón \"Compartir enlace\" en su lugar.";
+          }
+          $("qrUrl").textContent = url;
+          $("qrModal").classList.add("show");
+        }
+        function closeQR() {
+          $("qrModal").classList.remove("show");
+        }
+        function downloadQR() {
+          var host = $("qrHost");
+          var canvas = host.querySelector("canvas");
+          var img = host.querySelector("img");
+          var dataUrl = "";
+          if (canvas) dataUrl = canvas.toDataURL("image/png");
+          else if (img && img.src) dataUrl = img.src;
+          if (!dataUrl) {
+            toast("Aún no hay un QR para descargar.");
+            return;
+          }
+          var a = document.createElement("a");
+          a.href = dataUrl;
+          a.download = slug(state.meta.title) + "-qr.png";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          toast("QR descargado.");
+        }
+
         // ---------- Init ----------
         function init() {
           initTheme();
+          loadBuilderPrefs();
           var restored = loadState();
           var shared = importFromHash();
           try {
@@ -4066,6 +5224,36 @@
           );
           syncViewToggle();
           $("btnShare").addEventListener("click", shareLink);
+          $("btnQR").addEventListener("click", openQR);
+          $("qrClose").addEventListener("click", closeQR);
+          $("qrModal").addEventListener("click", function (e) {
+            if (e.target === this) closeQR();
+          });
+          document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") closeQR();
+          });
+          $("qrCopy").addEventListener("click", function () {
+            if (!qrLastUrl) return;
+            copyText(qrLastUrl)
+              .then(function () {
+                toast("Enlace copiado.");
+              })
+              .catch(function () {
+                prompt("Copia este enlace:", qrLastUrl);
+              });
+          });
+          $("qrDownload").addEventListener("click", downloadQR);
+          $("actForm").addEventListener("submit", onActSubmit);
+          $("btnAddWin").addEventListener("click", addWinRow);
+          $("btnClearFilters").addEventListener("click", clearBuilderFilters);
+          $("bpEarliest").addEventListener("change", function () {
+            readBuilderPrefs();
+            $("bpSummary").textContent = bpSummaryText();
+          });
+          $("bpLatest").addEventListener("change", function () {
+            readBuilderPrefs();
+            $("bpSummary").textContent = bpSummaryText();
+          });
           $("btnCompare").addEventListener("click", runCompare);
           $("btnBuild").addEventListener("click", generateCombos);
           setInterval(updateNowIndicators, 30000);
@@ -4093,6 +5281,7 @@
               )
             ) {
               state.classes = [];
+              state.activities = [];
               state.meta = { title: "", author: "" };
               state.settings = { days: 5, dayStart: "07:00", dayEnd: "19:00" };
               currentSavedId = null;
