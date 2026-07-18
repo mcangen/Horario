@@ -24,12 +24,12 @@ importScripts(
 
 // Pega aquí la MISMA configuración de firebase-config.js:
 firebase.initializeApp({
-  apiKey: "PEGA_AQUI_TU_API_KEY",
-  authDomain: "tu-proyecto.firebaseapp.com",
-  projectId: "tu-proyecto",
-  storageBucket: "tu-proyecto.appspot.com",
-  messagingSenderId: "000000000000",
-  appId: "1:000000000000:web:xxxxxxxxxxxxxxxx",
+   apiKey: "AIzaSyCkGXqYL4DhULvSSeaenOm7LCGyoxL6Kf8",
+    authDomain: "horario-e742d.firebaseapp.com",
+    projectId: "horario-e742d",
+    storageBucket: "horario-e742d.firebasestorage.app",
+    messagingSenderId: "695403520583",
+    appId: "1:695403520583:web:f448b3274c90e6fa91c762",
 });
 
 const messaging = firebase.messaging();

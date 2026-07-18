@@ -19,20 +19,20 @@
    ============================================================ */
 
 // Interruptor maestro: mientras sea false, nada de Firebase se carga.
-const FIREBASE_HABILITADO = false;
+const FIREBASE_HABILITADO = true;
 
 // Pega aquí la configuración de TU proyecto Firebase (paso 2):
 const firebaseConfig = {
-  apiKey: "PEGA_AQUI_TU_API_KEY",
-  authDomain: "tu-proyecto.firebaseapp.com",
-  projectId: "tu-proyecto",
-  storageBucket: "tu-proyecto.appspot.com",
-  messagingSenderId: "000000000000",
-  appId: "1:000000000000:web:xxxxxxxxxxxxxxxx",
+  apiKey: "AIzaSyCkGXqYL4DhULvSSeaenOm7LCGyoxL6Kf8",
+    authDomain: "horario-e742d.firebaseapp.com",
+    projectId: "horario-e742d",
+    storageBucket: "horario-e742d.firebasestorage.app",
+    messagingSenderId: "695403520583",
+    appId: "1:695403520583:web:f448b3274c90e6fa91c762",
 };
 
 // Clave pública VAPID para Web Push (paso 3):
-const VAPID_PUBLIC_KEY = "PEGA_AQUI_TU_CLAVE_VAPID_PUBLICA";
+const VAPID_PUBLIC_KEY = "BPJbrGF09nRIzIH7bRRro0tfC6r3kVJb0uswj7RELUT0Z3HEIzTP_C7v10cwBUFH4xgP6GkNpSnG6bG2tk47C5g";
 
 /* ------------------------------------------------------------
    Inicialización perezosa (lazy): los SDK de Firebase SOLO se
