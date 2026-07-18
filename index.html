@@ -2,8 +2,44 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport con viewport-fit para respetar el notch en iPhone instalado -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <title>Generador de Horarios</title>
+
+    <!-- ================= PWA: manifest y meta tags ================= -->
+    <!-- Manifest: define nombre, íconos, colores y modo standalone -->
+    <link rel="manifest" href="manifest.json" />
+    <!-- Color de la barra del navegador / ventana instalada (claro y oscuro) -->
+    <meta
+      name="theme-color"
+      content="#2d6cb2"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#141a26"
+      media="(prefers-color-scheme: dark)"
+    />
+    <meta name="theme-color" content="#2d6cb2" />
+    <meta
+      name="description"
+      content="Organiza tu horario universitario: materias, actividades, combinaciones sin cruces y compartir por QR. Funciona sin conexión."
+    />
+    <!-- iOS / Safari: permitir instalar como app a pantalla completa -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Horarios U" />
+    <!-- Ícono que usa iOS al agregar a pantalla de inicio -->
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <!-- ================= fin PWA ================= -->
+
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232D6CB2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3'/%3E%3Cpath d='M16 2v4M8 2v4M3 10h18'/%3E%3Crect x='7' y='13' width='4' height='4' fill='%232D6CB2' stroke='none'/%3E%3C/svg%3E"
@@ -1107,17 +1143,16 @@
         bottom: 0;
       }
       .cmp-seg.f {
-        background: #C7DB94;
+        background: rgba(46, 139, 111, 0.25);
       }
       .cmp-seg.a {
-        background: #1B4079;
+        background: rgba(76, 123, 217, 0.55);
       }
       .cmp-seg.b {
-        background:#68c7e4;
-        
+        background: rgba(180, 95, 189, 0.55);
       }
       .cmp-seg.x {
-        background: #7F9C96;
+        background: rgba(199, 64, 47, 0.55);
       }
       .cmp-free {
         font-size: 11.5px;
@@ -1487,9 +1522,6 @@
         overflow: auto;
         text-align: left;
       }
-      #btnQR{
-        grid-column: 1 / -1;
-      }
       .modal-actions { display: flex; gap: 8px; justify-content: center; }
     </style>
   </head>
@@ -1595,7 +1627,7 @@
           </svg>
           Exportar imagen
         </button>
-        <button style="display: none" class="btn primary" id="btnSave" type="button">
+        <button class="btn primary" id="btnSave" type="button" style="display: none">
           <svg
             class="ic"
             viewBox="0 0 24 24"
@@ -1610,7 +1642,7 @@
           </svg>
           Guardar archivo
         </button>
-        <button style="display: none" class="btn" id="btnLoad" type="button">
+        <button class="btn" id="btnLoad" type="button" style="display: none">
           <svg
             class="ic"
             viewBox="0 0 24 24"
@@ -1669,6 +1701,46 @@
           </svg>
           Código QR
         </button>
+        <!-- PWA: botón de instalación. Solo se muestra cuando el navegador
+             ofrece instalar (beforeinstallprompt) y la app NO está instalada -->
+        <button
+          class="btn primary"
+          id="btnInstall"
+          type="button"
+          style="display: none"
+          title="Instalar esta aplicación en tu dispositivo"
+        >
+          <svg
+            class="ic"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M12 3v12M7 10l5 5 5-5" />
+            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+          </svg>
+          Instalar aplicación
+        </button>
+        <!-- PWA: activar avisos locales (clase en 15 min / actividad próxima) -->
+        <button
+          class="btn"
+          id="btnNotif"
+          type="button"
+          title="Activar avisos de clases y actividades próximas"
+        >
+          <svg
+            class="ic"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.7 21a2 2 0 0 1-3.4 0" />
+          </svg>
+          <span id="btnNotifTxt">Avisos</span>
+        </button>
         <button class="btn danger ghost" id="btnClear" type="button">
           <svg
             class="ic"
@@ -1725,7 +1797,7 @@
                     type="text"
                     id="fMateria"
                     required
-                    placeholder="Ej. Digitales"
+                    placeholder="Ej. Edos"
                     autocomplete="off"
                   />
                 </div>
@@ -1875,7 +1947,7 @@
                     type="text"
                     id="actMateria"
                     list="actMateriaList"
-                    placeholder="Ej. Programación I"
+                    placeholder="Ej. Estadística"
                     autocomplete="off"
                   />
                   <datalist id="actMateriaList"></datalist>
@@ -1893,7 +1965,7 @@
                   <input
                     type="text"
                     id="actNota"
-                    placeholder="Ej. Condicionales anidados"
+                    placeholder="Ej. Temas 1 a 4, salón 302"
                     autocomplete="off"
                   />
                 </div>
@@ -2385,7 +2457,6 @@
             });
             state.activities = sanitizeActivities(data.activities);
             currentSavedId = data.currentSavedId || null;
-            // si esa ranura ya no existe (la borraron), volver a "sin nombre"
             if (
               currentSavedId &&
               !getSavedList().some(function (x) {
@@ -2535,7 +2606,6 @@
               })
             );
           }
-          // horario sin nombre: si tiene contenido, también cuenta como no guardado
           return state.classes.length > 0 || state.activities.length > 0;
         }
         function loadNamedSchedule(id) {
@@ -2549,7 +2619,6 @@
             return x.id === id;
           })[0];
           if (!entry) return;
-
           state.meta = Object.assign(
             { title: "", author: "" },
             entry.meta || {},
@@ -2675,7 +2744,7 @@
                 ? '<span class="li-badge">★ Mi horario</span>'
                 : "") +
               (entry.id === currentSavedId
-                ? ' <span style="color:var(--accent-ink);font-weight:600">· Guardado</span>'
+                ? ' <span style="color:var(--accent-ink);font-weight:600">· editando</span>'
                 : "") +
               '</div><div class="li-sub">' +
               count +
@@ -4334,11 +4403,11 @@
           var span = end - start;
           var totalFree = 0;
           var html =
-            '<div class="cmp-legend"><span><i style="background: #1B4079"></i>' +
+            '<div class="cmp-legend"><span><i style="background:rgba(76,123,217,.55)"></i>' +
             esc(A.name) +
-            '</span><span><i style="background:#68c7e4"></i>' +
+            '</span><span><i style="background:rgba(180,95,189,.55)"></i>' +
             esc(B.name) +
-            '</span><span><i style="background: #C7DB94;"></i>Libres ambos</span><span><i style="background: #7F9C96"></i>Ocupados ambos</span></div>';
+            '</span><span><i style="background:rgba(46,139,111,.25)"></i>Libres ambos</span><span><i style="background:rgba(199,64,47,.55)"></i>Ocupados ambos</span></div>';
           function segs(list, cls) {
             return list
               .map(function (iv) {
@@ -4370,7 +4439,6 @@
               bb = busyOf(B);
             var overlapBoth = intersectIntervals(ba, bb);
             var both = mergeIntervals(ba.concat(bb));
-            
             var free = subtractFree([start, end], both);
             free.forEach(function (f) {
               totalFree += f[1] - f[0];
@@ -4394,17 +4462,7 @@
                     })
                     .join(", ")
                 : "Sin franjas libres en común.") +
-              "</div>" +
-              (overlapBoth.length
-                ? '<div class="cmp-free">Ocupados ambos: ' +
-                  overlapBoth
-                    .map(function (f) {
-                      return m2t(f[0]) + "–" + m2t(f[1]);
-                    })
-                    .join(", ") +
-                  "</div>"
-                : "") +
-              "</div>";
+              "</div></div>";
           });
           html =
             '<div class="cmp-total">' +
@@ -5309,6 +5367,477 @@
         if (document.readyState === "loading")
           document.addEventListener("DOMContentLoaded", init);
         else init();
+      })();
+    </script>
+
+    <!-- Configuración de Firebase (preparada; desactivada por defecto).
+         Es un archivo pequeño y no descarga los SDK mientras esté apagado. -->
+    <script src="firebase-config.js"></script>
+
+    <!-- ============================================================
+         BLOQUE PWA — Script independiente y aditivo.
+         No modifica ninguna función existente de la aplicación:
+         lee los mismos datos desde localStorage y usa sus propios
+         elementos (#btnInstall, #btnNotif, #toast).
+         Contiene:
+           1. Registro del Service Worker + aviso de nueva versión
+           2. Botón "Instalar aplicación" (Android/Windows/macOS/iOS)
+           3. Indicador de conexión (online/offline)
+           4. Respaldo en IndexedDB (espejo de localStorage)
+           5. Notificaciones locales: clase en 15 min, actividad
+              próxima y recordatorios personalizados
+         ============================================================ -->
+    <script>
+      (function () {
+        "use strict";
+
+        /* ---------- utilidades pequeñas (propias del bloque) ---------- */
+        function $(id) {
+          return document.getElementById(id);
+        }
+        // Reusa el elemento y estilo del toast de la app, sin tocar su función
+        function avisar(msg, ms) {
+          var el = $("toast");
+          if (!el) return;
+          el.textContent = msg;
+          el.classList.add("show");
+          clearTimeout(el._tPwa);
+          el._tPwa = setTimeout(function () {
+            el.classList.remove("show");
+          }, ms || 3200);
+        }
+        var esStandalone =
+          window.matchMedia("(display-mode: standalone)").matches ||
+          window.navigator.standalone === true; // iOS
+        var esIOS =
+          /iphone|ipad|ipod/i.test(navigator.userAgent) &&
+          !window.MSStream;
+
+        /* ============================================================
+           1. SERVICE WORKER: registro + detección de nueva versión
+           ============================================================ */
+        if ("serviceWorker" in navigator) {
+          window.addEventListener("load", function () {
+            // Ruta RELATIVA => funciona en GitHub Pages (/repo/sw.js)
+            navigator.serviceWorker
+              .register("./sw.js")
+              .then(function (reg) {
+                // ¿Hay una versión nueva esperando o instalándose?
+                function avisarNuevaVersion(worker) {
+                  avisar(
+                    "Hay una versión nueva. Toca aquí o recarga para actualizar.",
+                    6000,
+                  );
+                  var el = $("toast");
+                  var handler = function () {
+                    worker.postMessage({ type: "SKIP_WAITING" });
+                    el.removeEventListener("click", handler);
+                  };
+                  el.addEventListener("click", handler);
+                }
+                if (reg.waiting) avisarNuevaVersion(reg.waiting);
+                reg.addEventListener("updatefound", function () {
+                  var nuevo = reg.installing;
+                  if (!nuevo) return;
+                  nuevo.addEventListener("statechange", function () {
+                    if (
+                      nuevo.state === "installed" &&
+                      navigator.serviceWorker.controller
+                    ) {
+                      avisarNuevaVersion(nuevo);
+                    }
+                  });
+                });
+              })
+              .catch(function (e) {
+                console.warn("[PWA] Service Worker no registrado:", e);
+              });
+
+            // Cuando el SW nuevo toma control, recargar UNA vez para
+            // que la página use los archivos actualizados
+            var recargado = false;
+            navigator.serviceWorker.addEventListener(
+              "controllerchange",
+              function () {
+                if (recargado) return;
+                recargado = true;
+                location.reload();
+              },
+            );
+          });
+        }
+
+        /* ============================================================
+           2. BOTÓN "INSTALAR APLICACIÓN"
+           - Chrome/Edge (Android, Windows, macOS): evento
+             beforeinstallprompt => se muestra el botón y al tocarlo
+             sale el diálogo nativo de instalación.
+           - iOS Safari: no existe ese evento; el botón se muestra y
+             al tocarlo se explican los pasos (Compartir > Añadir a
+             pantalla de inicio).
+           - Si la app YA está instalada, el botón nunca aparece.
+           ============================================================ */
+        var promptInstalacion = null;
+        var btnInstall = $("btnInstall");
+
+        window.addEventListener("beforeinstallprompt", function (e) {
+          e.preventDefault(); // evitamos el mini-banner automático
+          promptInstalacion = e;
+          if (!esStandalone && btnInstall) btnInstall.style.display = "";
+        });
+
+        // iOS: mostrar el botón con instrucciones si no está instalada
+        if (esIOS && !esStandalone && btnInstall) {
+          btnInstall.style.display = "";
+        }
+
+        if (btnInstall) {
+          btnInstall.addEventListener("click", function () {
+            if (promptInstalacion) {
+              promptInstalacion.prompt();
+              promptInstalacion.userChoice.then(function (r) {
+                if (r.outcome === "accepted") {
+                  avisar("¡Instalando la aplicación!");
+                  btnInstall.style.display = "none";
+                }
+                promptInstalacion = null;
+              });
+            } else if (esIOS) {
+              avisar(
+                "En Safari: toca Compartir (□↑) y luego \u201cAñadir a pantalla de inicio\u201d.",
+                6000,
+              );
+            }
+          });
+        }
+
+        // Instalación completada (cualquier plataforma): ocultar botón
+        window.addEventListener("appinstalled", function () {
+          if (btnInstall) btnInstall.style.display = "none";
+          avisar("Aplicación instalada. ¡Búscala en tu pantalla de inicio!");
+        });
+
+        // Si ya corre instalada, jamás mostrar el botón
+        if (esStandalone && btnInstall) btnInstall.style.display = "none";
+
+        /* ============================================================
+           3. INDICADOR DE CONEXIÓN
+           Toda la app funciona offline (horarios, materias,
+           actividades, estadísticas, calendario, guardados). Lo único
+           que puede requerir internet la PRIMERA vez es descargar las
+           librerías de PDF/QR; después quedan en caché. Avisamos al
+           usuario cuando cambia el estado de la conexión.
+           ============================================================ */
+        window.addEventListener("offline", function () {
+          avisar(
+            "Sin conexión: tus horarios siguen funcionando. Compartir el enlace requiere internet en el otro dispositivo.",
+            4500,
+          );
+        });
+        window.addEventListener("online", function () {
+          avisar("Conexión restablecida.");
+        });
+
+        /* ============================================================
+           4. RESPALDO EN INDEXEDDB (espejo de localStorage)
+           localStorage sigue siendo la fuente principal (así no se
+           toca NADA del código existente). Este bloque copia
+           periódicamente los datos a IndexedDB, que es más resistente
+           a limpiezas del navegador. Si un día localStorage aparece
+           vacío pero IndexedDB tiene respaldo, se restaura solo.
+           ============================================================ */
+        var CLAVES = [
+          "generadorHorarios:v1",
+          "generadorHorarios:saved",
+          "generadorHorarios:theme",
+          "generadorHorarios:view",
+          "generadorHorarios:principal",
+          "generadorHorarios:builderPrefs",
+          "generadorHorarios:notifOn",
+        ];
+        function abrirDB() {
+          return new Promise(function (res, rej) {
+            var rq = indexedDB.open("horariosU", 1);
+            rq.onupgradeneeded = function () {
+              rq.result.createObjectStore("kv");
+            };
+            rq.onsuccess = function () {
+              res(rq.result);
+            };
+            rq.onerror = function () {
+              rej(rq.error);
+            };
+          });
+        }
+        function respaldarEnIDB() {
+          abrirDB()
+            .then(function (db) {
+              var tx = db.transaction("kv", "readwrite");
+              var st = tx.objectStore("kv");
+              CLAVES.forEach(function (k) {
+                var v = localStorage.getItem(k);
+                if (v !== null) st.put(v, k);
+              });
+            })
+            .catch(function () {});
+        }
+        function restaurarDesdeIDB() {
+          // Solo si el dato principal falta en localStorage
+          if (localStorage.getItem("generadorHorarios:v1") !== null) return;
+          if (sessionStorage.getItem("idbRestaurado")) return; // evita bucles
+          abrirDB()
+            .then(function (db) {
+              var tx = db.transaction("kv", "readonly");
+              var st = tx.objectStore("kv");
+              var pendientes = CLAVES.length,
+                restauro = false;
+              CLAVES.forEach(function (k) {
+                var rq = st.get(k);
+                rq.onsuccess = function () {
+                  if (rq.result != null) {
+                    localStorage.setItem(k, rq.result);
+                    restauro = true;
+                  }
+                  if (--pendientes === 0 && restauro) {
+                    sessionStorage.setItem("idbRestaurado", "1");
+                    location.reload(); // recarga para que la app lea los datos
+                  }
+                };
+                rq.onerror = function () {
+                  --pendientes;
+                };
+              });
+            })
+            .catch(function () {});
+        }
+        try {
+          restaurarDesdeIDB();
+          // Respaldar: al cargar, cada 60 s, y al salir/ocultar la pestaña
+          setTimeout(respaldarEnIDB, 4000);
+          setInterval(respaldarEnIDB, 60000);
+          document.addEventListener("visibilitychange", function () {
+            if (document.visibilityState === "hidden") respaldarEnIDB();
+          });
+        } catch (e) {
+          /* navegador sin IndexedDB: no pasa nada, localStorage sigue */
+        }
+
+        /* ============================================================
+           5. NOTIFICACIONES LOCALES (no requieren Firebase ni backend)
+           - solicitarPermisoNotificaciones(): pide permiso al usuario.
+           - notificarLocal(titulo, opciones): muestra una notificación.
+           - programarRecordatorio(titulo, cuerpo, fechaHora):
+             recordatorio personalizado (mientras la app esté abierta).
+           - Revisor automático cada 60 s (si los avisos están activos):
+               · "Clase en 15 minutos" leyendo el horario guardado.
+               · "Actividad próxima" (mañana o hoy) leyendo la agenda.
+           Los datos se leen de localStorage, así que este bloque no
+           toca ninguna función interna de la app.
+           ============================================================ */
+        var DIAS = [
+          "Domingo",
+          "Lunes",
+          "Martes",
+          "Miércoles",
+          "Jueves",
+          "Viernes",
+          "Sábado",
+        ];
+        function notificarLocal(titulo, opts) {
+          if (!("Notification" in window)) return;
+          if (Notification.permission !== "granted") return;
+          opts = opts || {};
+          opts.icon = opts.icon || "icons/icon-192.png";
+          opts.badge = opts.badge || "icons/icon-96.png";
+          // Preferir el SW (funciona mejor en Android instalado)
+          if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+            navigator.serviceWorker.ready
+              .then(function (reg) {
+                return reg.showNotification(titulo, opts);
+              })
+              .catch(function () {
+                try {
+                  new Notification(titulo, opts);
+                } catch (e) {}
+              });
+          } else {
+            try {
+              new Notification(titulo, opts);
+            } catch (e) {}
+          }
+        }
+        function solicitarPermisoNotificaciones() {
+          if (!("Notification" in window)) {
+            avisar("Este navegador no soporta notificaciones.");
+            return Promise.resolve("unsupported");
+          }
+          if (Notification.permission === "granted")
+            return Promise.resolve("granted");
+          return Notification.requestPermission();
+        }
+        // Recordatorio personalizado: programa una notificación para una
+        // fecha/hora dada (Date o string). Funciona con la app abierta.
+        function programarRecordatorio(titulo, cuerpo, fechaHora) {
+          var t = new Date(fechaHora).getTime() - Date.now();
+          if (isNaN(t)) return false;
+          if (t <= 0) {
+            notificarLocal(titulo, { body: cuerpo });
+            return true;
+          }
+          setTimeout(function () {
+            notificarLocal(titulo, { body: cuerpo });
+          }, t);
+          return true;
+        }
+        // Se exponen globalmente para uso futuro (y para Firebase)
+        window.notificarLocal = notificarLocal;
+        window.solicitarPermisoNotificaciones = solicitarPermisoNotificaciones;
+        window.programarRecordatorio = programarRecordatorio;
+
+        /* --- revisor: clase en 15 min y actividades próximas --- */
+        function yaAvisado(clave) {
+          try {
+            var m = JSON.parse(
+              localStorage.getItem("generadorHorarios:avisados") || "{}",
+            );
+            // limpieza: se olvidan avisos de más de 2 días
+            var corte = Date.now() - 2 * 86400000;
+            for (var k in m) if (m[k] < corte) delete m[k];
+            if (m[clave]) return true;
+            m[clave] = Date.now();
+            localStorage.setItem(
+              "generadorHorarios:avisados",
+              JSON.stringify(m),
+            );
+            return false;
+          } catch (e) {
+            return false;
+          }
+        }
+        function revisarProximos() {
+          if (localStorage.getItem("generadorHorarios:notifOn") !== "1") return;
+          if (
+            !("Notification" in window) ||
+            Notification.permission !== "granted"
+          )
+            return;
+          var data;
+          try {
+            data = JSON.parse(
+              localStorage.getItem("generadorHorarios:v1") || "{}",
+            );
+          } catch (e) {
+            return;
+          }
+          var ahora = new Date();
+          var hoyDia = DIAS[ahora.getDay()];
+          var minAhora = ahora.getHours() * 60 + ahora.getMinutes();
+
+          // 1) Clase en 15 minutos
+          (data.classes || []).forEach(function (c) {
+            if (c.dia !== hoyDia || !c.inicio) return;
+            var p = c.inicio.split(":");
+            var minClase = +p[0] * 60 + +p[1];
+            var faltan = minClase - minAhora;
+            if (faltan > 0 && faltan <= 15) {
+              var clave =
+                "clase|" + c.id + "|" + ahora.toDateString();
+              if (!yaAvisado(clave)) {
+                notificarLocal("Clase en " + faltan + " minutos", {
+                  body:
+                    c.materia +
+                    (c.profesor ? " con " + c.profesor : "") +
+                    " a las " +
+                    c.inicio +
+                    (c.curso ? " — " + c.curso : ""),
+                  tag: clave,
+                });
+              }
+            }
+          });
+
+          // 2) Actividad próxima (hoy o mañana), avisando desde las 7 a.m.
+          if (ahora.getHours() >= 7) {
+            var hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            (data.activities || []).forEach(function (a) {
+              if (a.done || !a.fecha) return;
+              var f = new Date(a.fecha + "T00:00:00");
+              if (isNaN(f.getTime())) return;
+              var dias = Math.round((f - hoy) / 86400000);
+              if (dias === 0 || dias === 1) {
+                var clave =
+                  "act|" + a.id + "|" + dias + "|" + hoy.toDateString();
+                if (!yaAvisado(clave)) {
+                  notificarLocal(
+                    (dias === 0 ? "¡Hoy! " : "Mañana: ") +
+                      a.tipo +
+                      " de " +
+                      a.materia,
+                    { body: a.nota || "Revisa tu agenda de actividades.", tag: clave },
+                  );
+                }
+              }
+            });
+          }
+        }
+        setInterval(revisarProximos, 60000);
+        setTimeout(revisarProximos, 5000);
+
+        /* --- botón "Avisos": activa/desactiva los avisos locales --- */
+        var btnNotif = $("btnNotif");
+        function pintarBtnNotif() {
+          if (!btnNotif) return;
+          var on =
+            localStorage.getItem("generadorHorarios:notifOn") === "1" &&
+            "Notification" in window &&
+            Notification.permission === "granted";
+          $("btnNotifTxt").textContent = on ? "Avisos ✓" : "Avisos";
+        }
+        if (btnNotif) {
+          btnNotif.addEventListener("click", function () {
+            var on = localStorage.getItem("generadorHorarios:notifOn") === "1";
+            if (on) {
+              localStorage.setItem("generadorHorarios:notifOn", "0");
+              pintarBtnNotif();
+              avisar("Avisos desactivados.");
+              return;
+            }
+            solicitarPermisoNotificaciones().then(function (perm) {
+              if (perm === "granted") {
+                localStorage.setItem("generadorHorarios:notifOn", "1");
+                pintarBtnNotif();
+                avisar(
+                  "Avisos activados: te avisaré 15 min antes de cada clase y cuando una actividad esté cerca.",
+                  4500,
+                );
+                revisarProximos();
+                // Si algún día activas Firebase, aquí se engancha solo:
+                if (window.FIREBASE_HABILITADO) {
+                  window.inicializarFirebaseMessaging();
+                }
+              } else if (perm === "denied") {
+                avisar(
+                  "Las notificaciones están bloqueadas. Actívalas en la configuración del sitio en tu navegador.",
+                  5000,
+                );
+              }
+            });
+          });
+          pintarBtnNotif();
+        }
+
+        /* --- atajo del manifest: abrir directo en la vista "Hoy" --- */
+        try {
+          if (new URLSearchParams(location.search).get("vista") === "hoy") {
+            window.addEventListener("load", function () {
+              setTimeout(function () {
+                var b = document.querySelector('[data-view="today"]');
+                if (b) b.click();
+              }, 150);
+            });
+          }
+        } catch (e) {}
       })();
     </script>
   </body>

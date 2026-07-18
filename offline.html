@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+  <!-- ============================================================
+       PÁGINA OFFLINE DE RESPALDO
+       Solo se muestra en un caso extremo: no hay internet Y la app
+       aún no se había guardado en caché (primera visita sin red).
+       En cualquier otro caso la app completa funciona offline.
+       ============================================================ -->
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sin conexión — Generador de Horarios</title>
+    <meta name="theme-color" content="#2d6cb2" />
+    <style>
+      :root {
+        --paper: #f5f3ee;
+        --ink: #182338;
+        --ink-2: #54607a;
+        --accent: #2d6cb2;
+        --card: #ffffff;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --paper: #141a26;
+          --ink: #edeff5;
+          --ink-2: #a8b0c2;
+          --accent: #5c9be0;
+          --card: #1b2333;
+        }
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        text-align: center;
+        padding: 24px;
+      }
+      .box {
+        max-width: 420px;
+        background: var(--card);
+        border-radius: 16px;
+        padding: 36px 28px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      }
+      .emoji {
+        font-size: 52px;
+        margin-bottom: 8px;
+      }
+      h1 {
+        font-size: 22px;
+        margin: 0 0 8px;
+      }
+      p {
+        color: var(--ink-2);
+        font-size: 14.5px;
+        line-height: 1.55;
+        margin: 0 0 20px;
+      }
+      button {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 22px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <div class="emoji">📡</div>
+      <h1>Sin conexión a internet</h1>
+      <p>
+        No pudimos cargar la aplicación porque es tu primera visita y no hay
+        conexión. Conéctate una sola vez y, a partir de ahí, tus horarios
+        funcionarán siempre, incluso sin internet.
+      </p>
+      <button onclick="location.reload()">Reintentar</button>
+    </div>
+  </body>
+</html>
