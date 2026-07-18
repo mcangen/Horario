@@ -15,7 +15,7 @@
    borra la caché vieja y avisa a la página para recargar.
    ============================================================ */
 
-const CACHE_VERSION = "v1"; // <-- CAMBIA ESTO EN CADA PUBLICACIÓN
+const CACHE_VERSION = "v2"; // <-- CAMBIA ESTO EN CADA PUBLICACIÓN
 const CACHE_NAME = "horarios-u-" + CACHE_VERSION;
 
 /* Archivos propios de la app (rutas RELATIVAS para que funcione
