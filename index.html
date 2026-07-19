@@ -277,6 +277,9 @@
         .layout {
           grid-template-columns: 1fr;
         }
+        .toast {
+          bottom: calc(84px + env(safe-area-inset-bottom)) !important;
+        }
       }
 
       /* ---------- Móvil (≤ 640px) ---------- */
@@ -1224,7 +1227,7 @@
         opacity: 0;
         pointer-events: none;
         transition: 0.25s;
-        z-index: 100;
+        z-index: 300;
         max-width: calc(100vw - 32px);
         text-align: center;
       }
