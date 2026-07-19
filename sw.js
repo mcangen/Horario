@@ -15,8 +15,37 @@
    borra la caché vieja y avisa a la página para recargar.
    ============================================================ */
 
-const CACHE_VERSION = "v2"; // <-- CAMBIA ESTO EN CADA PUBLICACIÓN
+const CACHE_VERSION = "v3"; // <-- CAMBIA ESTO EN CADA PUBLICACIÓN
 const CACHE_NAME = "horarios-u-" + CACHE_VERSION;
+
+/* ---------- FIREBASE CLOUD MESSAGING (unificado aquí) ----------
+   FCM vive en este mismo SW para no pelear por el ámbito con el
+   SW de offline. Así un solo SW maneja caché + push en background. */
+importScripts(
+  "https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js",
+);
+importScripts(
+  "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js",
+);
+firebase.initializeApp({
+  apiKey: "AIzaSyCkGXqYL4DhULvSSeaenOm7LCGyoxL6Kf8",
+  authDomain: "horario-e742d.firebaseapp.com",
+  projectId: "horario-e742d",
+  storageBucket: "horario-e742d.firebasestorage.app",
+  messagingSenderId: "695403520583",
+  appId: "1:695403520583:web:f448b3274c90e6fa91c762",
+});
+firebase.messaging().onBackgroundMessage((payload) => {
+  const n = payload.notification || {};
+  self.registration.showNotification(n.title || "Horarios U", {
+    body: n.body || "",
+    icon: "./icons/icon-192.png",
+    badge: "./icons/icon-96.png",
+    data: payload.data && payload.data.url ? { url: payload.data.url } : {},
+  });
+});
+
+
 
 /* Archivos propios de la app (rutas RELATIVAS para que funcione
    en GitHub Pages bajo /nombre-del-repo/ sin tocar nada). */
@@ -142,28 +171,6 @@ self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "SKIP_WAITING") {
     self.skipWaiting();
   }
-});
-
-/* ---------- PREPARADO PARA NOTIFICACIONES PUSH (futuro) ----------
-   Cuando actives Firebase Cloud Messaging, los push llegarán por
-   firebase-messaging-sw.js. Este bloque queda listo por si además
-   quieres manejar push "crudos" (Web Push estándar) desde aquí. */
-self.addEventListener("push", (event) => {
-  if (!event.data) return;
-  let data = {};
-  try {
-    data = event.data.json();
-  } catch (e) {
-    data = { title: "Horarios U", body: event.data.text() };
-  }
-  event.waitUntil(
-    self.registration.showNotification(data.title || "Horarios U", {
-      body: data.body || "",
-      icon: "./icons/icon-192.png",
-      badge: "./icons/icon-96.png",
-      data: data.url ? { url: data.url } : {},
-    }),
-  );
 });
 
 /* Al tocar una notificación: enfocar la app o abrirla */

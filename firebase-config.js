@@ -56,10 +56,9 @@ async function inicializarFirebaseMessaging() {
     const app = initializeApp(firebaseConfig);
     const messaging = getMessaging(app);
 
-    // Registrar el SW específico de FCM
-    const reg = await navigator.serviceWorker.register(
-      "./firebase-messaging-sw.js",
-    );
+    // Usar el SW principal (sw.js), que ya trae FCM integrado.
+    // Así hay UN solo Service Worker y no se pisan entre ellos.
+    const reg = await navigator.serviceWorker.ready;
 
     // Obtener el token del dispositivo (esto es lo que tu backend
     // usará más adelante para enviarle push a este usuario)
