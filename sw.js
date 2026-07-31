@@ -15,7 +15,7 @@
    borra la caché vieja y avisa a la página para recargar.
    ============================================================ */
 
-const CACHE_VERSION = "v3"; // <-- CAMBIA ESTO EN CADA PUBLICACIÓN
+const CACHE_VERSION = "v4"; // <-- CAMBIA ESTO EN CADA PUBLICACIÓN
 const CACHE_NAME = "horarios-u-" + CACHE_VERSION;
 
 /* ---------- FIREBASE CLOUD MESSAGING (unificado aquí) ----------
