@@ -8,7 +8,7 @@
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
     <title>Generador de Horarios</title>
-
+    
     <!-- ================= PWA: manifest y meta tags ================= -->
     <!-- Manifest: define nombre, íconos, colores y modo standalone -->
     <link rel="manifest" href="manifest.json" />
@@ -39,7 +39,7 @@
     <!-- Ícono que usa iOS al agregar a pantalla de inicio -->
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
     <!-- ================= fin PWA ================= -->
-
+    <link rel="stylesheet" href="styles/mod.css">
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232D6CB2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3'/%3E%3Cpath d='M16 2v4M8 2v4M3 10h18'/%3E%3Crect x='7' y='13' width='4' height='4' fill='%232D6CB2' stroke='none'/%3E%3C/svg%3E"
@@ -986,6 +986,11 @@
         border-radius: 50%;
         background: var(--hard);
       }
+
+      /* Ocultar la línea de "ahora" mientras se exporta */
+      body.exporting .now-line {
+        display: none !important;
+      }
       .block.now {
         outline: 2px solid var(--accent);
         outline-offset: -1px;
@@ -1692,6 +1697,165 @@
           padding-bottom: 0 !important;
         }
       }
+
+      
+/* Formulario de clase colapsable */
+      #formCard .card-h {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      #formCard .chevron {
+        width: 18px;
+        height: 18px;
+        color: var(--ink-2);
+        transition: transform 0.25s;
+        flex: none;
+      }
+      #formCard.open .chevron {
+        transform: rotate(180deg);
+      }
+      #formCard .form-body {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+      }
+      #formCard.open .form-body {
+        max-height: 2000px;
+        overflow: visible;
+      }
+
+      :root {
+        --sb-track-color: #252e40 !important;
+        --sb-thumb-color: #5c9be0 !important;
+        --sb-size: 8px;
+      }
+
+      /* Firefox */
+      * {
+        scrollbar-width: thin !important;
+        scrollbar-color: var(--sb-thumb-color) var(--sb-track-color) !important;
+      }
+
+      /* Chrome, Edge y Safari */
+      *::-webkit-scrollbar {
+        width: var(--sb-size)!important;
+        height: var(--sb-size)!important; /* Para scroll horizontal */
+      }
+
+      *::-webkit-scrollbar-track {
+        background: var(--sb-track-color)!important;
+        border-radius: 9px!important;
+      }
+
+      *::-webkit-scrollbar-thumb {
+        background: var(--sb-thumb-color) !important;
+        border-radius: 9px !important;
+      }
+
+      *::-webkit-scrollbar-thumb:hover {
+        background: #7db2eb !important;
+      }
+
+    /* Vista previa de actividades en el calendario */
+      .acts-preview { padding: 8px; }
+      .apv-item {
+        display: flex;
+        align-items: stretch;
+        gap: 10px;
+        padding: 10px;
+        border-bottom: 1px solid var(--line-2);
+
+      }
+      .apv-item:last-child { 
+        border-bottom: solid 1px var(--line);
+       }
+      .apv-bar { width: 5px; border-radius: 3px; flex: none; background: var(--accent-ink) !important; }
+      .apv-main { flex: 1; min-width: 0; }
+      .apv-top { display: flex; align-items: center; gap: 8px;
+                border: 1px solid var(--line);
+                border-radius: 13px;
+                padding: 10px 12px;
+      }
+      .apv-mat { font-weight: 700; }
+      .apv-tag {
+        font-size: 11px;
+        padding: 1px 7px;
+        border-radius: 999px;
+        background: var(--paper);
+        color: var(--accent-ink) !important;
+      
+      }
+      .apv-nota { font-size: 12px; color: var(--accent-ink); margin-top: 2px; }
+      .apv-when {
+        font-size: 11px;
+        font-weight: 700;
+        align-self: center;
+        white-space: nowrap;
+      }
+      .apv-when.past { color: #c7402f; }
+      .apv-when.soon { color: var(--accent-ink); }
+      .apv-when.mid  { color: var(--accent); }
+      .apv-when.far  { color: var(--accent-ink); }
+      
+      /* Toolbar desplegable en mobile */
+      .toolbar-toggle { display: none; }
+      @media (max-width: 940px) {
+        .toolbar-toggle {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          width: 100%;
+          padding: 12px 14px;
+          margin-bottom: 10px;
+          background: var(--card);
+          border: 1px solid var(--line);
+          border-radius: 10px;
+          cursor: pointer;
+          font-family: var(--body);
+          font-size: 15px;
+          font-weight: 600;
+          color: var(--ink);
+        }
+        .toolbar-toggle .chevron {
+          width: 18px;
+          height: 18px;
+          color: var(--ink-2);
+          transition: transform 0.25s;
+          flex: none;
+        }
+        .toolbar-toggle.open .chevron { transform: rotate(180deg); }
+        .toolbar {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.3s ease;
+        }
+        .toolbar.open {
+          max-height: 600px;
+          overflow: visible;
+        }
+      }
+      @media (min-width: 941px) {
+        .toolbar-toggle { display: none !important; }
+        .toolbar { max-height: none !important; overflow: visible !important; }
+      }
+
+      /* Estadísticas + Todas las clases lado a lado en PC */
+      .clases-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        align-items: start;
+      }
+      @media (max-width: 940px) {
+        .clases-grid {
+          grid-template-columns: 1fr; /* apilados en móvil */
+        }
+      }
+
     </style>
   </head>
   <body>
@@ -1738,6 +1902,17 @@
         </div>
       </header>
 
+      <button type="button" class="toolbar-toggle " id="toolbarToggle" data-tab="inicio">
+        <span style="
+          font-family: var(--disp);
+          font-weight: 600;
+          font-size: 19px;
+          margin: 0;
+          letter-spacing: -0.01em;
+          " >Acciones (Instalar, Compartir)</span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      
       <div class="toolbar" data-tab="inicio">
         <button
           class="btn theme-toggle"
@@ -1869,7 +2044,7 @@
             <circle cx="18" cy="19" r="3" />
             <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" />
           </svg>
-          Compartir enlace
+          Compartir horario
         </button>
         <button
           class="btn"
@@ -1978,8 +2153,11 @@
         <!-- Left: form -->
         <div>
           <div class="card" id="formCard" data-tab="inicio">
-            <div class="card-h"><h2 id="formTitle">Agregar clase</h2></div>
-            <div class="card-b">
+            <div class="card-h">
+              <h2 id="formTitle">Agregar clase</h2>
+              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="card-b form-body">
               <form id="classForm">
                 <div class="row">
                   <label for="fMateria">Materia *</label>
@@ -2044,139 +2222,68 @@
             </div>
           </div>
 
-          <div class="card" id="savedCard" style="margin-top: 20px" data-tab="horarios">
-            <div class="card-h"><h2>Horarios guardados</h2></div>
-            <div class="card-b">
-              <div
-                id="currentSavedBanner"
-                style="
-                  display: none;
-                  margin-bottom: 14px;
-                  padding: 10px 12px;
-                  background: var(--accent-soft);
-                  border: 1px solid var(--accent);
-                  border-radius: 9px;
-                  align-items: center;
-                  justify-content: space-between;
-                  gap: 10px;
-                  flex-wrap: wrap;
-                "
-              >
-                <div style="font-size: 13px; color: var(--ink)">
-                  Editando: <b id="currentSavedName"></b>
-                </div>
-                <div style="display: flex; gap: 8px">
-                  <button
-                    class="btn accent"
-                    id="btnSaveChanges"
-                    type="button"
-                    style="padding: 7px 12px; font-size: 13px"
-                  >
-                    Guardar cambios
-                  </button>
-                  <button
-                    class="btn ghost"
-                    id="btnStopEditing"
-                    type="button"
-                    style="padding: 7px 12px; font-size: 13px"
-                    title="Dejar de editar este horario guardado (para guardar como uno nuevo abajo)"
-                  >
-                    Guardar como otro
-                  </button>
-                </div>
+  
+            <div class="card" id="activitiesCard" style="margin-top: 20px" data-tab="actividades">
+              <div class="card-h">
+                <h2>Actividades por materia</h2>
+                <span class="stat-row"><span id="actCount">—</span></span>
               </div>
-              <div class="field" style="margin-bottom: 6px">
-                <label for="saveName">Guardar el horario actual como</label>
-                <div style="display: flex; gap: 8px">
-                  <input
-                    type="text"
-                    id="saveName"
-                    placeholder="Ej. Semestre 2026-1"
-                    autocomplete="off"
-                    style="flex: 1; min-width: 0"
-                  />
-                  <button
-                    class="btn accent"
-                    id="btnSaveNamed"
-                    type="button"
-                    title="Guardar en este navegador"
-                  >
-                    Guardar
-                  </button>
+              <div class="card-b">
+                <div class="hint" style="margin-top: 0; margin-bottom: 12px">
+                  Agenda parciales, talleres, exposiciones o proyectos con su
+                  fecha. Se guardan en este navegador (y viajan con el horario
+                  cuando lo guardas, exportas o compartes). Quítalos con la ✕
+                  cuando ya no los necesites.
                 </div>
+                <form id="actForm" class="act-form">
+                  <div class="fw">
+                    <label for="actMateria">Materia</label>
+                    <input
+                      type="text"
+                      id="actMateria"
+                      list="actMateriaList"
+                      placeholder="Ej. Estadística"
+                      autocomplete="off"
+                    />
+                    <datalist id="actMateriaList"></datalist>
+                  </div>
+                  <div>
+                    <label for="actTipo">Tipo</label>
+                    <select id="actTipo"></select>
+                  </div>
+                  <div>
+                    <label for="actFecha">Fecha</label>
+                    <input type="date" id="actFecha" />
+                  </div>
+                  <div class="fw">
+                    <label for="actNota">Nota (opcional)</label>
+                    <input
+                      type="text"
+                      id="actNota"
+                      placeholder="Ej. Temas 1 a 4, salón 302"
+                      autocomplete="off"
+                    />
+                  </div>
+                  <div class="fw">
+                    <button
+                      type="submit"
+                      class="btn accent"
+                      style="width: 100%; justify-content: center"
+                    >
+                      Agendar actividad
+                    </button>
+                  </div>
+                </form>
+                <div id="actList"></div>
               </div>
-              <div class="hint" style="margin-bottom: 14px">
-                Se guarda en este navegador (sin descargar nada). Si usas un
-                nombre existente, lo reemplaza. <br> <b>(Antes de entrar a un link de horario, no olvides guardar o guardar los cambios de tu horario actual)</b>
-              </div>
-              <div id="savedList"></div>
             </div>
-          </div>
 
-          <div class="card" id="statsCard" style="margin-top: 20px" data-tab="clases">
-            <div class="card-h"><h2>Estadísticas</h2></div>
-            <div class="card-b" id="statsBody"></div>
-          </div>
 
-          <div class="card" id="activitiesCard" style="margin-top: 20px" data-tab="actividades">
-            <div class="card-h">
-              <h2>Actividades por materia</h2>
-              <span class="stat-row"><span id="actCount">—</span></span>
-            </div>
-            <div class="card-b">
-              <div class="hint" style="margin-top: 0; margin-bottom: 12px">
-                Agenda parciales, talleres, exposiciones o proyectos con su
-                fecha. Se guardan en este navegador (y viajan con el horario
-                cuando lo guardas, exportas o compartes). Quítalos con la ✕
-                cuando ya no los necesites.
-              </div>
-              <form id="actForm" class="act-form">
-                <div class="fw">
-                  <label for="actMateria">Materia</label>
-                  <input
-                    type="text"
-                    id="actMateria"
-                    list="actMateriaList"
-                    placeholder="Ej. Estadística"
-                    autocomplete="off"
-                  />
-                  <datalist id="actMateriaList"></datalist>
-                </div>
-                <div>
-                  <label for="actTipo">Tipo</label>
-                  <select id="actTipo"></select>
-                </div>
-                <div>
-                  <label for="actFecha">Fecha</label>
-                  <input type="date" id="actFecha" />
-                </div>
-                <div class="fw">
-                  <label for="actNota">Nota (opcional)</label>
-                  <input
-                    type="text"
-                    id="actNota"
-                    placeholder="Ej. Temas 1 a 4, salón 302"
-                    autocomplete="off"
-                  />
-                </div>
-                <div class="fw">
-                  <button
-                    type="submit"
-                    class="btn accent"
-                    style="width: 100%; justify-content: center"
-                  >
-                    Agendar actividad
-                  </button>
-                </div>
-              </form>
-              <div id="actList"></div>
-            </div>
-          </div>
         </div>
-
+        
         <!-- Right: conflicts + calendar + list -->
         <div>
-          <div class="card" id="conflicts" data-tab="inicio">
+          <div  style="display: none;" class="card" id="conflicts" data-tab="inicio">
             <div class="card-h">
               <h2>Revisión de cruces</h2>
               <span class="stat-row"><span id="confCount">—</span></span>
@@ -2195,9 +2302,12 @@
                   <button type="button" class="seg-btn" data-view="today">
                     Hoy
                   </button>
+                  <button type="button" class="seg-btn" data-view="acts">
+                      Actividades
+                  </button>
                 </div>
                 <div class="stat-row">
-                  <span><b id="statClasses">0</b> clases</span>
+                  <span><b id="statClasses">0</b> <span id="statLabel">clases</span></span>
                 </div>
               </div>
             </div>
@@ -2208,39 +2318,122 @@
             </div>
           </div>
 
-          <div class="card" id="total-class" data-tab="clases">
-            <div class="card-h"><h2>Todas las clases</h2></div>
-            <div class="card-b" id="listBody"></div>
-          </div>
-
-          <div class="card" id="compareCard" style="margin-top: 20px" data-tab="horarios">
-            <div class="card-h"><h2>Comparar horarios</h2></div>
-            <div class="card-b">
-              <div class="compare-selects">
-                <div class="field">
-                  <label for="cmpA">Horario A</label>
-                  <select id="cmpA"></select>
-                </div>
-                <div class="field">
-                  <label for="cmpB">Horario B</label>
-                  <select id="cmpB"></select>
-                </div>
-                <button class="btn accent" id="btnCompare" type="button">
-                  Comparar
-                </button>
-              </div>
-              <div class="hint" style="margin-top: 10px; margin-bottom: 10px">
-                Superpone dos horarios y encuentra las franjas en que ambos
-                están libres (mínimo 30 min) — ideal para cuadrar trabajos en
-                grupo. Guarda el horario de tu compañero en "Horarios
-                guardados" para poder elegirlo aquí.
-              </div>
-              <div id="compareResults"></div>
+          <div class="clases-grid">
+            <div class="card" id="statsCard" style="margin-top: 20px" data-tab="clases">
+              <div class="card-h"><h2>Estadísticas</h2></div>
+              <div class="card-b" id="statsBody"></div>
             </div>
+  
+            <div class="card" id="total-class" data-tab="clases">
+              <div class="card-h"><h2>Todas las clases</h2></div>
+              <div class="card-b" id="listBody"></div>
+            </div>
+
           </div>
 
+
+          <div class="clases-grid"> 
+
+            <div class="card" id="savedCard" style="margin-top: 20px" data-tab="horarios">
+              <div class="card-h"><h2>Horarios guardados</h2></div>
+              <div class="card-b">
+                <div
+                  id="currentSavedBanner"
+                  style="
+                    display: none;
+                    margin-bottom: 14px;
+                    padding: 10px 12px;
+                    background: var(--accent-soft);
+                    border: 1px solid var(--accent);
+                    border-radius: 9px;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 10px;
+                    flex-wrap: wrap;
+                  "
+                >
+                  <div style="font-size: 13px; color: var(--ink)">
+                    Editando: <b id="currentSavedName"></b>
+                  </div>
+                  <div style="display: flex; gap: 8px">
+                    <button
+                      class="btn accent"
+                      id="btnSaveChanges"
+                      type="button"
+                      style="padding: 7px 12px; font-size: 13px"
+                    >
+                      Guardar cambios
+                    </button>
+                    <button
+                      class="btn ghost"
+                      id="btnStopEditing"
+                      type="button"
+                      style="padding: 7px 12px; font-size: 13px"
+                      title="Dejar de editar este horario guardado (para guardar como uno nuevo abajo)"
+                    >
+                      Guardar como otro
+                    </button>
+                  </div>
+                </div>
+                <div class="field" style="margin-bottom: 6px">
+                  <label for="saveName">Guardar el horario actual como</label>
+                  <div style="display: flex; gap: 8px">
+                    <input
+                      type="text"
+                      id="saveName"
+                      placeholder="Ej. Semestre 2026-1"
+                      autocomplete="off"
+                      style="flex: 1; min-width: 0"
+                    />
+                    <button
+                      class="btn accent"
+                      id="btnSaveNamed"
+                      type="button"
+                      title="Guardar en este navegador"
+                    >
+                      Guardar
+                    </button>
+                  </div>
+                </div>
+                <div class="hint" style="margin-bottom: 14px">
+                  Se guarda en este navegador (sin descargar nada). Si usas un
+                  nombre existente, lo reemplaza. <br> <b>(Antes de entrar a un link de horario, no olvides guardar o guardar los cambios de tu horario actual)</b>
+                </div>
+                <div id="savedList"></div>
+              </div>
+            </div>
+  
+            <div class="card" id="compareCard" style="margin-top: 20px" data-tab="horarios">
+              <div class="card-h"><h2>Comparar horarios</h2></div>
+              <div class="card-b">
+                <div class="compare-selects">
+                  <div class="field">
+                    <label for="cmpA">Horario A</label>
+                    <select id="cmpA"></select>
+                  </div>
+                  <div class="field">
+                    <label for="cmpB">Horario B</label>
+                    <select id="cmpB"></select>
+                  </div>
+                  <button class="btn accent" id="btnCompare" type="button">
+                    Comparar
+                  </button>
+                </div>
+                <div class="hint" style="margin-top: 10px; margin-bottom: 10px">
+                  Superpone dos horarios y encuentra las franjas en que ambos
+                  están libres (mínimo 30 min) — ideal para cuadrar trabajos en
+                  grupo. Guarda el horario de tu compañero en "Horarios
+                  guardados" para poder elegirlo aquí.
+                </div>
+                <div id="compareResults"></div>
+              </div>
+            </div>
+  
+          </div>
+          
           <div class="card" id="builderCard" style="margin-top: 20px" data-tab="horarios">
-            <div class="card-h"><h2>Armado de horario</h2></div>
+            <div class="card-h"><h2>Armado de horario</h2>
+            </div>
             <div class="card-b">
               <div class="hint" style="margin-top: 0">
                 Agrega cada grupo alternativo de una materia como una clase
@@ -3119,6 +3312,11 @@
           var cal = $("calendar");
           var days = activeDays();
           var title = $("calTitle");
+          
+          if (viewMode === "acts") {
+            renderActsView();
+            return;
+          }
           if (viewMode === "today") {
             renderTodayView(sev);
             return;
@@ -3136,6 +3334,8 @@
           var totalMin = end - start;
           var bodyH = (totalMin / 60) * HOUR_PX;
           var gridCols = "64px repeat(" + days.length + ", minmax(96px, 1fr))";
+
+          setStatCount(state.classes.length, state.classes.length === 1 ? "clase" : "clases");
 
           var html = '<div class="cal">';
           // encabezado
@@ -3300,6 +3500,9 @@
               '<div class="cal-empty"><div class="big">No tienes clases hoy</div><div>Disfruta el día libre.</div></div>';
             return;
           }
+
+          setStatCount(items.length, items.length === 1 ? "clase hoy" : "clases hoy");
+
           var nm = nowMinutes();
           var html = '<div class="today-list">';
           items.forEach(function (c, i) {
@@ -3348,6 +3551,98 @@
               });
             },
           );
+        }
+
+
+        // ---------- Vista "Actividades" (previa dentro del calendario) ----------
+        function renderActsView() {
+          var host = $("calendar");
+          if (!host) return;
+
+          var title = $("calTitle");
+          if (title) title.textContent = "Actividades";
+          // Solo pendientes, ordenadas por fecha más cercana
+          var list = (state.activities || [])
+            .filter(function (a) {
+              return !a.done && a.fecha;
+            })
+            .sort(function (a, b) {
+              return (a.fecha || "").localeCompare(b.fecha || "");
+            });
+
+          setStatCount(list.length, list.length === 1 ? "actividad" : "actividades");
+
+          if (list.length === 0) {
+            host.innerHTML =
+              '<div style="padding:24px 16px;text-align:center;color:var(--ink-3);font-size:13px">' +
+              "No hay actividades pendientes. Agrégalas en la sección de actividades." +
+              "</div>";
+            return;
+          }
+
+          var html = '<div class="act-list" style="padding:8px">';
+          list.forEach(function (a) {
+            var dleft = daysUntil(a.fecha);
+            var when = "",
+              cls = "far";
+            if (dleft === null) {
+              when = "\u2014";
+            } else if (dleft < 0) {
+              when = "Hace " + -dleft + (dleft === -1 ? " día" : " días");
+              cls = "past";
+            } else if (dleft === 0) {
+              when = "¡Hoy!";
+              cls = "soon";
+            } else if (dleft === 1) {
+              when = "Mañana";
+              cls = "soon";
+            } else {
+              when = "En " + dleft + " días";
+              cls = dleft <= 3 ? "soon" : dleft <= 7 ? "mid" : "far";
+            }
+            var color = TIPO_COLOR[a.tipo] || "#54607A";
+            var matColor = colorForMateria(a.materia);
+            var fechaTxt = "";
+            var fd = new Date(a.fecha + "T00:00:00");
+            if (!isNaN(fd.getTime()))
+              fechaTxt = fd.toLocaleDateString("es", {
+                weekday: "short",
+                day: "2-digit",
+                month: "short",
+              });
+            html +=
+              '<div class="act-item">' +
+              '<span class="act-bar" style="background:' +
+              matColor +
+              '"></span><div class="act-main"><div class="act-top">' +
+              '<span class="act-tag" style="background:' +
+              color +
+              '">' +
+              esc(a.tipo) +
+              "</span>" +
+              '<span class="act-mat">' +
+              esc(a.materia) +
+              "</span>" +
+              '<span class="act-when ' +
+              cls +
+              '">' +
+              esc(when) +
+              "</span></div>" +
+              '<div class="act-sub">' +
+              esc(fechaTxt) +
+              "</div>" +
+              (a.nota
+                ? '<div class="act-note">' + esc(a.nota) + "</div>"
+                : "") +
+              "</div></div>";
+          });
+          html += "</div>";
+          host.innerHTML = html;
+        }
+        
+        function setStatCount(n, label) {
+          if ($("statClasses")) $("statClasses").textContent = n;
+          if ($("statLabel")) $("statLabel").textContent = label;
         }
 
         // ---------- Línea de "ahora" ----------
@@ -3773,6 +4068,8 @@
           $("formTitle").textContent = "Editar clase";
           $("submitBtn").textContent = "Guardar cambios";
           $("cancelEdit").style.display = "inline-flex";
+          irATab("inicio"); // ir a Inicio, donde está el formulario de edición
+          $("formCard").classList.add("open");
           $("formCard").scrollIntoView({ behavior: "smooth", block: "start" });
           $("fMateria").focus();
         }
@@ -4188,6 +4485,13 @@
           var fg2 = isDark ? "#AAB3C7" : "#54607A";
 
           var clone = calEl.cloneNode(true);
+          // Quitar la línea roja de "ahora" del clon (no debe salir en la imagen)
+          Array.prototype.forEach.call(
+            clone.querySelectorAll(".now-line"),
+            function (n) {
+              n.parentNode.removeChild(n);
+            },
+          );
           var wrap = document.createElement("div");
           wrap.style.cssText =
             "position:fixed;left:-99999px;top:0;background:" +
@@ -4356,7 +4660,7 @@
           );
         }
         function setViewMode(m) {
-          viewMode = m === "today" ? "today" : "week";
+          viewMode = m === "today" ? "today" : m === "acts" ? "acts" : "week";
           try {
             localStorage.setItem(VIEW_KEY, viewMode);
           } catch (e) {}
@@ -5391,7 +5695,7 @@
           } catch (e) {
             host.innerHTML = "";
             $("qrDesc").textContent =
-              "Este horario es demasiado grande para un QR. Usa el botón \"Compartir enlace\" en su lugar.";
+              "Este horario es demasiado grande para un QR. Usa el botón \"Compartir horario\" en su lugar.";
           }
           $("qrUrl").textContent = url;
           $("qrModal").classList.add("show");
@@ -5421,6 +5725,15 @@
 
         // ---------- Init ----------
         function init() {
+          // Plegar / desplegar el formulario de clase
+        var formCardH = document.querySelector("#formCard .card-h");
+        if (formCardH) {
+          formCardH.addEventListener("click", function () {
+            $("formCard").classList.toggle("open");
+          });
+        }
+
+
           initTheme();
           loadBuilderPrefs();
           var restored = loadState();
@@ -5551,6 +5864,15 @@
             toast(
               "Aviso: el guardado automático no está disponible en esta vista.",
             );
+          }
+          // Toolbar desplegable (mobile)
+          var tbToggle = $("toolbarToggle");
+          if (tbToggle) {
+            tbToggle.addEventListener("click", function () {
+              tbToggle.classList.toggle("open");
+              var tb = document.querySelector(".toolbar");
+              if (tb) tb.classList.toggle("open");
+            });
           }
         }
 
