@@ -7,7 +7,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    <title>Generador de Horarios</title>
+    <title>HorApprio</title>
     
     <!-- ================= PWA: manifest y meta tags ================= -->
     <!-- Manifest: define nombre, íconos, colores y modo standalone -->
@@ -35,7 +35,7 @@
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
-    <meta name="apple-mobile-web-app-title" content="Horarios U" />
+    <meta name="apple-mobile-web-app-title" content="HorApprio" />
     <!-- Ícono que usa iOS al agregar a pantalla de inicio -->
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
     <!-- ================= fin PWA ================= -->
@@ -1543,7 +1543,8 @@
       body[data-tab="inicio"] [data-tab]:not([data-tab="inicio"]),
       body[data-tab="clases"] [data-tab]:not([data-tab="clases"]),
       body[data-tab="actividades"] [data-tab]:not([data-tab="actividades"]),
-      body[data-tab="horarios"] [data-tab]:not([data-tab="horarios"]) {
+      body[data-tab="horarios"] [data-tab]:not([data-tab="horarios"]), 
+      body[data-tab="puntos"] [data-tab]:not([data-tab="puntos"]) {
         display: none !important;
       }
       /* En pestañas distintas a Inicio, las tarjetas fluyen en una sola
@@ -1759,47 +1760,6 @@
         background: #7db2eb !important;
       }
 
-    /* Vista previa de actividades en el calendario */
-      .acts-preview { padding: 8px; }
-      .apv-item {
-        display: flex;
-        align-items: stretch;
-        gap: 10px;
-        padding: 10px;
-        border-bottom: 1px solid var(--line-2);
-
-      }
-      .apv-item:last-child { 
-        border-bottom: solid 1px var(--line);
-       }
-      .apv-bar { width: 5px; border-radius: 3px; flex: none; background: var(--accent-ink) !important; }
-      .apv-main { flex: 1; min-width: 0; }
-      .apv-top { display: flex; align-items: center; gap: 8px;
-                border: 1px solid var(--line);
-                border-radius: 13px;
-                padding: 10px 12px;
-      }
-      .apv-mat { font-weight: 700; }
-      .apv-tag {
-        font-size: 11px;
-        padding: 1px 7px;
-        border-radius: 999px;
-        background: var(--paper);
-        color: var(--accent-ink) !important;
-      
-      }
-      .apv-nota { font-size: 12px; color: var(--accent-ink); margin-top: 2px; }
-      .apv-when {
-        font-size: 11px;
-        font-weight: 700;
-        align-self: center;
-        white-space: nowrap;
-      }
-      .apv-when.past { color: #c7402f; }
-      .apv-when.soon { color: var(--accent-ink); }
-      .apv-when.mid  { color: var(--accent); }
-      .apv-when.far  { color: var(--accent-ink); }
-      
       /* Toolbar desplegable en mobile */
       .toolbar-toggle { display: none; }
       @media (max-width: 940px) {
@@ -1844,47 +1804,346 @@
       }
 
       /* Estadísticas + Todas las clases lado a lado en PC */
-      .clases-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        align-items: start;
-      }
       @media (max-width: 940px) {
         .clases-grid {
           grid-template-columns: 1fr; /* apilados en móvil */
         }
       }
 
+
+      /* Actividades: formulario a la izquierda, lista a la derecha (solo PC) */
+      @media (min-width: 941px) {
+        .clases-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        align-items: start;
+        }
+
+        .act-layout{
+          display: grid;
+          grid-template-columns: 340px 1fr;
+          gap: 24px;
+          align-items: start;
+        }
+
+        #activitiesCard .act-layout {
+          display: grid;
+          grid-template-columns: 340px 1fr;
+          gap: 24px;
+          align-items: start;
+        }
+        /* el formulario se queda "pegado" arriba al hacer scroll en la lista */
+        #activitiesCard .act-form {
+          position: sticky;
+          top: 16px;
+        }
+        /* la lista con scroll propio si hay muchas actividades */
+        #activitiesCard #actList {
+          max-height: 70vh;
+          overflow-y: auto;
+          padding-right: 4px;
+        }
+
+        #listBody{
+          overflow-y: auto;
+          max-height: 52vh;
+        }
+      }
+
+      /* Puntos */
+       .pts-ponderado {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+      .pp-box {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px 16px;
+        text-align: center;
+      }
+      .pp-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        margin-bottom: 4px;
+      }
+      .pp-value {
+        font-family: var(--disp);
+        font-size: 30px;
+        font-weight: 800;
+        color: var(--accent);
+        line-height: 1;
+      }
+      .pp-value.small {
+        font-size: 22px;
+        color: var(--ink);
+      }
+
+      /* Dos columnas: tabla general | detalle (PC) */
+      .pts-cols {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 20px;
+        align-items: start;
+      }
+      .pts-cols > * {
+        min-width: 0;   /* permite que columnas y tablas internas se encojan */
+      }
+      @media (max-width: 940px) {
+        .pts-cols { grid-template-columns: 1fr; }
+        .pts-ponderado { grid-template-columns: 1fr; }
+      }
+
+      /* Tabla general */
+      .pg-row .pg-mat {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .pg-mat {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-weight: 600;
+        min-width: 0;
+      }
+      .pts-general {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        overflow: hidden;
+        min-width: 0;
+      }
+      .pg-head, .pg-row {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(0, 0.9fr) minmax(0, 0.9fr) minmax(0, 1.1fr) auto;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 12px;
+        font-size: 13px;
+      }
+      .pg-head {
+        background: var(--paper);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--ink-3);
+      }
+      .pg-row { border-top: 1px solid var(--line-2); }
+      .pg-row.excluida { opacity: 0.45; }
+      .pg-mat { display: flex; align-items: center; gap: 7px; font-weight: 600; min-width: 0; }
+      .pg-mat span:last-child,
+      .pg-mat {
+        overflow: hidden;
+      }
+      .pg-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+      .pg-dot.ganada { background: #2e8b6f; }
+      .pg-dot.perdida { background: #c7402f; }
+      .pg-pts { font-weight: 700; }
+      .pg-pts.ganada { color: #2e8b6f; }
+      .pg-pts.perdida { color: #c7402f; }
+      .pg-empty { padding: 18px 12px; text-align: center; color: var(--ink-3); font-size: 13px; }
+      .pg-eye {
+        background: none; border: none; cursor: pointer;
+        color: var(--ink-3); padding: 4px; border-radius: 6px;
+        display: inline-flex;
+      }
+      .pg-eye:hover { background: var(--paper); color: var(--accent); }
+      .pg-eye svg { width: 17px; height: 17px; }
+
+      /* Detalle por materia */
+      .pts-detalle { display: flex; flex-direction: column; gap: 14px; }
+      .pd-card {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 12px;
+        background: var(--card);
+      }
+      .pd-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+      .pd-name {
+        flex: 1; font-weight: 700; font-size: 15px;
+        border: none; background: transparent; color: var(--ink);
+        border-bottom: 1px dashed transparent; padding: 2px 0;
+      }
+      .pd-name:focus { outline: none; border-bottom-color: var(--accent); }
+      .pd-meta { display: flex; align-items: center; gap: 10px; }
+      .pd-meta label { font-size: 11px; color: var(--ink-3); display: flex; align-items: center; gap: 4px; }
+      .pd-cred {
+        width: 46px; padding: 3px 5px; font-size: 13px;
+        border: 1px solid var(--line); border-radius: 6px;
+        background: var(--paper); color: var(--ink);
+      }
+      .pd-score { font-weight: 800; font-size: 14px; white-space: nowrap; }
+      .pd-score.ganada { color: #2e8b6f; }
+      .pd-score.perdida { color: #c7402f; }
+      .pd-del {
+        background: none; border: none; cursor: pointer;
+        color: var(--ink-3); font-size: 16px; padding: 2px 6px; border-radius: 6px;
+      }
+      .pd-del:hover { background: rgba(199,64,47,0.12); color: #c7402f; }
+
+      /* Barra de progreso 0-500 con marca en 300 (aprobación) */
+      .pd-bar {
+        position: relative; height: 8px; border-radius: 5px;
+        background: var(--line-2); overflow: hidden; margin-bottom: 6px;
+      }
+      .pd-bar-fill { height: 100%; border-radius: 5px; transition: width 0.25s; }
+      .pd-bar-fill.ganada { background: #2e8b6f; }
+      .pd-bar-fill.perdida { background: #c7402f; }
+      /* marca del umbral 300/500 = 60% */
+      .pd-bar-mark {
+        position: absolute; top: -2px; left: 60%;
+        width: 2px; height: 12px; background: var(--ink-2); opacity: 0.55;
+      }
+      .pd-stats {
+        display: flex; justify-content: space-between;
+        font-size: 12px; color: var(--ink-2); margin-bottom: 10px;
+      }
+      .pd-stats b.ganada { color: #2e8b6f; }
+      .pd-stats b.perdida { color: #c7402f; }
+
+      /* Actividades */
+      .pd-acts { display: flex; flex-direction: column; gap: 6px; }
+      .pd-act { display: flex; align-items: center; gap: 6px; }
+      .pa-name {
+        flex: 1; padding: 5px 8px; font-size: 13px;
+        border: 1px solid var(--line); border-radius: 7px;
+        background: var(--paper); color: var(--ink);
+      }
+      .pa-num {
+        width: 58px; padding: 5px 6px; font-size: 13px; text-align: center;
+        border: 1px solid var(--line); border-radius: 7px;
+        background: var(--paper); color: var(--ink);
+      }
+      .pa-sep { color: var(--ink-3); font-weight: 700; }
+      .pa-del {
+        background: none; border: none; cursor: pointer;
+        color: var(--ink-3); font-size: 14px; padding: 2px 5px; border-radius: 6px;
+      }
+      .pa-del:hover { background: rgba(199,64,47,0.12); color: #c7402f; }
+      .pd-addact {
+        margin-top: 4px; align-self: flex-start;
+        background: none; border: 1px dashed var(--line);
+        color: var(--ink-2); font-size: 12px; font-weight: 600;
+        padding: 6px 12px; border-radius: 8px; cursor: pointer;
+      }
+      .pd-addact:hover { border-color: var(--accent); color: var(--accent); }
+
+      .pts-addsub { margin-top: 18px; width: 100%; justify-content: center; }
+
+      /* ===== Acordeón de detalle (una materia a la vez) ===== */
+      /* Cabecera siempre visible: nombre + puntaje + lápiz */
+      .pd-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .pd-name-ro {
+        flex: 1;
+        font-weight: 700;
+        font-size: 15px;
+        color: var(--ink);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .pd-edit {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--ink-3);
+        padding: 5px;
+        border-radius: 7px;
+        display: inline-flex;
+        flex: none;
+      }
+      .pd-edit:hover { background: var(--paper); color: var(--accent); }
+      .pd-edit svg { width: 17px; height: 17px; }
+      .pd-card.open .pd-edit { color: var(--accent); }
+
+      /* Cuerpo colapsable: oculto por defecto, visible si .open */
+      .pd-body {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+      }
+      .pd-card.open .pd-body {
+        max-height: 1200px;
+        overflow: visible;
+        margin-top: 10px;
+      }
+
+      /* Fila editable (nombre + créditos + eliminar) dentro del cuerpo */
+      .pd-editrow {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .pd-editrow .pd-name {
+        flex: 1;
+        font-weight: 600;
+        font-size: 14px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: var(--paper);
+        color: var(--ink);
+        padding: 5px 8px;
+      }
+      .pd-credlabel {
+        font-size: 11px;
+        color: var(--ink-3);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+      }
+
+      /* La cabecera de card cerrada se siente clicable */
+      .pd-card { transition: border-color 0.15s; }
+      .pd-card.open { border-color: var(--accent); }
+
+
     </style>
   </head>
   <body>
-    <!-- ============ Barra lateral (solo PC) ============ -->
+    <!-- Barra lateral (PC)  -->
     <nav class="sidenav" aria-label="Navegación principal">
       <div class="sn-brand">
-        <img src="icons/icon-96.png" alt="" />
-        <b>Horarios U</b>
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232D6CB2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='3'/%3E%3Cpath d='M16 2v4M8 2v4M3 10h18'/%3E%3Crect x='7' y='13' width='4' height='4' fill='%232D6CB2' stroke='none'/%3E%3C/svg%3E" alt="" />
+        <b>HorApprio</b>
       </div>
       <div class="sn-sec">General</div>
       <button type="button" data-nav="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg><span>Inicio</span></button>
       <button type="button" data-nav="clases"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg><span>Clases</span></button>
       <button type="button" data-nav="actividades"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/><path d="M8.5 14.5l2 2 4-4"/></svg><span>Actividades</span></button>
+      <button type="button" data-nav="puntos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/></svg><span>Puntos</span></button>
       <button type="button" data-nav="horarios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg><span>Horarios/Guardar</span></button>
+      
     </nav>
 
-    <!-- ============ Barra inferior (solo móvil) ============ -->
+    <!-- Barra inferior (Mobile ) -->
     <nav class="bottomnav" aria-label="Navegación principal">
       <button type="button" data-nav="inicio" aria-label="Inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg><span>Inicio</span></button>
       <button type="button" data-nav="clases" aria-label="Clases"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg><span>Clases</span></button>
       <button type="button" data-nav="actividades" aria-label="Actividades"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/><path d="M8.5 14.5l2 2 4-4"/></svg><span>Actividades</span></button>
+      <button type="button" data-nav="puntos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/></svg><span>Puntos</span></button>
       <button type="button" data-nav="horarios" aria-label="Horarios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg><span>Horarios/Guardar</span></button>
     </nav>
 
+    <!-- Desarrollo del App -->
     <div class="wrap">
+      <!-- Header -->
       <header class="top">
         <div class="brand">
           <div class="kicker">Planificador académico</div>
-          <h1>Generador de Horarios</h1>
+          <h1>HorApprio</h1>
         </div>
         <div class="meta-fields">
           <div class="field">
@@ -1912,7 +2171,7 @@
           " >Acciones (Instalar, Compartir)</span>
         <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
       </button>
-      
+
       <div class="toolbar" data-tab="inicio">
         <button
           class="btn theme-toggle"
@@ -2150,7 +2409,15 @@
       </div>
 
       <div class="layout">
-        <!-- Left: form -->
+          <!-- Inicio -->
+           <div style="display: none;" class="card" id="conflicts" data-tab="inicio">
+            <div class="card-h">
+              <h2>Revisión de cruces</h2>
+              <span class="stat-row"><span id="confCount">—</span></span>
+            </div>
+            <div class="card-b" id="conflictsBody"></div>
+          </div>
+
         <div>
           <div class="card" id="formCard" data-tab="inicio">
             <div class="card-h">
@@ -2221,77 +2488,9 @@
               </form>
             </div>
           </div>
-
-  
-            <div class="card" id="activitiesCard" style="margin-top: 20px" data-tab="actividades">
-              <div class="card-h">
-                <h2>Actividades por materia</h2>
-                <span class="stat-row"><span id="actCount">—</span></span>
-              </div>
-              <div class="card-b">
-                <div class="hint" style="margin-top: 0; margin-bottom: 12px">
-                  Agenda parciales, talleres, exposiciones o proyectos con su
-                  fecha. Se guardan en este navegador (y viajan con el horario
-                  cuando lo guardas, exportas o compartes). Quítalos con la ✕
-                  cuando ya no los necesites.
-                </div>
-                <form id="actForm" class="act-form">
-                  <div class="fw">
-                    <label for="actMateria">Materia</label>
-                    <input
-                      type="text"
-                      id="actMateria"
-                      list="actMateriaList"
-                      placeholder="Ej. Estadística"
-                      autocomplete="off"
-                    />
-                    <datalist id="actMateriaList"></datalist>
-                  </div>
-                  <div>
-                    <label for="actTipo">Tipo</label>
-                    <select id="actTipo"></select>
-                  </div>
-                  <div>
-                    <label for="actFecha">Fecha</label>
-                    <input type="date" id="actFecha" />
-                  </div>
-                  <div class="fw">
-                    <label for="actNota">Nota (opcional)</label>
-                    <input
-                      type="text"
-                      id="actNota"
-                      placeholder="Ej. Temas 1 a 4, salón 302"
-                      autocomplete="off"
-                    />
-                  </div>
-                  <div class="fw">
-                    <button
-                      type="submit"
-                      class="btn accent"
-                      style="width: 100%; justify-content: center"
-                    >
-                      Agendar actividad
-                    </button>
-                  </div>
-                </form>
-                <div id="actList"></div>
-              </div>
-            </div>
-
-
         </div>
-        
-        <!-- Right: conflicts + calendar + list -->
-        <div>
-          <div  style="display: none;" class="card" id="conflicts" data-tab="inicio">
-            <div class="card-h">
-              <h2>Revisión de cruces</h2>
-              <span class="stat-row"><span id="confCount">—</span></span>
-            </div>
-            <div class="card-b" id="conflictsBody"></div>
-          </div>
 
-          <div class="card" id="calendar-fix" style="margin-bottom: 20px" data-tab="inicio">
+        <div class="card" id="calendar-fix" style="margin-bottom: 20px" data-tab="inicio">
             <div class="card-h">
               <h2 id="calTitle">Vista semanal</h2>
               <div class="head-tools">
@@ -2316,9 +2515,11 @@
                 <div id="calendar"></div>
               </div>
             </div>
-          </div>
+        </div>
 
+          <!-- Clases -->
           <div class="clases-grid">
+
             <div class="card" id="statsCard" style="margin-top: 20px" data-tab="clases">
               <div class="card-h"><h2>Estadísticas</h2></div>
               <div class="card-b" id="statsBody"></div>
@@ -2331,106 +2532,180 @@
 
           </div>
 
-
-          <div class="clases-grid"> 
-
-            <div class="card" id="savedCard" style="margin-top: 20px" data-tab="horarios">
-              <div class="card-h"><h2>Horarios guardados</h2></div>
-              <div class="card-b">
-                <div
-                  id="currentSavedBanner"
-                  style="
-                    display: none;
-                    margin-bottom: 14px;
-                    padding: 10px 12px;
-                    background: var(--accent-soft);
-                    border: 1px solid var(--accent);
-                    border-radius: 9px;
-                    align-items: center;
-                    justify-content: space-between;
-                    gap: 10px;
-                    flex-wrap: wrap;
-                  "
-                >
-                  <div style="font-size: 13px; color: var(--ink)">
-                    Editando: <b id="currentSavedName"></b>
-                  </div>
-                  <div style="display: flex; gap: 8px">
-                    <button
-                      class="btn accent"
-                      id="btnSaveChanges"
-                      type="button"
-                      style="padding: 7px 12px; font-size: 13px"
-                    >
-                      Guardar cambios
-                    </button>
-                    <button
-                      class="btn ghost"
-                      id="btnStopEditing"
-                      type="button"
-                      style="padding: 7px 12px; font-size: 13px"
-                      title="Dejar de editar este horario guardado (para guardar como uno nuevo abajo)"
-                    >
-                      Guardar como otro
-                    </button>
-                  </div>
-                </div>
-                <div class="field" style="margin-bottom: 6px">
-                  <label for="saveName">Guardar el horario actual como</label>
-                  <div style="display: flex; gap: 8px">
-                    <input
-                      type="text"
-                      id="saveName"
-                      placeholder="Ej. Semestre 2026-1"
-                      autocomplete="off"
-                      style="flex: 1; min-width: 0"
-                    />
-                    <button
-                      class="btn accent"
-                      id="btnSaveNamed"
-                      type="button"
-                      title="Guardar en este navegador"
-                    >
-                      Guardar
-                    </button>
-                  </div>
-                </div>
-                <div class="hint" style="margin-bottom: 14px">
-                  Se guarda en este navegador (sin descargar nada). Si usas un
-                  nombre existente, lo reemplaza. <br> <b>(Antes de entrar a un link de horario, no olvides guardar o guardar los cambios de tu horario actual)</b>
-                </div>
-                <div id="savedList"></div>
+          <!-- Actividades -->
+          <div class="card" id="activitiesCard" style="margin-top: 20px" data-tab="actividades">
+              <div class="card-h">
+                <h2>Actividades por materia</h2>
+                <span class="stat-row"><span id="actCount">—</span></span>
               </div>
-            </div>
-  
-            <div class="card" id="compareCard" style="margin-top: 20px" data-tab="horarios">
-              <div class="card-h"><h2>Comparar horarios</h2></div>
               <div class="card-b">
-                <div class="compare-selects">
-                  <div class="field">
-                    <label for="cmpA">Horario A</label>
-                    <select id="cmpA"></select>
-                  </div>
-                  <div class="field">
-                    <label for="cmpB">Horario B</label>
-                    <select id="cmpB"></select>
-                  </div>
-                  <button class="btn accent" id="btnCompare" type="button">
-                    Comparar
-                  </button>
+
+                <div class="hint" style="margin-top: 0; margin-bottom: 12px">
+                  Agenda parciales, talleres, exposiciones o proyectos con su
+                  fecha. Se guardan en este navegador (y viajan con el horario
+                  cuando lo guardas, exportas o compartes). Quítalos con la ✕
+                  cuando ya no los necesites.
                 </div>
-                <div class="hint" style="margin-top: 10px; margin-bottom: 10px">
-                  Superpone dos horarios y encuentra las franjas en que ambos
-                  están libres (mínimo 30 min) — ideal para cuadrar trabajos en
-                  grupo. Guarda el horario de tu compañero en "Horarios
-                  guardados" para poder elegirlo aquí.
+                <div class="act-layout">
+                  <form id="actForm" class="act-form">
+                    <div class="fw">
+                      <label for="actMateria">Materia</label>
+                      <input
+                        type="text"
+                        id="actMateria"
+                        list="actMateriaList"
+                        placeholder="Ej. Estadística"
+                        autocomplete="off"
+                      />
+                      <datalist id="actMateriaList"></datalist>
+                    </div>
+                    <div>
+                      <label for="actTipo">Tipo</label>
+                      <select id="actTipo"></select>
+                    </div>
+                    <div>
+                      <label for="actFecha">Fecha</label>
+                      <input type="date" id="actFecha" />
+                    </div>
+                    <div class="fw">
+                      <label for="actNota">Nota (opcional)</label>
+                      <input
+                        type="text"
+                        id="actNota"
+                        placeholder="Ej. Temas 1 a 4, salón 302"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="fw">
+                      <button
+                        type="submit"
+                        class="btn accent"
+                        style="width: 100%; justify-content: center"
+                      >
+                        Agendar actividad
+                      </button>
+                    </div>
+                  </form>
+                  <div id="actList"></div>
                 </div>
-                <div id="compareResults"></div>
               </div>
-            </div>
-  
-          </div>
           
+            </div>
+          
+          <!-- Puntos-->
+          <div class="card" id="puntosCard" data-tab="puntos" style="margin-top: 20px">
+            <div class="card-h">
+              <h2>Puntos y ponderado</h2>
+            </div>
+            <div class="card-b">
+              <div class="hint" style="margin-top: 0; margin-bottom: 14px">
+                Lleva el control de tus notas en escala 0–500 (0–299 perdida,
+                300–500 ganada). El ponderado se calcula solo:
+                Σ(puntos × créditos) ÷ Σ(créditos). Usa el ojito para excluir
+                una materia (homologada o que no cuenta) del ponderado.
+              </div>
+              <div id="puntosBody"></div>
+            </div>
+          </div>
+
+          
+          <!-- Horarios/Guardar -->
+          <div class="clases-grid"> 
+              <div class="card" id="savedCard" style="margin-top: 20px" data-tab="horarios">
+                <div class="card-h"><h2>Horarios guardados</h2></div>
+                <div class="card-b">
+                  <div
+                    id="currentSavedBanner"
+                    style="
+                      display: none;
+                      margin-bottom: 14px;
+                      padding: 10px 12px;
+                      background: var(--accent-soft);
+                      border: 1px solid var(--accent);
+                      border-radius: 9px;
+                      align-items: center;
+                      justify-content: space-between;
+                      gap: 10px;
+                      flex-wrap: wrap;
+                    "
+                  >
+                    <div style="font-size: 13px; color: var(--ink)">
+                      Editando: <b id="currentSavedName"></b>
+                    </div>
+                    <div style="display: flex; gap: 8px">
+                      <button
+                        class="btn accent"
+                        id="btnSaveChanges"
+                        type="button"
+                        style="padding: 7px 12px; font-size: 13px"
+                      >
+                        Guardar cambios
+                      </button>
+                      <button
+                        class="btn ghost"
+                        id="btnStopEditing"
+                        type="button"
+                        style="padding: 7px 12px; font-size: 13px"
+                        title="Dejar de editar este horario guardado (para guardar como uno nuevo abajo)"
+                      >
+                        Guardar como otro
+                      </button>
+                    </div>
+                  </div>
+                  <div class="field" style="margin-bottom: 6px">
+                    <label for="saveName">Guardar el horario actual como</label>
+                    <div style="display: flex; gap: 8px">
+                      <input
+                        type="text"
+                        id="saveName"
+                        placeholder="Ej. Semestre 2026-1"
+                        autocomplete="off"
+                        style="flex: 1; min-width: 0"
+                      />
+                      <button
+                        class="btn accent"
+                        id="btnSaveNamed"
+                        type="button"
+                        title="Guardar en este navegador"
+                      >
+                        Guardar
+                      </button>
+                    </div>
+                  </div>
+                  <div class="hint" style="margin-bottom: 14px">
+                    Se guarda en este navegador (sin descargar nada). Si usas un
+                    nombre existente, lo reemplaza. <br> <b>(Antes de entrar a un link de horario, no olvides guardar o guardar los cambios de tu horario actual)</b>
+                  </div>
+                  <div id="savedList"></div>
+                </div>
+              </div>
+    
+              <div class="card" id="compareCard" style="margin-top: 20px" data-tab="horarios">
+                <div class="card-h"><h2>Comparar horarios</h2></div>
+                <div class="card-b">
+                  <div class="compare-selects">
+                    <div class="field">
+                      <label for="cmpA">Horario A</label>
+                      <select id="cmpA"></select>
+                    </div>
+                    <div class="field">
+                      <label for="cmpB">Horario B</label>
+                      <select id="cmpB"></select>
+                    </div>
+                    <button class="btn accent" id="btnCompare" type="button">
+                      Comparar
+                    </button>
+                  </div>
+                  <div class="hint" style="margin-top: 10px; margin-bottom: 10px">
+                    Superpone dos horarios y encuentra las franjas en que ambos
+                    están libres (mínimo 30 min) — ideal para cuadrar trabajos en
+                    grupo. Guarda el horario de tu compañero en "Horarios
+                    guardados" para poder elegirlo aquí.
+                  </div>
+                  <div id="compareResults"></div>
+                </div>
+              </div>
+          </div>
           <div class="card" id="builderCard" style="margin-top: 20px" data-tab="horarios">
             <div class="card-h"><h2>Armado de horario</h2>
             </div>
@@ -2442,96 +2717,100 @@
                 prioridades y genera las combinaciones posibles sin cruces.
               </div>
 
-              <div class="bp" id="bpPin">
-                <div class="bp-title">Fijar grupos (prioridad sí o sí)</div>
-                <div class="hint" style="margin-top: 0; margin-bottom: 8px">
-                  Marca el grupo/profesor que quieres conservar obligatoriamente.
-                  Todas las combinaciones lo incluirán.
-                </div>
-                <div id="pinList"></div>
-              </div>
-
-              <div class="bp">
-                <div class="bp-title">Sin clases estos días</div>
-                <div class="chips" id="bpDays"></div>
-              </div>
-
-              <div class="bp">
-                <div class="bp-title">Límites de horario</div>
-                <div class="bp-times">
-                  <div>
-                    <label for="bpEarliest">Nada antes de</label>
-                    <input type="time" id="bpEarliest" step="1800" />
+              <div class="act-layout"> 
+                <div class="bp" id="bpPin">
+                  <div class="bp-title">Fijar grupos (prioridad sí o sí)</div>
+                  <div class="hint" style="margin-top: 0; margin-bottom: 8px">
+                    Marca el grupo/profesor que quieres conservar obligatoriamente.
+                    Todas las combinaciones lo incluirán.
                   </div>
-                  <div>
-                    <label for="bpLatest">Nada después de</label>
-                    <input type="time" id="bpLatest" step="1800" />
+                  <div id="pinList"></div>
+                </div>
+
+                <div>
+                  <div class="bp">
+                    <div class="bp-title">Sin clases estos días</div>
+                    <div class="chips" id="bpDays"></div>
                   </div>
-                </div>
-                <div class="hint" style="margin-bottom: 0">
-                  "Nada antes" descarta grupos que empiecen antes de esa hora;
-                  "nada después" descarta los que terminen después.
-                </div>
-              </div>
 
-              <div class="bp">
-                <div class="bp-title">Bloquear franjas específicas</div>
-                <div class="hint" style="margin-top: 0; margin-bottom: 8px">
-                  Ej. "no quiero clase el Martes de 12:00 a 14:00".
-                </div>
-                <div id="winList"></div>
-                <button
-                  type="button"
-                  class="btn ghost"
-                  id="btnAddWin"
-                  style="padding: 7px 12px; font-size: 13px"
-                >
-                  + Agregar franja bloqueada
-                </button>
-              </div>
+                  <div class="bp">
+                    <div class="bp-title">Límites de horario</div>
+                    <div class="bp-times">
+                      <div>
+                        <label for="bpEarliest">Nada antes de</label>
+                        <input type="time" id="bpEarliest" step="1800" />
+                      </div>
+                      <div>
+                        <label for="bpLatest">Nada después de</label>
+                        <input type="time" id="bpLatest" step="1800" />
+                      </div>
+                    </div>
+                    <div class="hint" style="margin-bottom: 0">
+                      "Nada antes" descarta grupos que empiecen antes de esa hora;
+                      "nada después" descarta los que terminen después.
+                    </div>
+                  </div>
 
-              <div
-                style="
-                  display: flex;
-                  gap: 8px;
-                  align-items: center;
-                  flex-wrap: wrap;
-                  margin-bottom: 10px;
-                "
-              >
-                <button
-                  class="btn ghost"
-                  id="btnClearFilters"
-                  type="button"
-                  style="padding: 8px 12px; font-size: 13px"
-                >
-                  Limpiar filtros
-                </button>
-                <span
-                  id="bpSummary"
-                  class="hint"
-                  style="margin: 0"
-                ></span>
-              </div>
+                  <div class="bp">
+                    <div class="bp-title">Bloquear franjas específicas</div>
+                    <div class="hint" style="margin-top: 0; margin-bottom: 8px">
+                      Ej. "no quiero clase el Martes de 12:00 a 14:00".
+                    </div>
+                    <div id="winList"></div>
+                    <button
+                      type="button"
+                      class="btn ghost"
+                      id="btnAddWin"
+                      style="padding: 7px 12px; font-size: 13px"
+                    >
+                      + Agregar franja bloqueada
+                    </button>
+                  </div>
 
-              <button
-                class="btn accent"
-                id="btnBuild"
-                type="button"
-                style="width: 100%; justify-content: center"
-              >
-                Generar combinaciones
-              </button>
-              <div id="builderResults" style="margin-top: 12px"></div>
+                  <div
+                    style="
+                      display: flex;
+                      gap: 8px;
+                      align-items: center;
+                      flex-wrap: wrap;
+                      margin-bottom: 10px;
+                    "
+                  >
+                    <button
+                      class="btn ghost"
+                      id="btnClearFilters"
+                      type="button"
+                      style="padding: 8px 12px; font-size: 13px"
+                    >
+                      Limpiar filtros
+                    </button>
+                    <span
+                      id="bpSummary"
+                      class="hint"
+                      style="margin: 0"
+                    ></span>
+                  </div>
+
+                  <button
+                    class="btn accent"
+                    id="btnBuild"
+                    type="button"
+                    style="width: 100%; justify-content: center"
+                  >
+                    Generar combinaciones
+                  </button>
+                  <div id="builderResults" style="margin-top: 12px"></div>
+                </div>  
+              </div>
             </div>
           </div>
 
-        </div>
+        
       </div>
     </div>
 
     <div class="toast" id="toast"></div>
-
+    <!-- Modal del QR  -->
     <div class="modal-back" id="qrModal">
       <div class="modal">
         <h3>Compartir por QR</h3>
@@ -5213,6 +5492,487 @@
           );
         }
 
+        /* PUNTOSS */
+         var PUNTOS_KEY = "generadorHorarios:puntos";
+        var puntosData = { subjects: [] };
+        var puntosOpenId = null; // id de la materia desplegada (una a la vez)
+
+        function loadPuntos() {
+          try {
+            var raw = localStorage.getItem(PUNTOS_KEY);
+            if (raw) puntosData = JSON.parse(raw);
+          } catch (e) {}
+          if (!puntosData || !Array.isArray(puntosData.subjects))
+            puntosData = { subjects: [] };
+        }
+        function savePuntos() {
+          try {
+            localStorage.setItem(PUNTOS_KEY, JSON.stringify(puntosData));
+          } catch (e) {}
+        }
+
+        // --- helpers de cálculo ---
+        function pObtenidos(s) {
+          return (s.activities || []).reduce(function (a, x) {
+            return a + (+x.obt || 0);
+          }, 0);
+        }
+        function pTotales(s) {
+          return (s.activities || []).reduce(function (a, x) {
+            return a + (+x.total || 0);
+          }, 0);
+        }
+        function pPerdidos(s) {
+          return pTotales(s) - pObtenidos(s);
+        }
+        function pEstado(pts) {
+          return pts >= 300 ? "ganada" : "perdida";
+        }
+        function pPonderado() {
+          var sumaDef = 0,
+            sumaCred = 0;
+          puntosData.subjects.forEach(function (s) {
+            if (s.excluida) return;
+            sumaDef += pObtenidos(s) * (+s.creditos || 0);
+            sumaCred += +s.creditos || 0;
+          });
+          return {
+            sumaDef: sumaDef,
+            sumaCred: sumaCred,
+            valor: sumaCred ? sumaDef / sumaCred : 0,
+          };
+        }
+
+        // Trae las materias del horario que aún no estén en Puntos.
+        // Se llama al entrar a la pestaña. Créditos en 0 (los pone el usuario).
+        function sincronizarMaterias() {
+          var enHorario = {};
+          (state.classes || []).forEach(function (c) {
+            if (c.materia) enHorario[c.materia] = true;
+          });
+          var yaEnPuntos = {};
+          puntosData.subjects.forEach(function (s) {
+            yaEnPuntos[(s.nombre || "").trim().toLowerCase()] = true;
+          });
+          var agregadas = 0;
+          Object.keys(enHorario).forEach(function (nombre) {
+            if (!yaEnPuntos[nombre.trim().toLowerCase()]) {
+              puntosData.subjects.push({
+                id: uid(),
+                nombre: nombre,
+                creditos: 0,
+                excluida: false,
+                activities: [],
+              });
+              agregadas++;
+            }
+          });
+          if (agregadas > 0) savePuntos();
+        }
+
+        // --- crear/eliminar ---
+        function addSubjectPuntos() {
+          puntosData.subjects.push({
+            id: uid(),
+            nombre: "Nueva materia",
+            creditos: 3,
+            excluida: false,
+            activities: [],
+            _open: true,
+          });
+          savePuntos();
+          renderPuntos();
+        }
+        function delSubjectPuntos(id) {
+          puntosData.subjects = puntosData.subjects.filter(function (s) {
+            return s.id !== id;
+          });
+          savePuntos();
+          renderPuntos();
+        }
+        function addActPuntos(sid) {
+          var s = puntosData.subjects.filter(function (x) {
+            return x.id === sid;
+          })[0];
+          if (!s) return;
+          if (!s.activities) s.activities = [];
+          s.activities.push({ nombre: "", total: 0, obt: 0 });
+          savePuntos();
+          renderPuntos();
+        }
+        function delActPuntos(sid, idx) {
+          var s = puntosData.subjects.filter(function (x) {
+            return x.id === sid;
+          })[0];
+          if (!s) return;
+          s.activities.splice(idx, 1);
+          savePuntos();
+          renderPuntos();
+        }
+
+        // --- render principal ---
+        function renderPuntos() {
+          var host = $("puntosBody");
+          if (!host) return;
+
+          // Resumen ponderado arriba
+          var p = pPonderado();
+          var resumen =
+            '<div class="pts-ponderado">' +
+            '<div class="pp-box"><div class="pp-label">Ponderado</div><div class="pp-value">' +
+            p.valor.toFixed(0) +
+            "</div></div>" +
+            '<div class="pp-box"><div class="pp-label">Suma definitiva</div><div class="pp-value small">' +
+            p.sumaDef +
+            "</div></div>" +
+            '<div class="pp-box"><div class="pp-label">Créditos</div><div class="pp-value small">' +
+            p.sumaCred +
+            "</div></div>" +
+            "</div>";
+
+          // Tabla general de materias
+          var tabla = '<div class="pts-general">';
+          tabla +=
+            '<div class="pg-head"><span>Materia</span><span>Puntos</span>' +
+            "<span>Créditos</span><span>Definitiva</span><span></span></div>";
+          if (puntosData.subjects.length === 0) {
+            tabla +=
+              '<div class="pg-empty">Aún no hay materias. Agrega una para empezar.</div>';
+          }
+          puntosData.subjects.forEach(function (s) {
+            var obt = pObtenidos(s);
+            var def = s.excluida ? "—" : obt * (+s.creditos || 0);
+            var est = pEstado(obt);
+            tabla +=
+              '<div class="pg-row' +
+              (s.excluida ? " excluida" : "") +
+              '">' +
+              '<span class="pg-mat">' +
+              '<span class="pg-dot ' +
+              est +
+              '"></span>' +
+              esc(s.nombre) +
+              "</span>" +
+              '<span class="pg-pts ' +
+              est +
+              '">' +
+              obt +
+              "</span>" +
+              "<span>" +
+              (+s.creditos || 0) +
+              "</span>" +
+              "<span>" +
+              def +
+              "</span>" +
+              '<span><button class="pg-eye" data-eye="' +
+              s.id +
+              '" title="' +
+              (s.excluida
+                ? "Excluida del ponderado (clic para incluir)"
+                : "Incluida (clic para excluir)") +
+              '">' +
+              (s.excluida ? eyeOff : eyeOn) +
+              "</button></span>" +
+              "</div>";
+          });
+          tabla += "</div>";
+
+          // Detalle por materia (acordeones con actividades)
+          var detalle = '<div class="pts-detalle">';
+          puntosData.subjects.forEach(function (s) {
+            var obt = pObtenidos(s),
+              tot = pTotales(s),
+              per = pPerdidos(s);
+            var est = pEstado(obt);
+            var abierta = puntosOpenId === s.id; // ¿esta materia está desplegada?
+            detalle +=
+              '<div class="pd-card' +
+              (abierta ? " open" : "") +
+              '">' +
+              // Cabecera: siempre visible. Muestra nombre + puntaje + lápiz.
+              '<div class="pd-head">' +
+              '<span class="pd-name-ro">' +
+              esc(s.nombre) +
+              "</span>" +
+              '<span class="pd-score ' +
+              est +
+              '" data-scorecard="' + s.id + '">' +
+              obt +
+              " / " +
+              tot +
+              "</span>" +
+              // Lápiz: despliega/cierra esta materia (una a la vez)
+              '<button class="pd-edit" data-edit-subj="' +
+              s.id +
+              '" title="' +
+              (abierta ? "Cerrar" : "Editar notas de esta materia") +
+              '">' +
+              (abierta ? pencilOpen : pencilClosed) +
+              "</button>" +
+              "</div>";
+
+            // Cuerpo colapsable: solo se ve si la materia está abierta
+            detalle += '<div class="pd-body">';
+            // Fila editable de nombre + créditos
+            detalle +=
+              '<div class="pd-editrow">' +
+              '<input class="pd-name" data-name="' +
+              s.id +
+              '" value="' +
+              esc(s.nombre) +
+              '" placeholder="Nombre de la materia" />' +
+              '<label class="pd-credlabel">Créditos <input type="number" min="0" class="pd-cred" data-cred="' +
+              s.id +
+              '" value="' +
+              (+s.creditos || 0) +
+              '" /></label>' +
+              '<button class="pd-del" data-delsub="' +
+              s.id +
+              '" title="Eliminar materia">✕</button>' +
+              "</div>";
+            // Barra de progreso 0-500
+            var pct = Math.max(0, Math.min(100, (obt / 500) * 100));
+            detalle +=
+              '<div class="pd-bar"><div class="pd-bar-fill ' +
+              est +
+              '" data-barfill="' + s.id + '" style="width:' +
+              pct +
+              '%"></div>' +
+              '<span class="pd-bar-mark"></span></div>';
+            detalle +=
+              '<div class="pd-stats"><span>Perdidos: <b>' +
+              per +
+              "</b></span>" +
+              "<span>Estado: <b class=\"" +
+              est +
+              '">' +
+              (est === "ganada" ? "Ganando" : "En riesgo") +
+              "</b></span></div>";
+
+            // Actividades de la materia
+            detalle += '<div class="pd-acts">';
+            (s.activities || []).forEach(function (a, idx) {
+              detalle +=
+                '<div class="pd-act">' +
+                '<input class="pa-name" data-act="' +
+                s.id +
+                "|" +
+                idx +
+                '|nombre" value="' +
+                esc(a.nombre || "") +
+                '" placeholder="Actividad (ej. Parcial)" />' +
+                '<input type="number" class="pa-num" data-act="' +
+                s.id +
+                "|" +
+                idx +
+                '|obt" value="' +
+                (+a.obt || 0) +
+                '" title="Puntos obtenidos" />' +
+                '<span class="pa-sep">/</span>' +
+                '<input type="number" class="pa-num" data-act="' +
+                s.id +
+                "|" +
+                idx +
+                '|total" value="' +
+                (+a.total || 0) +
+                '" title="Puntos que vale" />' +
+                '<button class="pa-del" data-delact="' +
+                s.id +
+                "|" +
+                idx +
+                '" title="Quitar">✕</button>' +
+                "</div>";
+            });
+            detalle +=
+              '<button class="pd-addact" data-addact="' +
+              s.id +
+              '">+ Agregar actividad</button>';
+            detalle += "</div>"; // cierra .pd-acts
+            detalle += "</div>"; // cierra .pd-body (colapsable)
+            detalle += "</div>"; // cierra .pd-card
+          });
+          detalle += "</div>";
+
+          host.innerHTML =
+            resumen +
+            '<div class="pts-cols">' +
+            tabla +
+            detalle +
+            "</div>" +
+            '<button class="btn accent pts-addsub" id="btnAddSubject">+ Agregar materia</button>';
+
+          wirePuntos();
+        }
+
+        // Iconos de ojo (incluir/excluir)
+        var eyeOn =
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+        var eyeOff =
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-10-8-10-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+        // Lápiz cerrado (editar) y abierto (una X sutil para cerrar)
+        var pencilClosed =
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>';
+        var pencilOpen =
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+
+        // --- conectar eventos tras cada render ---
+        function wirePuntos() {
+          var host = $("puntosBody");
+          if (!host) return;
+
+          // agregar materia
+          var addBtn = $("btnAddSubject");
+          if (addBtn) addBtn.addEventListener("click", addSubjectPuntos);
+
+          // lápiz: desplegar/cerrar una materia (acordeón, una a la vez)
+          host.querySelectorAll("[data-edit-subj]").forEach(function (b) {
+            b.addEventListener("click", function () {
+              var id = b.getAttribute("data-edit-subj");
+              // si ya estaba abierta, se cierra; si no, se abre (y cierra las demás)
+              puntosOpenId = puntosOpenId === id ? null : id;
+              renderPuntos();
+            });
+          });
+
+          // ojito incluir/excluir
+          host.querySelectorAll("[data-eye]").forEach(function (b) {
+            b.addEventListener("click", function () {
+              var s = puntosData.subjects.filter(function (x) {
+                return x.id === b.getAttribute("data-eye");
+              })[0];
+              if (s) {
+                s.excluida = !s.excluida;
+                savePuntos();
+                renderPuntos();
+              }
+            });
+          });
+          // eliminar materia
+          host.querySelectorAll("[data-delsub]").forEach(function (b) {
+            b.addEventListener("click", function () {
+              delSubjectPuntos(b.getAttribute("data-delsub"));
+            });
+          });
+          // nombre de materia
+          host.querySelectorAll("[data-name]").forEach(function (inp) {
+            inp.addEventListener("input", function () {
+              var s = puntosData.subjects.filter(function (x) {
+                return x.id === inp.getAttribute("data-name");
+              })[0];
+              if (s) {
+                s.nombre = inp.value;
+                savePuntos();
+                // no re-render completo para no perder el foco
+                syncPuntosGeneral();
+              }
+            });
+          });
+          // créditos
+          host.querySelectorAll("[data-cred]").forEach(function (inp) {
+            inp.addEventListener("input", function () {
+              var s = puntosData.subjects.filter(function (x) {
+                return x.id === inp.getAttribute("data-cred");
+              })[0];
+              if (s) {
+                s.creditos = +inp.value || 0;
+                savePuntos();
+                syncPuntosGeneral();
+              }
+            });
+          });
+          // agregar actividad
+          host.querySelectorAll("[data-addact]").forEach(function (b) {
+            b.addEventListener("click", function () {
+              addActPuntos(b.getAttribute("data-addact"));
+            });
+          });
+          // eliminar actividad
+          host.querySelectorAll("[data-delact]").forEach(function (b) {
+            b.addEventListener("click", function () {
+              var parts = b.getAttribute("data-delact").split("|");
+              delActPuntos(parts[0], +parts[1]);
+            });
+          });
+          // editar campos de actividad
+          host.querySelectorAll("[data-act]").forEach(function (inp) {
+            inp.addEventListener("input", function () {
+              var parts = inp.getAttribute("data-act").split("|");
+              var s = puntosData.subjects.filter(function (x) {
+                return x.id === parts[0];
+              })[0];
+              if (!s) return;
+              var a = s.activities[+parts[1]];
+              if (!a) return;
+              var campo = parts[2];
+              if (campo === "nombre") a.nombre = inp.value;
+              else a[campo] = +inp.value || 0;
+              savePuntos();
+              syncPuntosScore(parts[0]);
+              syncPuntosGeneral();
+            });
+          });
+        }
+
+        // Actualiza el ponderado en vivo sin reconstruir todo (preserva foco)
+        function syncPuntosGeneral() {
+          var p = pPonderado();
+          var box = document.querySelector(".pts-ponderado");
+          if (box) {
+            var vals = box.querySelectorAll(".pp-value");
+            if (vals[0]) vals[0].textContent = p.valor.toFixed(0);
+            if (vals[1]) vals[1].textContent = p.sumaDef;
+            if (vals[2]) vals[2].textContent = p.sumaCred;
+          }
+        }
+        function syncPuntosScore(sid) {
+          var s = puntosData.subjects.filter(function (x) {
+            return x.id === sid;
+          })[0];
+          if (!s) return;
+          var obt = pObtenidos(s), tot = pTotales(s);
+          var est = pEstado(obt);
+          var card = document.querySelector('[data-scorecard="' + sid + '"]');
+          if (card) {
+            card.textContent = obt + " / " + tot;
+            card.className = "pd-score " + est;
+          }
+          var bar = document.querySelector('[data-barfill="' + sid + '"]');
+          if (bar) {
+            bar.style.width = Math.max(0, Math.min(100, (obt/500)*100)) + "%";
+            bar.className = "pd-bar-fill " + est;
+          }
+        }
+
+        // Trae las materias del horario que aún no estén en Puntos
+        function sincronizarMaterias() {
+          // materias únicas del horario
+          var enHorario = {};
+          (state.classes || []).forEach(function (c) {
+            if (c.materia) enHorario[c.materia] = true;
+          });
+          // nombres que ya existen en Puntos (para no duplicar)
+          var yaEnPuntos = {};
+          puntosData.subjects.forEach(function (s) {
+            yaEnPuntos[(s.nombre || "").trim().toLowerCase()] = true;
+          });
+          // agregar las que falten
+          var agregadas = 0;
+          Object.keys(enHorario).forEach(function (nombre) {
+            if (!yaEnPuntos[nombre.trim().toLowerCase()]) {
+              puntosData.subjects.push({
+                id: uid(),
+                nombre: nombre,
+                creditos: 0, // los pones tú a mano
+                excluida: false,
+                activities: [],
+                _open: false,
+              });
+              agregadas++;
+            }
+          });
+          if (agregadas > 0) savePuntos();
+        }
+
         // ---------- Actividades por materia ----------
         function fillActivityControls() {
           var sel = $("actTipo");
@@ -5725,6 +6485,7 @@
 
         // ---------- Init ----------
         function init() {
+
           // Plegar / desplegar el formulario de clase
         var formCardH = document.querySelector("#formCard .card-h");
         if (formCardH) {
@@ -5874,6 +6635,10 @@
               if (tb) tb.classList.toggle("open");
             });
           }
+
+          loadPuntos();
+          renderPuntos();
+
         }
 
         if (document.readyState === "loading")
@@ -6345,7 +7110,7 @@
            muestra las tarjetas. Ningún dato ni función se ve afectado.
            ============================================================ */
         var TAB_KEY = "generadorHorarios:tab";
-        var TABS_VALIDAS = ["inicio", "clases", "actividades", "horarios"];
+        var TABS_VALIDAS = ["inicio", "clases", "actividades", "horarios", "puntos"];
         function irATab(t) {
           if (TABS_VALIDAS.indexOf(t) < 0) t = "inicio";
           document.body.setAttribute("data-tab", t);
@@ -6358,6 +7123,8 @@
             localStorage.setItem(TAB_KEY, t);
           } catch (e) {}
           window.scrollTo(0, 0);
+
+          if (t === "puntos") { sincronizarMaterias(); renderPuntos(); }
         }
         Array.prototype.forEach.call(
           document.querySelectorAll("[data-nav]"),

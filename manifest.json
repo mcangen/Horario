@@ -1,6 +1,6 @@
 {
-  "name": "Generador de Horarios Universitarios",
-  "short_name": "Horarios U",
+  "name": "HorApprio",
+  "short_name": "HorApprio",
   "description": "Organiza tu horario universitario: materias, grupos, actividades (parciales, talleres, proyectos), combinaciones sin cruces, comparación de horarios y compartir por enlace o QR. Funciona sin conexión.",
   "lang": "es",
   "dir": "ltr",
