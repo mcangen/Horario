@@ -53,6 +53,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <link rel="stylesheet" href="styles/app.css">
+
     <style>
       :root {
         --paper: #f5f3ee;
@@ -591,7 +594,7 @@
       .hint {
         font-size: 12px;
         color: var(--ink-3);
-        margin-top: -6px;
+        margin-top: 5px;
         margin-bottom: 12px;
       }
 
@@ -2009,8 +2012,8 @@
       .pd-stats b.perdida { color: #c7402f; }
 
       /* Actividades */
-      .pd-acts { display: flex; flex-direction: column; gap: 6px; }
-      .pd-act { display: flex; align-items: center; gap: 6px; }
+      .pd-acts { display: flex; flex-direction: column;gap: 5px;}
+      .pd-act { display: flex; align-items: center; gap: 1px; }
       .pa-name {
         flex: 1; padding: 5px 8px; font-size: 13px;
         border: 1px solid var(--line); border-radius: 7px;
@@ -2083,7 +2086,7 @@
       .pd-editrow {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 5px;
         margin-bottom: 10px;
       }
       .pd-editrow .pd-name {
@@ -2111,6 +2114,7 @@
 
 
     </style>
+
   </head>
   <body>
     <!-- Barra lateral (PC)  -->
@@ -2891,6 +2895,7 @@
           settings: { days: 5, dayStart: "07:00", dayEnd: "19:00" },
           classes: [],
           activities: [], // {id, materia, tipo, fecha:"YYYY-MM-DD", nota, done}
+          puntos: { subjects: [] }, // control de notas (viaja con el horario)
         };
         // Preferencias del armador (se recuerdan en este navegador)
         var builderPrefs = {
@@ -2962,6 +2967,29 @@
               return a && (a.materia || a.nota) && a.fecha;
             });
         }
+        function sanitizePuntos(p) {
+          if (!p || !Array.isArray(p.subjects)) return { subjects: [] };
+          return {
+            subjects: p.subjects.map(function (s) {
+              return {
+                id: s.id || uid(),
+                nombre: String(s.nombre || ""),
+                creditos: +s.creditos || 0,
+                excluida: !!s.excluida,
+                activities: Array.isArray(s.activities)
+                  ? s.activities.map(function (a) {
+                      return {
+                        nombre: String(a.nombre || ""),
+                        total: +a.total || 0,
+                        obt: +a.obt || 0,
+                      };
+                    })
+                  : [],
+              };
+            }),
+          };
+        }
+
         function activeDays() {
           return DAYS_FULL.slice(0, state.settings.days);
         }
@@ -3076,6 +3104,7 @@
                 settings: state.settings,
                 classes: state.classes,
                 activities: state.activities,
+                puntos: state.puntos,
                 currentSavedId: currentSavedId,
               }),
             );
@@ -3118,6 +3147,7 @@
               };
             });
             state.activities = sanitizeActivities(data.activities);
+            state.puntos = sanitizePuntos(data.puntos);
             currentSavedId = data.currentSavedId || null;
             if (
               currentSavedId &&
@@ -3178,6 +3208,7 @@
             settings: state.settings,
             classes: state.classes,
             activities: state.activities,
+             puntos: state.puntos,
           };
           list = list.map(function (x) {
             return x.id === entry.id ? updated : x;
@@ -3228,6 +3259,7 @@
             settings: state.settings,
             classes: state.classes,
             activities: state.activities,
+            puntos: state.puntos,
           };
           if (existing) {
             list = list.map(function (x) {
@@ -3252,6 +3284,7 @@
             settings: state.settings,
             classes: state.classes,
             activities: state.activities,
+            puntos: state.puntos,
           });
           if (currentSavedId) {
             var entry = getSavedList().filter(function (x) {
@@ -3265,10 +3298,15 @@
                 settings: entry.settings,
                 classes: entry.classes,
                 activities: entry.activities || [],
+                puntos: entry.puntos || { subjects: [] },
               })
             );
           }
-          return state.classes.length > 0 || state.activities.length > 0;
+          return (
+            state.classes.length > 0 ||
+            state.activities.length > 0 ||
+            (state.puntos && state.puntos.subjects.length > 0)
+          );
         }
         function loadNamedSchedule(id) {
           if (id !== currentSavedId && hasUnsavedChanges()) {
@@ -3304,6 +3342,8 @@
             };
           });
           state.activities = sanitizeActivities(entry.activities);
+          state.puntos = sanitizePuntos(entry.puntos);
+          puntosData = state.puntos;
           if (state.settings.days < 5) state.settings.days = 5;
           if (state.settings.days > 7) state.settings.days = 7;
           currentSavedId = entry.id;
@@ -4357,6 +4397,7 @@
           state.classes = state.classes.filter(function (x) {
             return x.id !== id;
           });
+          reconciliarPuntos();
           if (editingId === id) resetForm();
           render();
           toast("Clase eliminada.");
@@ -4398,7 +4439,13 @@
             color: $("fColor").value,
           };
           var grupoId = editingId ? editingGrupoId : uid();
+          var nombreViejo = null;
           if (editingId) {
+            // nombre que tenía la materia antes de editar (para detectar renombrado)
+            var claseVieja = state.classes.filter(function (x) {
+              return (x.grupoId || x.id) === grupoId;
+            })[0];
+            if (claseVieja) nombreViejo = claseVieja.materia;
             state.classes = state.classes.filter(function (x) {
               return (x.grupoId || x.id) !== grupoId;
             });
@@ -4414,6 +4461,10 @@
             });
             state.classes.push(data);
           });
+          toast(editingId ? "Cambios guardados." : "Clase agregada.");
+          resetForm();
+          if (nombreViejo !== null) renombrarEnPuntos(nombreViejo, materia);
+          reconciliarPuntos(); // por si agregaste una materia nueva
           toast(editingId ? "Cambios guardados." : "Clase agregada.");
           resetForm();
           render();
@@ -4476,6 +4527,7 @@
             settings: state.settings,
             classes: state.classes,
             activities: state.activities,
+            puntos: state.puntos,
           };
           var blob = new Blob([JSON.stringify(payload, null, 2)], {
             type: "application/json",
@@ -4524,6 +4576,8 @@
                 };
               });
               state.activities = sanitizeActivities(data.activities);
+              state.puntos = sanitizePuntos(data.puntos);
+              puntosData = state.puntos;
               if (state.settings.days < 5) state.settings.days = 5;
               if (state.settings.days > 7) state.settings.days = 7;
               currentSavedId = null;
@@ -4975,6 +5029,17 @@
             k: state.activities.map(function (a) {
               return [a.materia, TIPOS.indexOf(a.tipo), a.fecha, a.nota, a.done ? 1 : 0];
             }),
+            p: state.puntos.subjects.map(function (s) {
+              return [
+                s.nombre,
+                s.creditos,
+                s.excluida ? 1 : 0,
+                (s.activities || []).map(function (a) {
+                  return [a.nombre, a.total, a.obt];
+                }),
+              ];
+            }),
+
           };
           var json = JSON.stringify(payload);
           return btoa(unescape(encodeURIComponent(json)))
@@ -5015,6 +5080,21 @@
               };
             }),
           );
+
+          var puntos = {
+            subjects: (Array.isArray(p.p) ? p.p : []).map(function (s) {
+              return {
+                id: uid(),
+                nombre: String(s[0] || ""),
+                creditos: +s[1] || 0,
+                excluida: !!s[2],
+                activities: (Array.isArray(s[3]) ? s[3] : []).map(function (a) {
+                  return { nombre: String(a[0] || ""), total: +a[1] || 0, obt: +a[2] || 0 };
+                }),
+              };
+            }),
+          };
+
           return {
             meta: { title: String(p.t || ""), author: String(p.a || "") },
             settings: {
@@ -5024,6 +5104,7 @@
             },
             classes: classes,
             activities: activities,
+            puntos: puntos,
           };
         }
         function shareLink() {
@@ -5063,6 +5144,8 @@
               state.settings = data.settings;
               state.classes = data.classes;
               state.activities = data.activities || [];
+              state.puntos = data.puntos || { subjects: [] };
+              puntosData = state.puntos;
               currentSavedId = null;
               loaded = true;
             }
@@ -5494,21 +5577,19 @@
 
         /* PUNTOSS */
          var PUNTOS_KEY = "generadorHorarios:puntos";
-        var puntosData = { subjects: [] };
+        var puntosData = state.puntos;
         var puntosOpenId = null; // id de la materia desplegada (una a la vez)
 
         function loadPuntos() {
-          try {
-            var raw = localStorage.getItem(PUNTOS_KEY);
-            if (raw) puntosData = JSON.parse(raw);
-          } catch (e) {}
-          if (!puntosData || !Array.isArray(puntosData.subjects))
-            puntosData = { subjects: [] };
+          // puntosData APUNTA a state.puntos: así viaja con guardar/cargar/compartir
+          if (!state.puntos || !Array.isArray(state.puntos.subjects)) {
+            state.puntos = { subjects: [] };
+          }
+          puntosData = state.puntos;
         }
         function savePuntos() {
-          try {
-            localStorage.setItem(PUNTOS_KEY, JSON.stringify(puntosData));
-          } catch (e) {}
+          // Los puntos viven en state, así que guardamos todo el estado
+          saveState();
         }
 
         // --- helpers de cálculo ---
@@ -5646,7 +5727,7 @@
             tabla +=
               '<div class="pg-row' +
               (s.excluida ? " excluida" : "") +
-              '">' +
+              '" data-genrow="' + s.id + '">' +
               '<span class="pg-mat">' +
               '<span class="pg-dot ' +
               est +
@@ -5661,7 +5742,7 @@
               "<span>" +
               (+s.creditos || 0) +
               "</span>" +
-              "<span>" +
+              '<span class="pg-def">' +
               def +
               "</span>" +
               '<span><button class="pg-eye" data-eye="' +
@@ -5714,21 +5795,14 @@
             // Cuerpo colapsable: solo se ve si la materia está abierta
             detalle += '<div class="pd-body">';
             // Fila editable de nombre + créditos
+            // Solo créditos (el nombre y borrar se gestionan desde Clases)
             detalle +=
               '<div class="pd-editrow">' +
-              '<input class="pd-name" data-name="' +
-              s.id +
-              '" value="' +
-              esc(s.nombre) +
-              '" placeholder="Nombre de la materia" />' +
               '<label class="pd-credlabel">Créditos <input type="number" min="0" class="pd-cred" data-cred="' +
               s.id +
               '" value="' +
               (+s.creditos || 0) +
               '" /></label>' +
-              '<button class="pd-del" data-delsub="' +
-              s.id +
-              '" title="Eliminar materia">✕</button>' +
               "</div>";
             // Barra de progreso 0-500
             var pct = Math.max(0, Math.min(100, (obt / 500) * 100));
@@ -5740,11 +5814,15 @@
               '%"></div>' +
               '<span class="pd-bar-mark"></span></div>';
             detalle +=
-              '<div class="pd-stats"><span>Perdidos: <b>' +
+              '<div class="pd-stats"><span>Perdidos: <b data-lost="' +
+              s.id +
+              '">' +
               per +
               "</b></span>" +
-              "<span>Estado: <b class=\"" +
+              '<span>Estado: <b class="' +
               est +
+              '" data-estado="' +
+              s.id +
               '">' +
               (est === "ganada" ? "Ganando" : "En riesgo") +
               "</b></span></div>";
@@ -5798,8 +5876,7 @@
             '<div class="pts-cols">' +
             tabla +
             detalle +
-            "</div>" +
-            '<button class="btn accent pts-addsub" id="btnAddSubject">+ Agregar materia</button>';
+            "</div>";
 
           wirePuntos();
         }
@@ -5811,8 +5888,10 @@
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-10-8-10-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
         // Lápiz cerrado (editar) y abierto (una X sutil para cerrar)
         var pencilClosed =
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>';
+        '<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>'
+          /* '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>' */;
         var pencilOpen =
+          
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>';
 
         // --- conectar eventos tras cada render ---
@@ -5821,8 +5900,8 @@
           if (!host) return;
 
           // agregar materia
-          var addBtn = $("btnAddSubject");
-          if (addBtn) addBtn.addEventListener("click", addSubjectPuntos);
+          /* var addBtn = $("btnAddSubject");
+          if (addBtn) addBtn.addEventListener("click", addSubjectPuntos); */
 
           // lápiz: desplegar/cerrar una materia (acordeón, una a la vez)
           host.querySelectorAll("[data-edit-subj]").forEach(function (b) {
@@ -5844,26 +5923,6 @@
                 s.excluida = !s.excluida;
                 savePuntos();
                 renderPuntos();
-              }
-            });
-          });
-          // eliminar materia
-          host.querySelectorAll("[data-delsub]").forEach(function (b) {
-            b.addEventListener("click", function () {
-              delSubjectPuntos(b.getAttribute("data-delsub"));
-            });
-          });
-          // nombre de materia
-          host.querySelectorAll("[data-name]").forEach(function (inp) {
-            inp.addEventListener("input", function () {
-              var s = puntosData.subjects.filter(function (x) {
-                return x.id === inp.getAttribute("data-name");
-              })[0];
-              if (s) {
-                s.nombre = inp.value;
-                savePuntos();
-                // no re-render completo para no perder el foco
-                syncPuntosGeneral();
               }
             });
           });
@@ -5923,6 +5982,22 @@
             if (vals[1]) vals[1].textContent = p.sumaDef;
             if (vals[2]) vals[2].textContent = p.sumaCred;
           }
+          // Actualizar cada fila de la tabla general (puntos + definitiva + color)
+          puntosData.subjects.forEach(function (s) {
+            var obt = pObtenidos(s);
+            var est = pEstado(obt);
+            var row = document.querySelector('[data-genrow="' + s.id + '"]');
+            if (!row) return;
+            var pts = row.querySelector(".pg-pts");
+            if (pts) {
+              pts.textContent = obt;
+              pts.className = "pg-pts " + est;
+            }
+            var dot = row.querySelector(".pg-dot");
+            if (dot) dot.className = "pg-dot " + est;
+            var def = row.querySelector(".pg-def");
+            if (def) def.textContent = s.excluida ? "—" : obt * (+s.creditos || 0);
+          });
         }
         function syncPuntosScore(sid) {
           var s = puntosData.subjects.filter(function (x) {
@@ -5940,6 +6015,15 @@
           if (bar) {
             bar.style.width = Math.max(0, Math.min(100, (obt/500)*100)) + "%";
             bar.className = "pd-bar-fill " + est;
+          }
+          // Puntos perdidos (total que vale - obtenido) en vivo
+          var lost = document.querySelector('[data-lost="' + sid + '"]');
+          if (lost) lost.textContent = tot - obt;
+          // Estado (Ganando / En riesgo) en vivo
+          var estadoEl = document.querySelector('[data-estado="' + sid + '"]');
+          if (estadoEl) {
+            estadoEl.textContent = est === "ganada" ? "Ganando" : "En riesgo";
+            estadoEl.className = est;
           }
         }
 
@@ -5971,6 +6055,52 @@
             }
           });
           if (agregadas > 0) savePuntos();
+        }
+
+        // Sincroniza state.puntos con las materias del horario:
+        // agrega las nuevas y quita las que ya no existen (conservando notas).
+        function reconciliarPuntos() {
+          if (!state.puntos) state.puntos = { subjects: [] };
+          var enHorario = {};
+          (state.classes || []).forEach(function (c) {
+            if (c.materia) enHorario[norm(c.materia)] = c.materia;
+          });
+          // quitar materias que ya no están en el horario
+          state.puntos.subjects = state.puntos.subjects.filter(function (s) {
+            return enHorario[norm(s.nombre)];
+          });
+          // agregar materias nuevas del horario (créditos en 0)
+          var yaEstan = {};
+          state.puntos.subjects.forEach(function (s) {
+            yaEstan[norm(s.nombre)] = true;
+          });
+          Object.keys(enHorario).forEach(function (k) {
+            if (!yaEstan[k]) {
+              state.puntos.subjects.push({
+                id: uid(),
+                nombre: enHorario[k],
+                creditos: 0,
+                excluida: false,
+                activities: [],
+              });
+            }
+          });
+          puntosData = state.puntos;
+        }
+
+        // Renombra una materia en puntos conservando sus notas
+        // (se llama al editar una clase y cambiarle el nombre).
+        function renombrarEnPuntos(nombreViejo, nombreNuevo) {
+          if (!state.puntos) return;
+          if (norm(nombreViejo) === norm(nombreNuevo)) return;
+          // si el nombre viejo aún lo usa otra clase, no renombrar
+          var sigueUsado = (state.classes || []).some(function (c) {
+            return norm(c.materia) === norm(nombreViejo);
+          });
+          if (sigueUsado) return;
+          state.puntos.subjects.forEach(function (s) {
+            if (norm(s.nombre) === norm(nombreViejo)) s.nombre = nombreNuevo;
+          });
         }
 
         // ---------- Actividades por materia ----------
@@ -6485,14 +6615,15 @@
 
         // ---------- Init ----------
         function init() {
-
-          // Plegar / desplegar el formulario de clase
-        var formCardH = document.querySelector("#formCard .card-h");
-        if (formCardH) {
-          formCardH.addEventListener("click", function () {
-            $("formCard").classList.toggle("open");
-          });
-        }
+          window.renderPuntos = renderPuntos;
+          window.reconciliarPuntos = reconciliarPuntos;
+            // Plegar / desplegar el formulario de clase
+          var formCardH = document.querySelector("#formCard .card-h");
+          if (formCardH) {
+            formCardH.addEventListener("click", function () {
+              $("formCard").classList.toggle("open");
+            });
+          }
 
 
           initTheme();
@@ -6604,6 +6735,8 @@
             ) {
               state.classes = [];
               state.activities = [];
+              state.puntos = { subjects: [] };
+              puntosData = state.puntos;
               state.meta = { title: "", author: "" };
               state.settings = { days: 5, dayStart: "07:00", dayEnd: "19:00" };
               currentSavedId = null;
@@ -6638,6 +6771,9 @@
 
           loadPuntos();
           renderPuntos();
+
+          window.renderPuntos = renderPuntos;
+          window.sincronizarMaterias = sincronizarMaterias;
 
         }
 
@@ -7124,7 +7260,10 @@
           } catch (e) {}
           window.scrollTo(0, 0);
 
-          if (t === "puntos") { sincronizarMaterias(); renderPuntos(); }
+          if (t === "puntos") {
+            if (window.reconciliarPuntos) window.reconciliarPuntos();
+            if (window.renderPuntos) window.renderPuntos();
+          }
         }
         Array.prototype.forEach.call(
           document.querySelectorAll("[data-nav]"),
