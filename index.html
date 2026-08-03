@@ -1924,10 +1924,10 @@
       }
       .pg-head, .pg-row {
         display: grid;
-        grid-template-columns: minmax(0, 2fr) minmax(0, 0.9fr) minmax(0, 0.9fr) minmax(0, 1.1fr) auto;
+        grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.7fr) minmax(0, 0.8fr) minmax(0, 0.9fr) 32px;
         align-items: center;
-        gap: 8px;
-        padding: 9px 12px;
+        gap: 6px;
+        padding: 10px 12px;
         font-size: 13px;
       }
       .pg-head {
@@ -2040,6 +2040,35 @@
 
       .pts-addsub { margin-top: 18px; width: 100%; justify-content: center; }
 
+      /* Números alineados a la derecha, materia a la izquierda */
+      .pg-head span:not(:first-child),
+      .pg-row > span:not(.pg-mat) {
+        text-align: right;
+        justify-self: end;
+      }
+      .pg-mat {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      /* El ojito centrado en su columna */
+      .pg-eye {
+        justify-self: center;
+      }
+
+      @media (max-width: 600px) {
+        .pg-head, .pg-row {
+          grid-template-columns: minmax(0, 2fr) minmax(0, 0.6fr) minmax(0, 0.7fr) minmax(0, 0.8fr) 28px;
+          gap: 4px;
+          padding: 10px 10px;
+          font-size: 12.5px;
+        }
+        /* encabezados un poco más compactos para que quepan */
+        .pg-head {
+          font-size: 10px;
+        }
+      }
       /* ===== Acordeón de detalle (una materia a la vez) ===== */
       /* Cabecera siempre visible: nombre + puntaje + lápiz */
       .pd-head {
@@ -2112,6 +2141,18 @@
       .pd-card { transition: border-color 0.15s; }
       .pd-card.open { border-color: var(--accent); }
 
+      .pd-pass {
+        font-size: 12.5px;
+        color: var(--ink-2);
+        margin-bottom: 10px;
+        padding: 6px 10px;
+        background: var(--paper);
+        border-radius: 8px;
+      }
+      .pd-pass b {
+        color: var(--accent);
+        font-size: 14px;
+      }
 
     </style>
 
@@ -5714,8 +5755,8 @@
           // Tabla general de materias
           var tabla = '<div class="pts-general">';
           tabla +=
-            '<div class="pg-head"><span>Materia</span><span>Puntos</span>' +
-            "<span>Créditos</span><span>Definitiva</span><span></span></div>";
+            '<div class="pg-head"><span>Materia</span><span>Pts</span>' +
+            "<span>Créd.</span><span>Def.</span><span></span></div>";
           if (puntosData.subjects.length === 0) {
             tabla +=
               '<div class="pg-empty">Aún no hay materias. Agrega una para empezar.</div>';
@@ -5813,6 +5854,8 @@
               pct +
               '%"></div>' +
               '<span class="pd-bar-mark"></span></div>';
+
+            var faltan = Math.max(0, 300 - obt); // cuánto falta para llegar a 300
             detalle +=
               '<div class="pd-stats"><span>Perdidos: <b data-lost="' +
               s.id +
@@ -5825,7 +5868,14 @@
               s.id +
               '">' +
               (est === "ganada" ? "Ganando" : "En riesgo") +
-              "</b></span></div>";
+              "</b></span></div>" +
+              '<div class="pd-pass" data-passline="' +
+              s.id +
+              '">' +
+              (obt >= 300
+                ? "✓ Ya pasaste (te sobran " + (obt - 300) + " pts)"
+                : "Te faltan <b>" + faltan + "</b> pts para pasar (300)") +
+              "</div>";
 
             // Actividades de la materia
             detalle += '<div class="pd-acts">';
@@ -5839,7 +5889,7 @@
                 '|nombre" value="' +
                 esc(a.nombre || "") +
                 '" placeholder="Actividad (ej. Parcial)" />' +
-                '<input type="number" class="pa-num" data-act="' +
+                '<input type="number" class="pa-num" min="0" max="500" data-act="' +
                 s.id +
                 "|" +
                 idx +
@@ -5847,7 +5897,7 @@
                 (+a.obt || 0) +
                 '" title="Puntos obtenidos" />' +
                 '<span class="pa-sep">/</span>' +
-                '<input type="number" class="pa-num" data-act="' +
+                '<input type="number" class="pa-num"  min="0" max="500" data-act="' +
                 s.id +
                 "|" +
                 idx +
@@ -5952,7 +6002,7 @@
               delActPuntos(parts[0], +parts[1]);
             });
           });
-          // editar campos de actividad
+          // editar campos de actividad (con límites 0–500)
           host.querySelectorAll("[data-act]").forEach(function (inp) {
             inp.addEventListener("input", function () {
               var parts = inp.getAttribute("data-act").split("|");
@@ -5963,8 +6013,36 @@
               var a = s.activities[+parts[1]];
               if (!a) return;
               var campo = parts[2];
-              if (campo === "nombre") a.nombre = inp.value;
-              else a[campo] = +inp.value || 0;
+              if (campo === "nombre") {
+                a.nombre = inp.value;
+              } else {
+                var val = +inp.value || 0;
+                // piso: nunca menos de 0
+                if (val < 0) {
+                  val = 0;
+                  inp.value = 0;
+                  toast("Los puntos no pueden ser negativos.");
+                }
+                if (campo === "total") {
+                  // la suma de totales de la materia no puede pasar de 500
+                  var sumaOtros = s.activities.reduce(function (acc, x, i) {
+                    return i === +parts[1] ? acc : acc + (+x.total || 0);
+                  }, 0);
+                  if (sumaOtros + val > 500) {
+                    val = Math.max(0, 500 - sumaOtros);
+                    inp.value = val;
+                    toast("El total de la materia no puede pasar de 500 puntos.");
+                  }
+                } else if (campo === "obt") {
+                  // lo obtenido no puede superar lo que vale la actividad
+                  if (val > (+a.total || 0)) {
+                    val = +a.total || 0;
+                    inp.value = val;
+                    toast("No puedes obtener más de lo que vale la actividad (" + val + ").");
+                  }
+                }
+                a[campo] = val;
+              }
               savePuntos();
               syncPuntosScore(parts[0]);
               syncPuntosGeneral();
@@ -6024,6 +6102,14 @@
           if (estadoEl) {
             estadoEl.textContent = est === "ganada" ? "Ganando" : "En riesgo";
             estadoEl.className = est;
+          }
+           // Cuánto falta para llegar a 300 (o si ya pasó), en vivo
+          var passLine = document.querySelector('[data-passline="' + sid + '"]');
+          if (passLine) {
+            passLine.innerHTML =
+              obt >= 300
+                ? "✓ Ya pasaste (te sobran " + (obt - 300) + " pts)"
+                : "Te faltan <b>" + (300 - obt) + "</b> pts para pasar (300)";
           }
         }
 
