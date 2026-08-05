@@ -258,6 +258,8 @@
       }
       .btn.theme-toggle {
         padding: 10px 12px;
+        width: 40px;
+        height: 40px;
       }
       .btn.theme-toggle .ic-moon {
         display: none;
@@ -1765,7 +1767,7 @@
       }
 
       /* Toolbar desplegable en mobile */
-      .toolbar-toggle { display: none; }
+      /* .toolbar-toggle { display: none; } */
       @media (max-width: 940px) {
         .toolbar-toggle {
           display: flex;
@@ -1793,7 +1795,7 @@
         }
         .toolbar-toggle.open .chevron { transform: rotate(180deg); }
         .toolbar {
-          max-height: 0;
+          /* max-height: 0; */
           overflow: hidden;
           transition: max-height 0.3s ease;
         }
@@ -1802,10 +1804,10 @@
           overflow: visible;
         }
       }
-      @media (min-width: 941px) {
+      /* @media (min-width: 941px) {
         .toolbar-toggle { display: none !important; }
-        .toolbar { max-height: none !important; overflow: visible !important; }
-      }
+        .toolbar { max-height: none !important; overflow: visible !important; } 
+      } */
 
       /* Estadísticas + Todas las clases lado a lado en PC */
       @media (max-width: 940px) {
@@ -2178,6 +2180,42 @@
         font-size: 14px;
       }
 
+      /* Toolbar como menú desplegable desde el botón de arriba */
+      .toolbar {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+      }
+      .toolbar.open {
+        max-height: 600px;
+        overflow: visible;
+        margin-top: 10px;
+      }
+
+      @media (min-width: 941px) {
+        #btnMenu {
+          display: none;
+        }
+        .toolbar {
+          max-height: none !important;
+          overflow: visible !important;
+          margin-top: 0 !important;
+        }
+      }
+
+      .btn.icon-only {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        width: 40px;
+        height: 40px;
+      }
+      .btn.icon-only svg {
+        width: 20px;
+        height: 20px;
+        display: block;
+      }
     </style>
 
   </head>
@@ -2210,9 +2248,41 @@
     <div class="wrap">
       <!-- Header -->
       <header class="top">
-        <div class="brand">
-          <div class="kicker">Planificador académico</div>
-          <h1>HorApprio</h1>
+        <div style="display: flex;
+                    justify-content: space-between;
+                    width: 100%;"class="brand">
+          <div>
+            <div class="kicker">Planificador académico</div>
+            <h1>HorApprio</h1>
+          </div>
+          <div style="display:flex; gap:8px; justify-content:end;">
+            <button
+              class="btn icon-only"
+              id="btnMenu"
+              type="button"
+              title="Acciones"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <path d="M3 12h18M3 6h18M3 18h18"/>
+              </svg>
+              <span class="sr">Menú de acciones</span>
+            </button>
+            <button
+              class="btn theme-toggle"
+              id="btnTheme"
+              type="button"
+              title="Cambiar a modo oscuro / claro"
+            >
+              <svg class="ic ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+              </svg>
+              <svg class="ic ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+              <span class="sr">Cambiar tema</span>
+            </button>
+          </div>
         </div>
         <div class="meta-fields">
           <div class="field">
@@ -2230,7 +2300,7 @@
         </div>
       </header>
 
-      <button type="button" class="toolbar-toggle " id="toolbarToggle" data-tab="inicio">
+      <!-- <button type="button" class="toolbar-toggle " id="toolbarToggle" data-tab="inicio">
         <span style="
           font-family: var(--disp);
           font-weight: 600;
@@ -2239,38 +2309,9 @@
           letter-spacing: -0.01em;
           " >Acciones (Instalar, Compartir)</span>
         <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-      </button>
+      </button> -->
 
       <div class="toolbar" data-tab="inicio">
-        <button
-          class="btn theme-toggle"
-          id="btnTheme"
-          type="button"
-          title="Cambiar a modo oscuro / claro"
-        >
-          <svg
-            class="ic ic-sun"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <circle cx="12" cy="12" r="4" />
-            <path
-              d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"
-            />
-          </svg>
-          <svg
-            class="ic ic-moon"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-          </svg>
-          <span class="sr">Cambiar tema</span>
-        </button>
         <button
           class="btn"
           id="btnSettings"
@@ -2289,7 +2330,7 @@
               d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
             />
           </svg>
-          Ajustes
+          Ajustar Hora
         </button>
         <button class="btn accent" id="btnPDF" type="button">
           <svg
@@ -2320,7 +2361,7 @@
           </svg>
           Exportar imagen
         </button>
-        <button class="btn primary" id="btnSave" type="button" style="display: none">
+        <button class="btn primary" id="btnSave" type="button">
           <svg
             class="ic"
             viewBox="0 0 24 24"
@@ -2333,9 +2374,9 @@
             />
             <path d="M17 21v-8H7v8M7 3v5h8" />
           </svg>
-          Guardar archivo
+          Guardar archivo - Json
         </button>
-        <button class="btn" id="btnLoad" type="button" style="display: none">
+        <button class="btn" id="btnLoad" type="button" >
           <svg
             class="ic"
             viewBox="0 0 24 24"
@@ -2346,7 +2387,7 @@
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
             <path d="M7 10l5 5 5-5M12 15V3" />
           </svg>
-          Cargar / editar
+          Cargar / editar - Json
         </button>
         <input
           type="file"
@@ -2501,7 +2542,7 @@
                     type="text"
                     id="fMateria"
                     required
-                    placeholder="Ej. Edos"
+                    placeholder="Ej. EDP II"
                     autocomplete="off"
                   />
                 </div>
@@ -2515,7 +2556,7 @@
                   />
                 </div>
                 <div class="row">
-                  <label>Días, cursos y horarios (Lunes a sabados en ajustes)</label>
+                  <label>Días, cursos y horarios <b style="color: #ffffff;">(LUNES A SABADOS EN AJUSTES)</b></label>
                   <div id="sessionsList"></div>
                   <button
                     type="button"
@@ -3417,6 +3458,7 @@
           resetForm();
           render();
           updateSavedBanner();
+          renderSavedList();
           toast('Horario "' + entry.name + '" cargado.');
         }
         function renameNamedSchedule(id) {
@@ -3489,7 +3531,12 @@
             refreshCompareSelects();
             return;
           }
+          var principalId2 = getPrincipalId();
           list.sort(function (a, b) {
+            // el horario destacado (★) siempre va primero
+            if (a.id === principalId2 && b.id !== principalId2) return -1;
+            if (b.id === principalId2 && a.id !== principalId2) return 1;
+            // el resto, por fecha más reciente
             return new Date(b.savedAt) - new Date(a.savedAt);
           });
           var html = "";
@@ -6869,11 +6916,11 @@
               "Aviso: el guardado automático no está disponible en esta vista.",
             );
           }
-          // Toolbar desplegable (mobile)
-          var tbToggle = $("toolbarToggle");
-          if (tbToggle) {
-            tbToggle.addEventListener("click", function () {
-              tbToggle.classList.toggle("open");
+          
+          // Menú de acciones (botón hamburguesa arriba)
+          var btnMenu = $("btnMenu");
+          if (btnMenu) {
+            btnMenu.addEventListener("click", function () {
               var tb = document.querySelector(".toolbar");
               if (tb) tb.classList.toggle("open");
             });
