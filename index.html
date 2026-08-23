@@ -919,14 +919,7 @@
         font-size: 13px;
       }
 
-      /* ---------- Settings drawer ---------- */
-      .settings {
-        display: none;
-        margin-bottom: 20px;
-      }
-      .settings.open {
-        display: block;
-      }
+      /* ---------- Settings ---------- */
       .settings .card-b {
         display: flex;
         flex-wrap: wrap;
@@ -1766,48 +1759,6 @@
         background: #7db2eb !important;
       }
 
-      /* Toolbar desplegable en mobile */
-      /* .toolbar-toggle { display: none; } */
-      @media (max-width: 940px) {
-        .toolbar-toggle {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 10px;
-          width: 100%;
-          padding: 12px 14px;
-          margin-bottom: 10px;
-          background: var(--card);
-          border: 1px solid var(--line);
-          border-radius: 10px;
-          cursor: pointer;
-          font-family: var(--body);
-          font-size: 15px;
-          font-weight: 600;
-          color: var(--ink);
-        }
-        .toolbar-toggle .chevron {
-          width: 18px;
-          height: 18px;
-          color: var(--ink-2);
-          transition: transform 0.25s;
-          flex: none;
-        }
-        .toolbar-toggle.open .chevron { transform: rotate(180deg); }
-        .toolbar {
-          /* max-height: 0; */
-          overflow: hidden;
-          transition: max-height 0.3s ease;
-        }
-        .toolbar.open {
-          max-height: 600px;
-          overflow: visible;
-        }
-      }
-      /* @media (min-width: 941px) {
-        .toolbar-toggle { display: none !important; }
-        .toolbar { max-height: none !important; overflow: visible !important; } 
-      } */
 
       /* Estadísticas + Todas las clases lado a lado en PC */
       @media (max-width: 940px) {
@@ -2180,29 +2131,6 @@
         font-size: 14px;
       }
 
-      /* Toolbar como menú desplegable desde el botón de arriba */
-      .toolbar {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease;
-      }
-      .toolbar.open {
-        max-height: 600px;
-        overflow: visible;
-        margin-top: 10px;
-      }
-
-      @media (min-width: 941px) {
-        #btnMenu {
-          display: none;
-        }
-        .toolbar {
-          max-height: none !important;
-          overflow: visible !important;
-          margin-top: 0 !important;
-        }
-      }
-
       .btn.icon-only {
         display: inline-flex;
         align-items: center;
@@ -2216,8 +2144,140 @@
         height: 20px;
         display: block;
       }
-    </style>
+       /* Menú de cuenta desplegable */
+  .account-menu {
+    position: absolute;
+    top: 60px;
+    right: 12px;
+    z-index: 200;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+    width: 260px;
+    display: none;
+  }
+  .account-menu.open { display: block; }
+  .am-user { display: flex; align-items: center; gap: 10px; padding-right: 20px; }
+  .am-name { font-weight: 700; }
+  .am-email { font-size: 12px; color: var(--ink-3); word-break: break-all; }
+  .am-academico {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line-2);
+    font-size: 13px;
+    color: var(--ink-2);
+    line-height: 1.55;
+  }
+  .am-academico b { color: var(--ink); }
+  .am-complete {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--accent-ink, var(--accent));
+    font-weight: 600;
+    font-size: 13px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+  .account-menu #syncStatus {
+    display: inline-flex !important;
+    margin-top: 12px;
+  }
 
+  /* Botón X de los modales (si no lo tienes ya) */
+  .modal-x {
+    position: absolute; top: 12px; right: 14px;
+    background: none; border: none; font-size: 18px;
+    color: var(--ink-3); cursor: pointer;
+  }
+
+  /* Indicador de estado por color */
+  #syncStatus[data-estado="error"] { color: var(--hard, #c7402f); }
+  #syncStatus[data-estado="guardado"] { color: var(--ok, #2e8b6f); }
+
+  /* Amigos: contador de solicitudes pendientes sobre el botón del header */
+  .badge-dot {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 15px;
+    height: 15px;
+    padding: 0 3px;
+    border-radius: 999px;
+    background: var(--hard, #c7402f);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 15px;
+    text-align: center;
+  }
+  #btnAmigos:disabled { opacity: 0.45; cursor: not-allowed; }
+  .fr-modal { max-width: 420px; text-align: left; max-height: 82vh; overflow-y: auto; }
+  .fr-section { margin-top: 18px; }
+  .fr-section h4 {
+    font-family: var(--sb-size);
+    font-size: 14px;
+    font-weight: 800;
+    margin: 0 0 8px;
+    color: var(--ink);
+  }
+  .fr-search-row { display: flex; gap: 8px; }
+  .fr-search-row input {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    font-family: var(--body);
+    font-size: 14px;
+    background: var(--card);
+    color: var(--ink);
+  }
+  .fr-result { margin-top: 10px; }
+  .fr-empty { color: var(--ink-3); font-size: 12.5px; padding: 6px 0; }
+  .fr-mi-codigo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink-2);
+    margin: 0 0 16px;
+  }
+  .fr-mi-codigo b { letter-spacing: 0.08em; color: var(--ink); font-family: var(--body); }
+  .fr-share-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: var(--ink-2);
+    margin-top: 4px;
+    cursor: pointer;
+  }
+  .fr-share-toggle input { margin: 0; flex: none; }
+  .fr-libre-header, .fr-clase-header {
+    font-family: var(--disp);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin: 0 0 8px;
+  }
+  .fr-libre-header { color: var(--ok, #2e8b6f); }
+  .fr-clase-header { color: var(--hard, #c7402f); }
+  .fr-resumen-libres {
+    font-size: 13px;
+    color: var(--ink-2);
+    margin: 0 0 16px;
+    padding: 10px 12px;
+    background: var(--paper);
+    border-radius: 10px;
+  }
+    </style>
+    
   </head>
   <body>
     <!-- Barra lateral (PC)  -->
@@ -2255,8 +2315,10 @@
             <div class="kicker">Planificador académico</div>
             <h1>HorApprio</h1>
           </div>
-          <div style="display:flex; gap:8px; justify-content:end;">
+          <div style="display:flex; gap:8px; justify-content:end; align-items: center; flex-direction: column;">
+            <div style="display: flex; align-items: center; gap: 5px;">
             <button
+              data-tab="inicio"
               class="btn icon-only"
               id="btnMenu"
               type="button"
@@ -2282,7 +2344,60 @@
               </svg>
               <span class="sr">Cambiar tema</span>
             </button>
+            
+            <button class="btn icon-only" id="btnAmigos" type="button" title="Inicia sesión para usar Amigos" disabled style="position:relative">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              <span id="amigosBadge" class="badge-dot" style="display:none"></span>
+              <span class="sr">Amigos</span>
+            </button>
+            <button class="btn icon-only" id="btnGrupos" type="button" title="Inicia sesión para usar Grupos de estudio" disabled style="position:relative">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <circle cx="12" cy="8" r="3"/>
+                <path d="M6 21v-1a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v1"/>
+                <circle cx="5" cy="9" r="2"/>
+                <path d="M2 20.5v-.5a3 3 0 0 1 2-2.83"/>
+                <circle cx="19" cy="9" r="2"/>
+                <path d="M22 20.5v-.5a3 3 0 0 0-2-2.83"/>
+              </svg>
+              <span id="gruposBadge" class="badge-dot" style="display:none"></span>
+              <span class="sr">Grupos de estudio</span>
+            </button>
+            <button class="btn icon-only" id="btnCuenta" type="button" data-logged="0" title="Iniciar sesión">
+              <!-- ícono por defecto (usuario) -->
+              <svg id="cuentaIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <!-- foto del usuario (oculta hasta iniciar sesión) -->
+              <img id="cuentaAvatar" alt="" style="display:none;width:26px;height:26px;border-radius:50%;object-fit:cover" />
+              <span class="sr">Cuenta</span>
+            </button>
+            <!-- Menú de cuenta / perfil académico (aparece al tocar el botón cuando ya hay sesión) -->
+            <div id="accountMenu" class="account-menu">
+              <button class="modal-x" id="accountMenuClose" type="button" aria-label="Cerrar">✕</button>
+              <div class="am-user">
+                <img id="accountPhoto" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover" />
+                <div>
+                  <div id="accountName" class="am-name"></div>
+                  <div id="accountEmail" class="am-email"></div>
+                </div>
+              </div>
+              <div id="accountAcademico" class="am-academico"></div>
+              <span id="syncStatus" style="font-size:11px;font-weight:600;white-space:nowrap;padding:4px 8px;border-radius:999px;background:var(--paper)"></span>
+              <button class="btn" id="btnEditarPerfil" type="button" style="width:100%;margin-top:12px">Editar perfil</button>
+              <!-- <button class="btn" id="btnAbrirAjustes" type="button" style="width:100%;margin-top:8px">Configuración</button> -->
+              <button class="btn" id="btnLogout" type="button" style="width:100%;margin-top:8px">Cerrar sesión</button>
+            </div>
+
+            </div>
+
           </div>
+
         </div>
         <div class="meta-fields">
           <div class="field">
@@ -2300,18 +2415,18 @@
         </div>
       </header>
 
-      <!-- <button type="button" class="toolbar-toggle " id="toolbarToggle" data-tab="inicio">
-        <span style="
-          font-family: var(--disp);
-          font-weight: 600;
-          font-size: 19px;
-          margin: 0;
-          letter-spacing: -0.01em;
-          " >Acciones (Instalar, Compartir)</span>
-        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-      </button> -->
-
-      <div class="toolbar" data-tab="inicio">
+      <div class="modal-back" id="actionsModal">
+        <div class="modal" style="max-width: 460px; text-align: left">
+          <button
+            class="modal-x"
+            id="actionsModalClose"
+            type="button"
+            aria-label="Cerrar"
+          >
+            ✕
+          </button>
+          <h2 style="margin: 0 0 14px">Acciones</h2>
+          <div class="toolbar">
         <button
           class="btn"
           id="btnSettings"
@@ -2489,31 +2604,43 @@
           </svg>
           Vaciar
         </button>
+          </div>
+        </div>
       </div>
 
       <!-- Settings -->
-      <div class="card settings" id="settingsPanel" data-tab="inicio">
-        <div class="card-h"><h2>Ajustes del horario</h2></div>
-        <div class="card-b">
-          <div class="field">
-            <label for="setDays">Días de la semana</label>
-            <select id="setDays">
-              <option value="5">Lunes a Viernes</option>
-              <option value="6">Lunes a Sábado</option>
-              <option value="7">Lunes a Domingo</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="setStart">Inicio del día</label>
-            <input type="time" id="setStart" step="1800" />
-          </div>
-          <div class="field">
-            <label for="setEnd">Fin del día</label>
-            <input type="time" id="setEnd" step="1800" />
-          </div>
-          <div class="stat-row" style="width: 100%; margin-top: 4px">
-            Las horas se ampliarán automáticamente si agregas clases fuera de
-            este rango.
+      <div class="modal-back" id="settingsModal">
+        <div class="modal settings" style="max-width: 460px; text-align: left">
+          <button
+            class="modal-x"
+            id="settingsModalClose"
+            type="button"
+            aria-label="Cerrar"
+          >
+            ✕
+          </button>
+          <h2 style="margin: 0 0 14px">Ajustes del horario</h2>
+          <div class="card-b">
+            <div class="field">
+              <label for="setDays">Días de la semana</label>
+              <select id="setDays">
+                <option value="5">Lunes a Viernes</option>
+                <option value="6">Lunes a Sábado</option>
+                <option value="7">Lunes a Domingo</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="setStart">Inicio del día</label>
+              <input type="time" id="setStart" step="1800" />
+            </div>
+            <div class="field">
+              <label for="setEnd">Fin del día</label>
+              <input type="time" id="setEnd" step="1800" />
+            </div>
+            <div class="stat-row" style="width: 100%; margin-top: 4px">
+              Las horas se ampliarán automáticamente si agregas clases fuera
+              de este rango.
+            </div>
           </div>
         </div>
       </div>
@@ -2650,11 +2777,21 @@
               </div>
               <div class="card-b">
 
+                <div id="actGate" style="display: none"></div>
+                <div id="actContent">
                 <div class="hint" style="margin-top: 0; margin-bottom: 12px">
                   Agenda parciales, talleres, exposiciones o proyectos con su
                   fecha. Se guardan en este navegador (y viajan con el horario
                   cuando lo guardas, exportas o compartes). Quítalos con la ✕
                   cuando ya no los necesites.
+                </div>
+                <div class="stat-row" style="margin-bottom: 14px; gap: 10px">
+                  <button class="btn" id="btnExportActPDF" type="button">
+                    Exportar PDF
+                  </button>
+                  <button class="btn" id="btnExportActCSV" type="button">
+                    Exportar CSV
+                  </button>
                 </div>
                 <div class="act-layout">
                   <form id="actForm" class="act-form">
@@ -2698,10 +2835,11 @@
                   </form>
                   <div id="actList"></div>
                 </div>
+                </div>
               </div>
-          
+
             </div>
-          
+
           <!-- Puntos-->
           <div class="card" id="puntosCard" data-tab="puntos" style="margin-top: 20px">
             <div class="card-h">
@@ -2713,6 +2851,18 @@
                 300–500 ganada). El ponderado se calcula solo:
                 Σ(puntos × créditos) ÷ Σ(créditos). Usa el ojito para excluir
                 una materia (homologada o que no cuenta) del ponderado.
+              </div>
+              <div
+                class="stat-row"
+                id="puntosExportRow"
+                style="margin-bottom: 14px; gap: 10px; display: none"
+              >
+                <button class="btn" id="btnExportPuntosPDF" type="button">
+                  Exportar PDF
+                </button>
+                <button class="btn" id="btnExportPuntosCSV" type="button">
+                  Exportar CSV
+                </button>
               </div>
               <div id="puntosBody"></div>
             </div>
@@ -2740,17 +2890,9 @@
                     "
                   >
                     <div style="font-size: 13px; color: var(--ink)">
-                      Editando: <b id="currentSavedName"></b>
+                      Editando (se guarda solo): <b id="currentSavedName"></b>
                     </div>
                     <div style="display: flex; gap: 8px">
-                      <button
-                        class="btn accent"
-                        id="btnSaveChanges"
-                        type="button"
-                        style="padding: 7px 12px; font-size: 13px"
-                      >
-                        Guardar cambios
-                      </button>
                       <button
                         class="btn ghost"
                         id="btnStopEditing"
@@ -2810,7 +2952,9 @@
                     Superpone dos horarios y encuentra las franjas en que ambos
                     están libres (mínimo 30 min) — ideal para cuadrar trabajos en
                     grupo. Guarda el horario de tu compañero en "Horarios
-                    guardados" para poder elegirlo aquí.
+                    guardados" para poder elegirlo aquí, o elige directo a un
+                    amigo 👤 que haya activado "Compartir mi horario completo
+                    con esta persona" en Amigos.
                   </div>
                   <div id="compareResults"></div>
                 </div>
@@ -2939,6 +3083,239 @@
       </div>
     </div>
 
+    <!-- Modal inicio de sesion -->
+     <div id="authModal" class="modal-back">
+      <div class="modal" style="max-width:360px;text-align:center">
+        <button class="modal-x" id="authClose" type="button" aria-label="Cerrar">✕</button>
+        <h2 style="margin:0 0 6px">Sincroniza tu horario</h2>
+        <p style="color:var(--ink-2);font-size:14px;margin:0 0 20px">
+          Inicia sesión para guardar tus horarios en la nube y verlos desde
+          cualquier dispositivo. Es opcional: la app funciona igual sin cuenta.
+        </p>
+        <button class="btn primary" id="btnGoogleLogin" type="button" style="width:100%;justify-content:center;gap:10px">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+          Continuar con Google
+        </button>
+        <button class="btn primary" id="btnMicrosoftLogin" type="button" style="width:100%;justify-content:center;gap:10px;margin-top:10px">
+          <!-- ícono provisional (logo institucional a reemplazar) -->
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6"/></svg>
+          Continuar con Unimagdalena
+        </button>
+        <p id="msProximamente" style="color:var(--ink-3);font-size:12px;margin:10px 0 0;display:none">
+         <b>Muy pronto vas a poder iniciar sesión con tu correo institucional.</b>
+        </p>
+      </div>
+    </div>
+
+    <!-- Modal editar perfil académico -->
+    <div id="profileEditModal" class="modal-back">
+      <div class="modal" style="max-width:360px">
+        <button class="modal-x" id="profileEditClose" type="button" aria-label="Cerrar">✕</button>
+        <h2 style="margin:0 0 16px">Editar perfil</h2>
+        <form id="profileEditForm">
+          <div class="field" style="margin-bottom:12px">
+            <label for="peNombre">Nombre</label>
+            <input type="text" id="peNombre" autocomplete="off" />
+          </div>
+          <div class="field" style="margin-bottom:12px">
+            <label for="pePrograma">Programa académico</label>
+            <input type="text" id="pePrograma" placeholder="Ej. Ingeniería Electrónica" autocomplete="off" />
+          </div>
+          <div class="field" style="margin-bottom:12px">
+            <label for="peSemestre">Semestre</label>
+            <select id="peSemestre">
+              <option value="">Sin especificar</option>
+            </select>
+          </div>
+          <div class="field" style="margin-bottom:16px">
+            <label for="peUniversidad">Universidad</label>
+            <input type="text" id="peUniversidad" placeholder="Ej. Universidad Nacional" autocomplete="off" />
+            <div id="peUniversidadHint" style="font-size:12px;color:var(--ink-3);margin-top:4px;display:none">
+              Detectada por tu correo institucional — no se puede cambiar.
+            </div>
+          </div>
+          <button type="submit" class="btn accent" style="width:100%;justify-content:center">Guardar</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal Amigos -->
+    <div id="friendsModal" class="modal-back">
+      <div class="modal fr-modal">
+        <button class="modal-x" id="friendsModalClose" type="button" aria-label="Cerrar">✕</button>
+        <h2 style="margin:0 0 4px">Amigos</h2>
+        <p>El horario que se muestra en amigos es el destacado en la cuenta</p>
+        <div class="fr-mi-codigo">
+          Tu código: <b id="miCodigoAmigo">——————</b>
+          <button type="button" class="btn" id="btnCopiarCodigo" style="padding:4px 10px;font-size:12px">Copiar</button>
+        </div>
+
+        <div class="fr-section">
+          <h4>Buscar amigo</h4>
+          <form id="friendSearchForm" class="fr-search-row">
+            <input
+              type="text"
+              id="friendSearchInput"
+              placeholder="Código de amigo (ej. 8F3K2L)"
+              autocomplete="off"
+              maxlength="6"
+              style="text-transform:uppercase"
+              required
+            />
+            <button type="submit" class="btn primary">Buscar</button>
+          </form>
+          <div id="friendSearchResult" class="fr-result"></div>
+        </div>
+
+        <div class="fr-section">
+          <button type="button" class="btn accent" id="btnQuienEstaLibre" style="width:100%;justify-content:center">
+            ¿Quién está libre ahora?
+          </button>
+        </div>
+
+        <div class="fr-section">
+          <h4>Solicitudes</h4>
+          <div id="friendRequestsList"><div class="fr-empty">No tienes solicitudes pendientes.</div></div>
+        </div>
+
+        <div class="fr-section">
+          <h4>Mis amigos</h4>
+          <div id="friendsList"><div class="fr-empty">Todavía no tienes amigos.<br>Busca a alguien para enviarle una solicitud.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: horario de hoy de un amigo (mismo estilo que "Resumen de hoy") -->
+    <div id="friendScheduleModal" class="modal-back">
+      <div class="modal" style="max-width:400px;text-align:left">
+        <button class="modal-x" id="friendScheduleClose" type="button" aria-label="Cerrar">✕</button>
+        <h2 id="friendScheduleName" style="margin:0 0 4px"></h2>
+        <div class="hint" style="margin:0 0 14px"> <b>Horario de hoy</b></div>
+        <div id="friendScheduleBody"></div>
+      </div>
+    </div>
+
+    <!-- Modal: quién de mis amigos está libre ahora mismo -->
+    <div id="friendsFreeModal" class="modal-back">
+      <div class="modal fr-modal">
+        <button class="modal-x" id="friendsFreeClose" type="button" aria-label="Cerrar">✕</button>
+        <h2 style="margin:0 0 16px">¿Quién está libre ahora?</h2>
+        <div id="friendsFreeBody"></div>
+      </div>
+    </div>
+
+    <!-- Modal: Grupos de estudio (lista + crear) -->
+    <div id="groupsModal" class="modal-back">
+      <div class="modal fr-modal">
+        <button class="modal-x" id="groupsModalClose" type="button" aria-label="Cerrar">✕</button>
+        <h2 style="margin:0 0 4px">Grupos de estudio</h2>
+        <p>Un tablero compartido de próximas reuniones con tus amigos.</p>
+
+        <div class="fr-section">
+          <h4>Crear grupo</h4>
+          <form id="groupCreateForm">
+            <input
+              type="text"
+              id="groupNombreInput"
+              placeholder="Nombre del grupo (ej. Corte V)"
+              autocomplete="off"
+              required
+              style="width: 100%; margin-bottom: 8px"
+            />
+            <div class="hint" style="margin: 0 0 6px">
+              Invitar a estos amigos (les llegará una invitación para aceptar
+              o rechazar):
+            </div>
+            <div id="groupMiembrosChecklist" class="fr-empty">
+              Agrega amigos primero para poder invitarlos a un grupo.
+            </div>
+            <button
+              type="submit"
+              class="btn accent"
+              style="width: 100%; justify-content: center; margin-top: 8px"
+            >
+              Crear grupo
+            </button>
+          </form>
+        </div>
+
+        <div class="fr-section">
+          <h4>Invitaciones a grupos</h4>
+          <div id="groupInvitesList"><div class="fr-empty">No tienes invitaciones pendientes.</div></div>
+        </div>
+
+        <div class="fr-section">
+          <h4>Mis grupos</h4>
+          <div id="groupsList"><div class="fr-empty">Todavía no tienes grupos de estudio.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: tablero de un grupo (próximas reuniones) -->
+    <div id="groupBoardModal" class="modal-back">
+      <div class="modal fr-modal">
+        <button class="modal-x" id="groupBoardClose" type="button" aria-label="Cerrar">✕</button>
+        <h2 id="groupBoardNombre" style="margin:0 0 4px"></h2>
+        <div class="hint" style="margin:0 0 14px">
+          Cualquier miembro puede agregar o quitar una reunión de este
+          tablero compartido.
+        </div>
+
+        <form id="reunionForm" class="fr-search-row" style="flex-wrap: wrap">
+          <input
+            type="text"
+            id="reunionTitulo"
+            placeholder="Título (ej. Repaso parcial 2)"
+            autocomplete="off"
+            required
+            style="flex: 1; min-width: 160px"
+          />
+          <input type="date" id="reunionFecha" required style="flex: none" />
+          <input type="time" id="reunionHora" style="flex: none" />
+          <input
+            type="text"
+            id="reunionLugar"
+            placeholder="Lugar (ej. Biblioteca, sala 3 o enlace)"
+            autocomplete="off"
+            style="flex: 1; min-width: 160px"
+          />
+          <input
+            type="text"
+            id="reunionComentario"
+            placeholder="Comentario (opcional)"
+            autocomplete="off"
+            style="flex: 2; min-width: 160px"
+          />
+          <button type="submit" class="btn accent">Agregar</button>
+        </form>
+        <div id="groupBoardList" style="margin-top: 14px"></div>
+
+        <div class="fr-section">
+          <h4>Invitar a este grupo</h4>
+          <form id="groupInviteForm">
+            <div id="groupInviteChecklist" class="fr-empty">
+              No tienes más amigos para invitar a este grupo.
+            </div>
+            <button
+              type="submit"
+              class="btn"
+              style="width: 100%; justify-content: center; margin-top: 8px"
+            >
+              Invitar
+            </button>
+          </form>
+        </div>
+
+        <button
+          type="button"
+          class="btn danger ghost"
+          id="btnSalirGrupo"
+          style="width: 100%; justify-content: center; margin-top: 16px"
+        >
+          Salir del grupo
+        </button>
+      </div>
+    </div>
     <script>
       (function () {
         "use strict";
@@ -2967,13 +3344,6 @@
           "#C9773A",
         ];
         var HOUR_PX = 58; // altura de una hora en la vista
-        var STORAGE_KEY = "generadorHorarios:v1";
-        var THEME_KEY = "generadorHorarios:theme";
-        var SAVED_KEY = "generadorHorarios:saved";
-        var VIEW_KEY = "generadorHorarios:view";
-        var PRINCIPAL_KEY = "generadorHorarios:principal";
-        var BUILD_KEY = "generadorHorarios:builderPrefs";
-        var storageOK = true; // se pone en falso si localStorage no está disponible (p. ej. vista previa dentro de Claude)
 
         // Tipos de actividad y su color de etiqueta
         var TIPOS = [
@@ -2982,7 +3352,7 @@
           "Exposición",
           "Proyecto",
           "Quiz",
-          "Entrega",
+          "Laboratorio",
           "Otro",
         ];
         var TIPO_COLOR = {
@@ -3018,6 +3388,24 @@
         var calRange = null; // rango visible del calendario para la línea de "ahora"
         var lastCombos = []; // combinaciones generadas por el armador
         var currentSavedId = null; // id del horario guardado que se está editando actualmente (o null)
+
+        // ---------- Caché local de lo último recibido desde Firestore ----------
+        // Firestore es la única fuente de datos: estas variables NO son una
+        // base de datos local, son solo la última copia confirmada que llegó
+        // por onSnapshot, para poder pintar la interfaz sin volver a leer la
+        // red en cada render. Las llenan window.alActualizar* (ver init()).
+        var savedListCache = []; // horarios guardados con nombre
+        var favoritoIdCache = ""; // id del horario marcado como principal (★)
+        var notifOnCache = false; // intención de avisos locales (el permiso del navegador es aparte)
+        var perfilCache = null; // users/{uid} — perfil académico (null: anónimo o sin cargar aún)
+        var solicitudesRecibidasCache = []; // friendRequests donde to == yo, pending
+        var solicitudesEnviadasCache = []; // friendRequests donde from == yo, pending
+        var amigosCache = []; // friendships donde yo estoy en "users"
+        var _perfilesAmigosCache = {}; // email -> {uid,nombre,programa,semestre}, evita relecturas
+        var gruposEstudioCache = []; // studyGroups donde yo estoy en "miembros"
+        var invitacionesGrupoCache = []; // groupInvites donde to == yo, pending
+        var _grupoAbiertoId = null; // id del grupo cuyo tablero está abierto (o null)
+        var _cancelarReunionesGrupo = null; // unsubscribe del listener del tablero abierto
 
         // ---------- Utilidades ----------
         function $(id) {
@@ -3096,6 +3484,38 @@
           };
         }
 
+        // Copias "limpias" de las colecciones (sin version/createdAt/
+        // updatedAt de Firestore) para anidar dentro de un horario guardado
+        // o un archivo exportado — esos metadatos son de cada documento de
+        // Firestore, no tienen sentido congelados dentro de un snapshot.
+        function clasesLimpias() {
+          return state.classes.map(function (c) {
+            return {
+              id: c.id,
+              grupoId: c.grupoId,
+              materia: c.materia,
+              curso: c.curso,
+              profesor: c.profesor,
+              dia: c.dia,
+              inicio: c.inicio,
+              fin: c.fin,
+              color: c.color,
+            };
+          });
+        }
+        function actividadesLimpias() {
+          return state.activities.map(function (a) {
+            return { id: a.id, materia: a.materia, tipo: a.tipo, fecha: a.fecha, nota: a.nota, done: a.done };
+          });
+        }
+        function puntosLimpios() {
+          return {
+            subjects: (state.puntos.subjects || []).map(function (s) {
+              return { id: s.id, nombre: s.nombre, creditos: s.creditos, excluida: s.excluida, activities: s.activities || [] };
+            }),
+          };
+        }
+
         function activeDays() {
           return DAYS_FULL.slice(0, state.settings.days);
         }
@@ -3158,6 +3578,11 @@
             el.classList.remove("show");
           }, 2400);
         }
+        // app-integration.js (módulo, no puede importar de este script
+        // clásico) usa esto para mostrar sus propios avisos (ej. el
+        // mensaje de dominio institucional al rechazar un login de
+        // Microsoft) con el mismo toast que el resto de la app.
+        window.toast = toast;
 
         // ---------- Modo oscuro ----------
         function applyTheme(theme) {
@@ -3170,21 +3595,11 @@
                 ? "Cambiar a modo claro"
                 : "Cambiar a modo oscuro",
             );
-          try {
-            if (storageOK) localStorage.setItem(THEME_KEY, theme);
-          } catch (e) {}
         }
         function initTheme() {
-          var saved = null;
-          try {
-            saved = localStorage.getItem(THEME_KEY);
-          } catch (e) {
-            storageOK = false;
-          }
-          if (saved === "dark" || saved === "light") {
-            applyTheme(saved);
-            return;
-          }
+          // Primer pintado instantáneo por preferencia del sistema operativo,
+          // antes de que Firestore responda. Si el usuario ya había elegido
+          // un tema, alActualizarSettings() lo corrige apenas llega.
           var prefersDark =
             window.matchMedia &&
             window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -3195,84 +3610,32 @@
             document.documentElement.getAttribute("data-theme") === "dark"
               ? "dark"
               : "light";
-          applyTheme(current === "dark" ? "light" : "dark");
+          var nuevo = current === "dark" ? "light" : "dark";
+          applyTheme(nuevo);
+          programarGuardarSettings({ theme: nuevo });
         }
 
-        // ---------- Autoguardado (localStorage) ----------
-        function saveState() {
-          if (!storageOK) return;
-          try {
-            localStorage.setItem(
-              STORAGE_KEY,
-              JSON.stringify({
-                savedAt: new Date().toISOString(),
-                meta: state.meta,
-                settings: state.settings,
-                classes: state.classes,
-                activities: state.activities,
-                puntos: state.puntos,
-                currentSavedId: currentSavedId,
-              }),
-            );
-          } catch (e) {
-            storageOK = false;
-          }
+        // ---------- Render maestro (ya no autoguarda: ver render() más abajo) ----------
+        // Escritura de "settings" (meta/settings/tema/vista/preferencias del
+        // armador) con un pequeño retardo, para no mandar una escritura a
+        // Firestore por cada tecla — se agrupan los cambios seguidos en una
+        // sola escritura, sin usar ninguna base de datos local mientras tanto.
+        var _settingsGuardarTimer = null;
+        var _settingsPendientes = {};
+        function programarGuardarSettings(patch) {
+          Object.assign(_settingsPendientes, patch);
+          clearTimeout(_settingsGuardarTimer);
+          _settingsGuardarTimer = setTimeout(guardarSettingsAhora, 600);
         }
-        function loadState() {
-          var raw = null;
-          try {
-            raw = localStorage.getItem(STORAGE_KEY);
-          } catch (e) {
-            storageOK = false;
-            return false;
-          }
-          if (!raw) return false;
-          try {
-            var data = JSON.parse(raw);
-            var classes = Array.isArray(data.classes) ? data.classes : [];
-            state.meta = Object.assign(
-              { title: "", author: "" },
-              data.meta || {},
-            );
-            state.settings = Object.assign(
-              { days: 5, dayStart: "07:00", dayEnd: "19:00" },
-              data.settings || {},
-            );
-            state.classes = classes.map(function (c) {
-              var id = c.id || uid();
-              return {
-                id: id,
-                grupoId: c.grupoId || id,
-                materia: c.materia || "",
-                curso: c.curso || "",
-                profesor: c.profesor || "",
-                dia: c.dia || DAYS_FULL[0],
-                inicio: c.inicio || "07:00",
-                fin: c.fin || "08:00",
-                color: c.color || PALETTE[0],
-              };
-            });
-            state.activities = sanitizeActivities(data.activities);
-            state.puntos = sanitizePuntos(data.puntos);
-            currentSavedId = data.currentSavedId || null;
-            if (
-              currentSavedId &&
-              !getSavedList().some(function (x) {
-                return x.id === currentSavedId;
-              })
-            )
-              currentSavedId = null;
-            if (state.settings.days < 5) state.settings.days = 5;
-            if (state.settings.days > 7) state.settings.days = 7;
-            return true;
-          } catch (e) {
-            return false;
-          }
-        }
-        function clearStorage() {
-          try {
-            if (storageOK) localStorage.removeItem(STORAGE_KEY);
-          } catch (e) {}
+        async function guardarSettingsAhora() {
+          var patch = _settingsPendientes;
+          _settingsPendientes = {};
+          var uidFs = window.uidActual && window.uidActual();
+          if (!uidFs || !window.firestoreCrud || Object.keys(patch).length === 0) return;
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.guardarSingleton(uidFs, "settings", patch);
+          });
+          if (!r.ok) toast("⚠ " + r.error.msg);
         }
 
         // ---------- Vínculo con el horario guardado que se está editando ----------
@@ -3286,6 +3649,9 @@
             if (!entry) {
               currentSavedId = null;
               banner.style.display = "none";
+              renderActivities();
+              renderPuntos();
+              programarGuardarResumenHoy();
               return;
             }
             $("currentSavedName").textContent = entry.name;
@@ -3293,175 +3659,136 @@
           } else {
             banner.style.display = "none";
           }
+          renderActivities();
+          renderPuntos();
+          // Si esto acaba de hacer que enHorarioDestacado() pase a ser
+          // cierto (o falso), el snapshot que ven mis amigos tiene que
+          // reflejarlo — ver el comentario grande junto a
+          // programarGuardarResumenHoy() más abajo.
+          programarGuardarResumenHoy();
         }
-        function saveChangesToCurrent() {
-          if (!currentSavedId) return;
-          var list = getSavedList();
-          var entry = list.filter(function (x) {
+        // Si el horario actual está "vinculado" a un horario guardado (por
+        // ejemplo el destacado ★, que se carga solo al abrir la app), cada
+        // cambio se refleja ahí automáticamente — ya no hace falta un botón
+        // "Guardar cambios". Sin control de versión: el dato real vive en
+        // classes/activities/pointsSubjects, así que este snapshot es solo
+        // una copia de conveniencia y perder una carrera contra OTRO cambio
+        // del MISMO horario no arriesga ningún dato del usuario.
+        //
+        // Pero hay una carrera distinta y sí destructiva: mientras se está
+        // CAMBIANDO de horario (ver _reemplazandoHorario / reemplazarHorarioActual),
+        // classes/activities/pointsSubjects pasan, en un instante, a reflejar
+        // el horario NUEVO (B) — pero currentSavedId todavía apunta al
+        // horario VIEJO (A) hasta que loadNamedSchedule() termina de esperar
+        // esa operación. Si en esa ventana (más probable cuanto más lenta la
+        // red) esta función llega a ejecutarse, escribe el contenido de B
+        // por encima del documento de A, perdiendo el horario A por
+        // completo. _reemplazandoHorario evita que esto dispare mientras
+        // ese cambio de horario está en curso.
+        var _guardarEnActualTimer = null;
+        var _reemplazandoHorario = false;
+        function programarGuardarEnActual() {
+          if (!currentSavedId || _reemplazandoHorario) return;
+          clearTimeout(_guardarEnActualTimer);
+          _guardarEnActualTimer = setTimeout(guardarEnActualAhora, 800);
+        }
+        async function guardarEnActualAhora() {
+          if (!currentSavedId || _reemplazandoHorario) return;
+          var entry = getSavedList().filter(function (x) {
             return x.id === currentSavedId;
           })[0];
           if (!entry) {
-            toast("Ese horario guardado ya no existe.");
             currentSavedId = null;
             updateSavedBanner();
             return;
           }
-          var updated = {
-            id: entry.id,
+          var uidFs = window.uidActual && window.uidActual();
+          if (!uidFs) return;
+          // Ya no se incluyen activities/puntos aquí: son colecciones
+          // globales del usuario, ligadas únicamente al horario destacado
+          // (ver enHorarioDestacado), no una copia propia de cada horario
+          // guardado — ver el comentario grande en reemplazarHorarioActual().
+          var datos = {
             name: entry.name,
             savedAt: new Date().toISOString(),
             meta: state.meta,
             settings: state.settings,
-            classes: state.classes,
-            activities: state.activities,
-             puntos: state.puntos,
+            classes: clasesLimpias(),
           };
-          list = list.map(function (x) {
-            return x.id === entry.id ? updated : x;
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.actualizarSinVersion(uidFs, "schedules", entry.id, datos);
           });
-          setSavedList(list);
-          renderSavedList();
-          toast('Cambios guardados en "' + entry.name + '".');
+          if (!r.ok) toast("⚠ No se pudo actualizar el horario guardado. " + r.error.msg);
         }
         function stopEditingSaved() {
           currentSavedId = null;
           updateSavedBanner();
+          renderActivities();
+          renderPuntos();
           $("saveName").focus();
         }
 
-        // ---------- Horarios guardados con nombre (varias ranuras en el navegador) ----------
+        // ---------- Horarios guardados con nombre (Firestore: users/{uid}/schedules) ----------
         function getSavedList() {
-          try {
-            var raw = localStorage.getItem(SAVED_KEY);
-            var list = raw ? JSON.parse(raw) : [];
-            return Array.isArray(list) ? list : [];
-          } catch (e) {
-            storageOK = false;
-            return [];
-          }
+          return savedListCache;
         }
-        function setSavedList(list) {
-          try {
-            localStorage.setItem(SAVED_KEY, JSON.stringify(list));
-          } catch (e) {
-            storageOK = false;
-          }
-        }
-        function saveNamedSchedule(name) {
+        async function saveNamedSchedule(name) {
           name = (name || "").trim();
           if (!name) {
             toast("Escribe un nombre para guardar este horario.");
+            return;
+          }
+          var uidFs = window.uidActual && window.uidActual();
+          if (!uidFs) {
+            toast("⚠ Sesión no lista todavía, intenta de nuevo en un momento.");
             return;
           }
           var list = getSavedList();
           var existing = list.filter(function (x) {
             return norm(x.name) === norm(name);
           })[0];
-          var entry = {
-            id: existing ? existing.id : uid(),
+          var id = existing ? existing.id : uid();
+          // Igual que en guardarEnActualAhora(): sin activities/puntos, son
+          // globales y viven solo ligadas al destacado.
+          var datos = {
             name: name,
             savedAt: new Date().toISOString(),
             meta: state.meta,
             settings: state.settings,
-            classes: state.classes,
-            activities: state.activities,
-            puntos: state.puntos,
+            classes: clasesLimpias(),
           };
-          if (existing) {
-            list = list.map(function (x) {
-              return x.id === existing.id ? entry : x;
-            });
-          } else {
-            list.unshift(entry);
-          }
-          setSavedList(list);
-          currentSavedId = entry.id;
-          renderSavedList();
-          updateSavedBanner();
-          toast(
-            (existing
-              ? 'Horario "' + name + '" actualizado.'
-              : 'Horario "' + name + '" guardado.') + " (en este navegador)",
-          );
-        }
-        function hasUnsavedChanges() {
-          var snap = JSON.stringify({
-            meta: state.meta,
-            settings: state.settings,
-            classes: state.classes,
-            activities: state.activities,
-            puntos: state.puntos,
-          });
-          if (currentSavedId) {
-            var entry = getSavedList().filter(function (x) {
-              return x.id === currentSavedId;
-            })[0];
-            if (!entry) return state.classes.length > 0;
-            return (
-              snap !==
-              JSON.stringify({
-                meta: entry.meta,
-                settings: entry.settings,
-                classes: entry.classes,
-                activities: entry.activities || [],
-                puntos: entry.puntos || { subjects: [] },
+          var r = existing
+            ? await window.firestoreCrud.ejecutarEscritura(function () {
+                return window.firestoreCrud.actualizarConVersion(uidFs, "schedules", id, datos, existing.version);
               })
-            );
+            : await window.firestoreCrud.ejecutarEscritura(function () {
+                return window.firestoreCrud.crearDoc(uidFs, "schedules", id, datos);
+              });
+          if (!r.ok) {
+            toast("⚠ " + r.error.msg);
+            return false;
           }
-          return (
-            state.classes.length > 0 ||
-            state.activities.length > 0 ||
-            (state.puntos && state.puntos.subjects.length > 0)
-          );
+          currentSavedId = id;
+          updateSavedBanner();
+          toast(existing ? 'Horario "' + name + '" actualizado.' : 'Horario "' + name + '" guardado.');
+          return true;
         }
-        function loadNamedSchedule(id) {
-          if (id !== currentSavedId && hasUnsavedChanges()) {
-            toast(
-              'Tienes cambios sin guardar. Usa "Guardar cambios" o guárdalo con otro nombre antes de cargar otro horario.',
-            );
-            return;
-          }
+        async function loadNamedSchedule(id) {
+          // Ya no hace falta preguntar por "cambios sin guardar": todo lo
+          // que hubiera en el horario de trabajo actual ya está guardado
+          // (en vivo, y reflejado en el horario al que estuviera vinculado
+          // si había uno — ver programarGuardarEnActual).
           var entry = getSavedList().filter(function (x) {
             return x.id === id;
           })[0];
           if (!entry) return;
-          state.meta = Object.assign(
-            { title: "", author: "" },
-            entry.meta || {},
-          );
-          state.settings = Object.assign(
-            { days: 5, dayStart: "07:00", dayEnd: "19:00" },
-            entry.settings || {},
-          );
-          state.classes = (entry.classes || []).map(function (c) {
-            var id2 = c.id || uid();
-            return {
-              id: id2,
-              grupoId: c.grupoId || id2,
-              materia: c.materia || "",
-              curso: c.curso || "",
-              profesor: c.profesor || "",
-              dia: c.dia || DAYS_FULL[0],
-              inicio: c.inicio || "07:00",
-              fin: c.fin || "08:00",
-              color: c.color || PALETTE[0],
-            };
-          });
-          state.activities = sanitizeActivities(entry.activities);
-          state.puntos = sanitizePuntos(entry.puntos);
-          puntosData = state.puntos;
-          if (state.settings.days < 5) state.settings.days = 5;
-          if (state.settings.days > 7) state.settings.days = 7;
+          var ok = await reemplazarHorarioActual(entry, 'Horario "' + entry.name + '" cargado.');
+          if (!ok) return;
           currentSavedId = entry.id;
-          syncMetaInputs();
-          refreshSessionDayOptions();
           resetForm();
-          render();
           updateSavedBanner();
-          renderSavedList();
-          toast('Horario "' + entry.name + '" cargado.');
         }
-        function renameNamedSchedule(id) {
+        async function renameNamedSchedule(id) {
           var list = getSavedList();
           var entry = list.filter(function (x) {
             return x.id === id;
@@ -3485,23 +3812,26 @@
             toast('Ya existe un horario llamado "' + clash.name + '".');
             return;
           }
+          var uidFs = window.uidActual && window.uidActual();
           var oldName = entry.name;
-          setSavedList(
-            list.map(function (x) {
-              return x.id === id
-                ? Object.assign({}, x, { name: name })
-                : x;
-            }),
-          );
-          renderSavedList();
-          updateSavedBanner();
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.actualizarConVersion(uidFs, "schedules", id, { name: name }, entry.version);
+          });
+          if (!r.ok) {
+            toast("⚠ " + r.error.msg);
+            return;
+          }
           toast('"' + oldName + '" ahora se llama "' + name + '".');
         }
-        function deleteNamedSchedule(id) {
+        async function deleteNamedSchedule(id) {
           var entry = getSavedList().filter(function (x) {
             return x.id === id;
           })[0];
           if (!entry) return;
+          if (id === favoritoIdCache) {
+            toast("Tu horario destacado ★ no se puede eliminar.");
+            return;
+          }
           if (
             !confirm(
               '¿Eliminar el horario guardado "' +
@@ -3510,13 +3840,15 @@
             )
           )
             return;
-          setSavedList(
-            getSavedList().filter(function (x) {
-              return x.id !== id;
-            }),
-          );
+          var uidFs = window.uidActual && window.uidActual();
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.eliminarDoc(uidFs, "schedules", id);
+          });
+          if (!r.ok) {
+            toast("⚠ " + r.error.msg);
+            return;
+          }
           if (currentSavedId === id) currentSavedId = null;
-          renderSavedList();
           updateSavedBanner();
           toast('Horario "' + entry.name + '" eliminado.');
         }
@@ -3566,14 +3898,21 @@
               (when ? " · " + esc(when) : "") +
               "</div></div>";
             html += '<div class="li-actions">';
-            html +=
-              '<button class="icon-btn star-btn' +
-              (entry.id === principalId ? " on" : "") +
-              '" data-star-saved="' +
-              entry.id +
-              '" title="Marcar como mi horario principal"><svg width="16" height="16" viewBox="0 0 24 24" fill="' +
-              (entry.id === principalId ? "currentColor" : "none") +
-              '" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>';
+            // El destacado ★ es de una sola asignación (ver setPrincipalId):
+            // sin principalId todavía nada está fijo, así que cualquier
+            // entrada se puede marcar; una vez fijo, solo se muestra como
+            // indicador estático en SU entrada (sin data-star-saved, para
+            // que no quede clicable) y desaparece de las demás — mostrar
+            // ahí un botón que siempre va a rechazar el click es confuso.
+            if (!principalId) {
+              html +=
+                '<button class="icon-btn star-btn" data-star-saved="' +
+                entry.id +
+                '" title="Marcar como tu horario destacado"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>';
+            } else if (entry.id === principalId) {
+              html +=
+                '<span class="icon-btn star-btn on" title="Tu horario destacado — no se puede cambiar"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>';
+            }
             html +=
               '<button class="icon-btn" data-load-saved="' +
               entry.id +
@@ -3582,10 +3921,15 @@
               '<button class="icon-btn" data-ren-saved="' +
               entry.id +
               '" title="Renombrar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>';
-            html +=
-              '<button class="icon-btn del" data-del-saved="' +
-              entry.id +
-              '" title="Eliminar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>';
+            // El destacado tampoco se puede borrar (deleteNamedSchedule lo
+            // rechaza igual, esto solo evita mostrar un botón que siempre
+            // va a fallar).
+            if (entry.id !== principalId) {
+              html +=
+                '<button class="icon-btn del" data-del-saved="' +
+                entry.id +
+                '" title="Eliminar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>';
+            }
             html += "</div></div>";
           });
           body.innerHTML = html;
@@ -3900,6 +4244,71 @@
         }
 
         // ---------- Vista "solo hoy" ----------
+        // Clases de HOY, ordenadas por hora de inicio — extraída de
+        // renderTodayView() para poder reusarla tal cual con el horario de
+        // un amigo (ver "Amigos" más abajo: guardarResumenHoyAmigos) sin
+        // duplicar el filtro+orden en dos lugares.
+        function clasesDeHoyDe(classes) {
+          var dayName = DAYS_FULL[todayIndex()];
+          return (classes || [])
+            .filter(function (c) {
+              return c.dia === dayName;
+            })
+            .slice()
+            .sort(function (a, b) {
+              return t2m(a.inicio) - t2m(b.inicio);
+            });
+        }
+        // HTML de la lista ".today-list" — la misma pieza visual para mi
+        // propio "Resumen de hoy" (editable, con banderas de conflicto) y
+        // para el horario de hoy de un amigo (opts.editable=false: sin
+        // clic-para-editar ni conflictos, que no aplican a un horario ajeno).
+        function todayListHTML(items, opts) {
+          opts = opts || {};
+          var nm = nowMinutes();
+          var html = '<div class="today-list">';
+          items.forEach(function (c, i) {
+            if (i > 0) {
+              var gap = t2m(c.inicio) - t2m(items[i - 1].fin);
+              if (gap > 0)
+                html +=
+                  '<div class="today-gap">' + fmtDur(gap) + " libre</div>";
+            }
+            var cur = nm >= t2m(c.inicio) && nm < t2m(c.fin);
+            var flag = "";
+            if (opts.editable && opts.sev) {
+              flag =
+                opts.sev[c.id] === "hard"
+                  ? ' <span class="li-flag" title="No permitido">✕</span>'
+                  : opts.sev[c.id] === "soft"
+                    ? ' <span class="li-flag" style="color:var(--soft)" title="Cruce">!</span>'
+                    : "";
+            }
+            var sub = [c.curso, c.profesor].filter(Boolean).join(" · ");
+            html +=
+              '<div class="today-item' +
+              (cur ? " now" : "") +
+              '"' +
+              (opts.editable ? ' data-id="' + c.id + '" title="Editar"' : "") +
+              ' style="border-left-color:' +
+              (c.color || "var(--accent)") +
+              '">' +
+              '<span class="tt">' +
+              esc(c.inicio) +
+              "<br>" +
+              esc(c.fin) +
+              "</span>" +
+              '<span style="flex:1;min-width:0"><span class="tm">' +
+              esc(c.materia) +
+              flag +
+              (cur ? ' <span class="now-chip">Ahora</span>' : "") +
+              "</span>" +
+              (sub ? '<span class="ts">' + esc(sub) + "</span>" : "") +
+              "</span></div>";
+          });
+          html += "</div>";
+          return html;
+        }
         function renderTodayView(sev) {
           var cal = $("calendar");
           var ti = todayIndex();
@@ -3918,14 +4327,7 @@
               ".</div></div>";
             return;
           }
-          var items = state.classes
-            .filter(function (c) {
-              return c.dia === dayName;
-            })
-            .slice()
-            .sort(function (a, b) {
-              return t2m(a.inicio) - t2m(b.inicio);
-            });
+          var items = clasesDeHoyDe(state.classes);
           if (items.length === 0) {
             cal.innerHTML =
               '<div class="cal-empty"><div class="big">No tienes clases hoy</div><div>Disfruta el día libre.</div></div>';
@@ -3934,46 +4336,7 @@
 
           setStatCount(items.length, items.length === 1 ? "clase hoy" : "clases hoy");
 
-          var nm = nowMinutes();
-          var html = '<div class="today-list">';
-          items.forEach(function (c, i) {
-            if (i > 0) {
-              var gap = t2m(c.inicio) - t2m(items[i - 1].fin);
-              if (gap > 0)
-                html +=
-                  '<div class="today-gap">' + fmtDur(gap) + " libre</div>";
-            }
-            var cur = nm >= t2m(c.inicio) && nm < t2m(c.fin);
-            var flag =
-              sev[c.id] === "hard"
-                ? ' <span class="li-flag" title="No permitido">✕</span>'
-                : sev[c.id] === "soft"
-                  ? ' <span class="li-flag" style="color:var(--soft)" title="Cruce">!</span>'
-                  : "";
-            var sub = [c.curso, c.profesor].filter(Boolean).join(" · ");
-            html +=
-              '<div class="today-item' +
-              (cur ? " now" : "") +
-              '" data-id="' +
-              c.id +
-              '" style="border-left-color:' +
-              c.color +
-              '" title="Editar">' +
-              '<span class="tt">' +
-              esc(c.inicio) +
-              "<br>" +
-              esc(c.fin) +
-              "</span>" +
-              '<span style="flex:1;min-width:0"><span class="tm">' +
-              esc(c.materia) +
-              flag +
-              (cur ? ' <span class="now-chip">Ahora</span>' : "") +
-              "</span>" +
-              (sub ? '<span class="ts">' + esc(sub) + "</span>" : "") +
-              "</span></div>";
-          });
-          html += "</div>";
-          cal.innerHTML = html;
+          cal.innerHTML = todayListHTML(items, { editable: true, sev: sev });
           Array.prototype.forEach.call(
             cal.querySelectorAll(".today-item"),
             function (b) {
@@ -4284,7 +4647,6 @@
           renderStats();
           renderActivities();
           renderBuilderFilters();
-          saveState();
         }
 
         // ---------- Formulario: sesiones (días/cursos/horarios) ----------
@@ -4505,17 +4867,20 @@
           $("fMateria").focus();
         }
 
-        function removeClass(id) {
-          state.classes = state.classes.filter(function (x) {
-            return x.id !== id;
+        async function removeClass(id) {
+          var uidFs = window.uidActual && window.uidActual();
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.eliminarDoc(uidFs, "classes", id);
           });
-          reconciliarPuntos();
+          if (!r.ok) {
+            toast("⚠ " + r.error.msg);
+            return;
+          }
           if (editingId === id) resetForm();
-          render();
           toast("Clase eliminada.");
         }
 
-        function onSubmit(e) {
+        async function onSubmit(e) {
           e.preventDefault();
           var materia = $("fMateria").value.trim();
           if (!materia) {
@@ -4550,36 +4915,73 @@
             profesor: $("fProfesor").value.trim(),
             color: $("fColor").value,
           };
+          var uidFs = window.uidActual && window.uidActual();
+          if (!uidFs) {
+            toast("⚠ Sesión no lista todavía, intenta de nuevo en un momento.");
+            return;
+          }
           var grupoId = editingId ? editingGrupoId : uid();
           var nombreViejo = null;
+          var operaciones = [];
           if (editingId) {
             // nombre que tenía la materia antes de editar (para detectar renombrado)
             var claseVieja = state.classes.filter(function (x) {
               return (x.grupoId || x.id) === grupoId;
             })[0];
             if (claseVieja) nombreViejo = claseVieja.materia;
-            state.classes = state.classes.filter(function (x) {
-              return (x.grupoId || x.id) !== grupoId;
-            });
+            // Cada edición reemplaza por completo las filas de la materia:
+            // se borran las viejas y se crean las nuevas con ids frescos,
+            // todo en un mismo lote atómico (o se aplica todo o nada).
+            state.classes
+              .filter(function (x) {
+                return (x.grupoId || x.id) === grupoId;
+              })
+              .forEach(function (old) {
+                operaciones.push({ tipo: "delete", coleccion: "classes", id: old.id });
+              });
           }
           sessions.forEach(function (s) {
-            var data = Object.assign({}, common, {
+            operaciones.push({
+              tipo: "set",
+              coleccion: "classes",
               id: uid(),
-              grupoId: grupoId,
-              dia: s.dia,
-              curso: s.curso,
-              inicio: s.inicio,
-              fin: s.fin,
+              datos: Object.assign({}, common, {
+                grupoId: grupoId,
+                dia: s.dia,
+                curso: s.curso,
+                inicio: s.inicio,
+                fin: s.fin,
+              }),
             });
-            state.classes.push(data);
           });
-          toast(editingId ? "Cambios guardados." : "Clase agregada.");
+          // Si esto es un renombrado, se marca ANTES de escribir el cambio
+          // de clase: la actualización de "classes" puede reflejarse (y
+          // disparar reconciliarPuntos()) casi de inmediato, incluso antes
+          // de que este await de más abajo se resuelva — el guard tiene que
+          // estar activo desde ya para evitar la carrera (ver
+          // _renombresPendientes).
+          var esRenombrado = nombreViejo !== null && norm(nombreViejo) !== norm(materia);
+          if (esRenombrado) _renombresPendientes[norm(nombreViejo)] = norm(materia);
+
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.guardarLote(uidFs, operaciones);
+          });
+          if (!r.ok) {
+            if (esRenombrado) delete _renombresPendientes[norm(nombreViejo)];
+            toast("⚠ " + r.error.msg);
+            return;
+          }
+          var fueEdicion = !!editingId;
           resetForm();
-          if (nombreViejo !== null) renombrarEnPuntos(nombreViejo, materia);
-          reconciliarPuntos(); // por si agregaste una materia nueva
-          toast(editingId ? "Cambios guardados." : "Clase agregada.");
-          resetForm();
-          render();
+          if (esRenombrado) {
+            try {
+              await renombrarEnPuntos(nombreViejo, materia);
+            } finally {
+              delete _renombresPendientes[norm(nombreViejo)];
+              reconciliarPuntos(); // por si algo más cambió mientras tanto
+            }
+          }
+          toast(fueEdicion ? "Cambios guardados." : "Clase agregada.");
         }
 
         // Sugerir color según materia mientras se escribe
@@ -4593,22 +4995,27 @@
         function bindMeta() {
           $("metaTitle").addEventListener("input", function () {
             state.meta.title = this.value;
+            programarGuardarSettings({ meta: state.meta });
           });
           $("metaAuthor").addEventListener("input", function () {
             state.meta.author = this.value;
+            programarGuardarSettings({ meta: state.meta });
           });
           $("setDays").addEventListener("change", function () {
             state.settings.days = parseInt(this.value, 10);
             refreshSessionDayOptions();
             render();
+            programarGuardarSettings({ settings: state.settings });
           });
           $("setStart").addEventListener("change", function () {
             state.settings.dayStart = this.value || "07:00";
             render();
+            programarGuardarSettings({ settings: state.settings });
           });
           $("setEnd").addEventListener("change", function () {
             state.settings.dayEnd = this.value || "19:00";
             render();
+            programarGuardarSettings({ settings: state.settings });
           });
         }
         function syncMetaInputs() {
@@ -4637,9 +5044,9 @@
             savedAt: new Date().toISOString(),
             meta: state.meta,
             settings: state.settings,
-            classes: state.classes,
-            activities: state.activities,
-            puntos: state.puntos,
+            classes: clasesLimpias(),
+            activities: actividadesLimpias(),
+            puntos: puntosLimpios(),
           };
           var blob = new Blob([JSON.stringify(payload, null, 2)], {
             type: "application/json",
@@ -4657,9 +5064,219 @@
           toast("Archivo guardado. Podrás volver a cargarlo para editar.");
         }
 
+        /* ---------- Exportar Actividades/Puntos (PDF + CSV) ---------- */
+        function descargarBlob(contenido, tipo, nombre) {
+          var blob = new Blob([contenido], { type: tipo });
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement("a");
+          a.href = url;
+          a.download = nombre;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(function () {
+            URL.revokeObjectURL(url);
+          }, 800);
+        }
+        function aCSV(filas) {
+          return filas
+            .map(function (fila) {
+              return fila
+                .map(function (v) {
+                  var s = String(v == null ? "" : v);
+                  if (/["\n;,]/.test(s)) s = '"' + s.replace(/"/g, '""') + '"';
+                  return s;
+                })
+                .join(",");
+            })
+            .join("\r\n");
+        }
+        function pdfEncabezado(doc, titulo) {
+          var M = 14;
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(18);
+          doc.setTextColor(24, 35, 56);
+          doc.text(titulo, M, M + 2);
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(10);
+          doc.setTextColor(84, 96, 122);
+          doc.text(
+            "Generado: " +
+              new Date().toLocaleDateString("es", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }),
+            M,
+            M + 8,
+          );
+          return M + 16; // y donde puede empezar el contenido
+        }
+        // Filas de texto simples, con salto de página manual cuando se acaba el alto.
+        function pdfTabla(doc, y, columnas, filas) {
+          var M = 14;
+          var pageH = doc.internal.pageSize.getHeight();
+          var anchos = columnas.map(function (c) {
+            return c.ancho;
+          });
+          function encabezadoTabla(yy) {
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(9.5);
+            doc.setTextColor(255, 255, 255);
+            doc.setFillColor(24, 35, 56);
+            doc.rect(
+              M,
+              yy,
+              anchos.reduce(function (a, b) {
+                return a + b;
+              }, 0),
+              7,
+              "F",
+            );
+            var x = M;
+            columnas.forEach(function (c, i) {
+              doc.text(c.titulo, x + 2, yy + 5);
+              x += anchos[i];
+            });
+            return yy + 7;
+          }
+          y = encabezadoTabla(y);
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(9);
+          doc.setTextColor(24, 35, 56);
+          filas.forEach(function (fila, idx) {
+            if (y + 7 > pageH - M) {
+              doc.addPage();
+              y = M;
+              y = encabezadoTabla(y);
+              doc.setFont("helvetica", "normal");
+              doc.setFontSize(9);
+              doc.setTextColor(24, 35, 56);
+            }
+            if (idx % 2 === 1) {
+              doc.setFillColor(245, 243, 238);
+              doc.rect(
+                M,
+                y,
+                anchos.reduce(function (a, b) {
+                  return a + b;
+                }, 0),
+                7,
+                "F",
+              );
+            }
+            var x = M;
+            fila.forEach(function (celda, i) {
+              doc.text(String(celda == null ? "" : celda), x + 2, y + 5);
+              x += anchos[i];
+            });
+            y += 7;
+          });
+          return y;
+        }
+        function exportActividadesCSV() {
+          var filas = [["Materia", "Tipo", "Fecha", "Nota", "Hecha"]];
+          state.activities.forEach(function (a) {
+            filas.push([
+              a.materia,
+              a.tipo,
+              a.fecha || "",
+              a.nota || "",
+              a.done ? "Sí" : "No",
+            ]);
+          });
+          descargarBlob(
+            "﻿" + aCSV(filas),
+            "text/csv;charset=utf-8;",
+            slug(state.meta.title) + "-actividades.csv",
+          );
+        }
+        function exportActividadesPDF() {
+          if (!window.jspdf || !window.jspdf.jsPDF) {
+            toast("No se pudo cargar el generador de PDF. Revisa tu conexión.");
+            return;
+          }
+          var doc = new window.jspdf.jsPDF({ unit: "mm", format: "a4" });
+          var y = pdfEncabezado(doc, "Actividades — " + (state.meta.title || ""));
+          var filas = state.activities.map(function (a) {
+            return [a.materia, a.tipo, a.fecha || "—", a.nota || "", a.done ? "Sí" : "No"];
+          });
+          pdfTabla(
+            doc,
+            y,
+            [
+              { titulo: "Materia", ancho: 45 },
+              { titulo: "Tipo", ancho: 28 },
+              { titulo: "Fecha", ancho: 24 },
+              { titulo: "Nota", ancho: 65 },
+              { titulo: "Hecha", ancho: 20 },
+            ],
+            filas,
+          );
+          doc.save(slug(state.meta.title) + "-actividades.pdf");
+        }
+        function exportPuntosCSV() {
+          var filas = [["Materia", "Créditos", "Puntos obtenidos", "Definitiva", "Estado"]];
+          puntosData.subjects.forEach(function (s) {
+            var obt = pObtenidos(s);
+            filas.push([
+              s.nombre,
+              +s.creditos || 0,
+              obt,
+              s.excluida ? "—" : obt * (+s.creditos || 0),
+              s.excluida ? "Excluida" : pEstado(obt) === "ganada" ? "Ganada" : "Perdida",
+            ]);
+          });
+          var p = pPonderado();
+          filas.push([]);
+          filas.push(["Ponderado", "", "", p.valor.toFixed(0), ""]);
+          filas.push(["Suma definitiva", "", "", p.sumaDef, ""]);
+          filas.push(["Créditos", "", "", p.sumaCred, ""]);
+          descargarBlob(
+            "﻿" + aCSV(filas),
+            "text/csv;charset=utf-8;",
+            slug(state.meta.title) + "-puntos.csv",
+          );
+        }
+        function exportPuntosPDF() {
+          if (!window.jspdf || !window.jspdf.jsPDF) {
+            toast("No se pudo cargar el generador de PDF. Revisa tu conexión.");
+            return;
+          }
+          var doc = new window.jspdf.jsPDF({ unit: "mm", format: "a4" });
+          var y = pdfEncabezado(doc, "Puntos — " + (state.meta.title || ""));
+          var filas = puntosData.subjects.map(function (s) {
+            var obt = pObtenidos(s);
+            return [
+              s.nombre,
+              +s.creditos || 0,
+              obt,
+              s.excluida ? "—" : obt * (+s.creditos || 0),
+              s.excluida ? "Excluida" : pEstado(obt) === "ganada" ? "Ganada" : "Perdida",
+            ];
+          });
+          y = pdfTabla(
+            doc,
+            y,
+            [
+              { titulo: "Materia", ancho: 55 },
+              { titulo: "Créd.", ancho: 20 },
+              { titulo: "Puntos", ancho: 25 },
+              { titulo: "Definitiva", ancho: 30 },
+              { titulo: "Estado", ancho: 32 },
+            ],
+            filas,
+          );
+          var p = pPonderado();
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(10);
+          doc.text("Ponderado: " + p.valor.toFixed(0), 14, y + 10);
+          doc.save(slug(state.meta.title) + "-puntos.pdf");
+        }
+
         function loadFile(file) {
           var reader = new FileReader();
-          reader.onload = function () {
+          reader.onload = async function () {
             try {
               var data = JSON.parse(reader.result);
               var classes = Array.isArray(data.classes)
@@ -4668,36 +5285,16 @@
                   ? data
                   : null;
               if (!classes) throw new Error("estructura");
-              state.meta = data.meta || { title: "", author: "" };
-              state.settings = Object.assign(
-                { days: 5, dayStart: "07:00", dayEnd: "19:00" },
-                data.settings || {},
+              var ok = await reemplazarHorarioActual(
+                { meta: data.meta, settings: data.settings, classes: classes, activities: data.activities, puntos: data.puntos },
+                "Horario cargado. Ya puedes editarlo.",
+                true, // .horario.json es un respaldo explícito: sí restaura puntos/actividades
               );
-              state.classes = classes.map(function (c) {
-                var id = c.id || uid();
-                return {
-                  id: id,
-                  grupoId: c.grupoId || id,
-                  materia: c.materia || "",
-                  curso: c.curso || "",
-                  profesor: c.profesor || "",
-                  dia: c.dia || DAYS_FULL[0],
-                  inicio: c.inicio || "07:00",
-                  fin: c.fin || "08:00",
-                  color: c.color || PALETTE[0],
-                };
-              });
-              state.activities = sanitizeActivities(data.activities);
-              state.puntos = sanitizePuntos(data.puntos);
-              puntosData = state.puntos;
-              if (state.settings.days < 5) state.settings.days = 5;
-              if (state.settings.days > 7) state.settings.days = 7;
-              currentSavedId = null;
-              syncMetaInputs();
-              resetForm();
-              render();
-              updateSavedBanner();
-              toast("Horario cargado. Ya puedes editarlo.");
+              if (ok) {
+                currentSavedId = null;
+                resetForm();
+                updateSavedBanner();
+              }
             } catch (err) {
               toast("No se pudo leer el archivo. ¿Es un .horario.json válido?");
             }
@@ -5106,11 +5703,9 @@
         }
         function setViewMode(m) {
           viewMode = m === "today" ? "today" : m === "acts" ? "acts" : "week";
-          try {
-            localStorage.setItem(VIEW_KEY, viewMode);
-          } catch (e) {}
           syncViewToggle();
           render();
+          programarGuardarSettings({ viewMode: viewMode });
         }
 
         // ---------- Compartir por enlace ----------
@@ -5236,10 +5831,18 @@
               prompt("Copia este enlace:", url);
             });
         }
-        function importFromHash() {
+        // Un horario compartido reemplaza TODO lo que hay en Firestore para
+        // este uid (clases/actividades/puntos), así que hace falta saber
+        // qué hay actualmente antes de armar el lote de borrado+creación.
+        // checkForSharedLink() detecta el enlace y pide confirmación de
+        // inmediato (no depende de la red); aplicarHorarioCompartido()
+        // hace la escritura real, y se dispara sola en cuanto las tres
+        // colecciones ya entregaron su primer snapshot (ver _primerasEntregas
+        // más abajo, junto a los window.alActualizar*).
+        var _importCompartidoPendiente = null;
+        function checkForSharedLink() {
           var h = location.hash || "";
-          if (h.indexOf("#h=") !== 0) return false;
-          var loaded = false;
+          if (h.indexOf("#h=") !== 0) return;
           try {
             var data = decodeShare(h.slice(3));
             var name = data.meta.title || "sin título";
@@ -5252,14 +5855,8 @@
                   " clases). ¿Quieres cargarlo? Reemplazará tu horario actual.",
               )
             ) {
-              state.meta = data.meta;
-              state.settings = data.settings;
-              state.classes = data.classes;
-              state.activities = data.activities || [];
-              state.puntos = data.puntos || { subjects: [] };
-              puntosData = state.puntos;
-              currentSavedId = null;
-              loaded = true;
+              _importCompartidoPendiente = data;
+              _intentarResolverArranque();
             }
           } catch (e) {
             toast("El enlace compartido no es válido.");
@@ -5269,7 +5866,124 @@
           } catch (e2) {
             location.hash = "";
           }
-          return loaded;
+        }
+        // Reemplaza TODO lo que hay en Firestore (classes/activities/
+        // settings) por el contenido de `datos` — usado tanto para cargar un
+        // horario compartido por enlace como para cargar un horario guardado
+        // con nombre: en ambos casos es "esto reemplaza mi horario actual".
+        //
+        // Por defecto NO toca activities/pointsSubjects: son colecciones
+        // GLOBALES del usuario, ligadas solo al horario destacado (ver
+        // enHorarioDestacado), no una copia particular de cada horario
+        // guardado. Antes SÍ se borraban y recreaban aquí a partir de la foto
+        // que ese horario tuviera guardada — eso es justo lo que hacía que
+        // "cambiar de horario" reiniciara los puntos: en cuanto se cargaba
+        // otro horario (o se volvía al destacado), sus créditos/notas reales
+        // se pisaban con la foto vieja que ese documento tuviera guardada
+        // (o con ceros, si nunca la había tenido). También evita compartir
+        // sin querer las notas/actividades propias al mandar un enlace de
+        // horario — eso nunca debió viajar con "compartir horario".
+        //
+        // incluirPuntosYActividades: true SOLO para restaurar un archivo
+        // .horario.json exportado (loadFile) — ahí sí es un respaldo
+        // explícito del usuario para sí mismo, no un horario alterno que
+        // esté solo mirando de paso.
+        async function reemplazarHorarioActual(datos, mensajeExito, incluirPuntosYActividades) {
+          var uidFs = window.uidActual && window.uidActual();
+          if (!uidFs) {
+            toast("⚠ Sesión no lista, intenta de nuevo.");
+            return false;
+          }
+          // Bloquea el autoguardado (ver _reemplazandoHorario más arriba,
+          // junto a programarGuardarEnActual) desde ANTES de mandar el lote:
+          // el listener de "classes" puede reaccionar al cambio local casi
+          // al instante, mucho antes de que este await se resuelva, así que
+          // el guard tiene que estar activo ya para esa primera reacción.
+          _reemplazandoHorario = true;
+          clearTimeout(_guardarEnActualTimer);
+          try {
+            var operaciones = [];
+            state.classes.forEach(function (c) {
+              operaciones.push({ tipo: "delete", coleccion: "classes", id: c.id });
+            });
+            (datos.classes || []).forEach(function (c) {
+              var id2 = c.id || uid();
+              operaciones.push({
+                tipo: "set",
+                coleccion: "classes",
+                id: id2,
+                datos: {
+                  grupoId: c.grupoId || id2,
+                  materia: c.materia || "",
+                  curso: c.curso || "",
+                  profesor: c.profesor || "",
+                  dia: c.dia || DAYS_FULL[0],
+                  inicio: c.inicio || "07:00",
+                  fin: c.fin || "08:00",
+                  color: c.color || PALETTE[0],
+                },
+              });
+            });
+            if (incluirPuntosYActividades) {
+              state.activities.forEach(function (a) {
+                operaciones.push({ tipo: "delete", coleccion: "activities", id: a.id });
+              });
+              (state.puntos.subjects || []).forEach(function (s) {
+                operaciones.push({ tipo: "delete", coleccion: "pointsSubjects", id: s.id });
+              });
+              sanitizeActivities(datos.activities).forEach(function (a) {
+                operaciones.push({
+                  tipo: "set",
+                  coleccion: "activities",
+                  id: a.id,
+                  datos: { materia: a.materia, tipo: a.tipo, fecha: a.fecha, nota: a.nota, done: a.done },
+                });
+              });
+              sanitizePuntos(datos.puntos).subjects.forEach(function (s) {
+                operaciones.push({
+                  tipo: "set",
+                  coleccion: "pointsSubjects",
+                  id: s.id,
+                  datos: { nombre: s.nombre, creditos: s.creditos, excluida: s.excluida, activities: s.activities || [] },
+                });
+              });
+            }
+            var r = await window.firestoreCrud.ejecutarEscritura(function () {
+              return window.firestoreCrud.guardarLote(uidFs, operaciones);
+            });
+            if (!r.ok) {
+              toast("⚠ " + r.error.msg);
+              return false;
+            }
+            var settingsPatch = {
+              meta: Object.assign({ title: "", author: "" }, datos.meta || {}),
+              settings: Object.assign({ days: 5, dayStart: "07:00", dayEnd: "19:00" }, datos.settings || {}),
+            };
+            if (settingsPatch.settings.days < 5) settingsPatch.settings.days = 5;
+            if (settingsPatch.settings.days > 7) settingsPatch.settings.days = 7;
+            await window.firestoreCrud.ejecutarEscritura(function () {
+              return window.firestoreCrud.guardarSingleton(uidFs, "settings", settingsPatch);
+            });
+            if (mensajeExito) toast(mensajeExito);
+            return true;
+          } finally {
+            // Se libera SOLO después de que reemplazarHorarioActual termina
+            // del todo. Quien llama (loadNamedSchedule, aplicarHorarioCompartido,
+            // _cargarDestacadoAlAbrir) actualiza currentSavedId justo después,
+            // de forma síncrona (sin await de por medio), así que para cuando
+            // algo pueda volver a disparar programarGuardarEnActual(),
+            // currentSavedId ya apunta al horario correcto.
+            _reemplazandoHorario = false;
+          }
+        }
+        async function aplicarHorarioCompartido(data) {
+          var ok = await reemplazarHorarioActual(data, "Horario compartido cargado.");
+          if (ok) {
+            currentSavedId = null;
+            updateSavedBanner();
+            renderActivities();
+            renderPuntos();
+          }
         }
 
         // ---------- Comparador de horarios ----------
@@ -5290,6 +6004,21 @@
               esc(e.name) +
               "</option>";
           });
+          var miUid = window.uidActual && window.uidActual();
+          var amigosConHorario = (amigosCache || []).filter(function (f) {
+            var o = _otroDeAmistad(f, miUid);
+            return !!(f.compartirCompleto && f.compartirCompleto[o.uid]);
+          });
+          if (amigosConHorario.length) {
+            opts += '<optgroup label="Amigos (compartieron su horario completo)">';
+            amigosConHorario.forEach(function (f) {
+              var o = _otroDeAmistad(f, miUid);
+              var p = _perfilesAmigosCache[o.codigo];
+              var nombre = (p && p.nombre) || o.codigo;
+              opts += '<option value="amigo:' + o.uid + '">👤 ' + esc(nombre) + "</option>";
+            });
+            opts += "</optgroup>";
+          }
           a.innerHTML = opts;
           b.innerHTML = opts;
           a.value = va || "current";
@@ -5317,6 +6046,38 @@
             ),
           };
         }
+        // Igual que scheduleFor(), pero también acepta "amigo:<uid>" — el
+        // horario semanal COMPLETO de un amigo que activó el opt-in (ver
+        // renderMisAmigos/activarCompartirCompleto). Es la ÚNICA parte
+        // async: si el amigo no compartió (o dejó de hacerlo justo antes
+        // de este clic), firestore.rules deniega la lectura y aquí se
+        // convierte en null, igual que "no se pudo cargar".
+        async function scheduleForAsync(val) {
+          if (typeof val === "string" && val.indexOf("amigo:") === 0) {
+            var uid = val.slice("amigo:".length);
+            try {
+              var datos = await window.firestoreCrud.leerHorarioCompletoDeAmigo(uid);
+              var f = amigosCache.filter(function (fr) {
+                var o = _otroDeAmistad(fr, window.uidActual && window.uidActual());
+                return o.uid === uid;
+              })[0];
+              var o2 = f ? _otroDeAmistad(f, window.uidActual && window.uidActual()) : null;
+              var p = o2 ? _perfilesAmigosCache[o2.codigo] : null;
+              return {
+                name: (p && p.nombre) || "Amigo",
+                classes: datos.classes || [],
+                settings: Object.assign(
+                  { days: 5, dayStart: "07:00", dayEnd: "19:00" },
+                  datos.settings || {},
+                ),
+              };
+            } catch (err) {
+              console.warn("[Comparar] No se pudo leer el horario del amigo:", err);
+              return null;
+            }
+          }
+          return scheduleFor(val);
+        }
         function subtractFree(range, busy) {
           var free = [],
             cur = range[0];
@@ -5339,16 +6100,20 @@
             }
           return mergeIntervals(out);
         }
-        function runCompare() {
+        async function runCompare() {
           var out = $("compareResults");
           if ($("cmpA").value === $("cmpB").value) {
             toast("Elige dos horarios distintos para comparar.");
             return;
           }
-          var A = scheduleFor($("cmpA").value),
-            B = scheduleFor($("cmpB").value);
+          out.innerHTML = '<div class="hint">Cargando…</div>';
+          var A = await scheduleForAsync($("cmpA").value),
+            B = await scheduleForAsync($("cmpB").value);
           if (!A || !B) {
-            toast("No se pudo cargar alguno de los horarios.");
+            out.innerHTML = "";
+            toast(
+              "No se pudo cargar alguno de los horarios (si es un amigo, puede que haya dejado de compartirlo).",
+            );
             return;
           }
           if (A.classes.length === 0 || B.classes.length === 0) {
@@ -5660,7 +6425,18 @@
             },
           );
         }
-        function applyCombo(idx) {
+        // Antes esta función mutaba state.classes localmente (`state.classes =
+        // s.cls.slice()`) y confiaba en que "ya quedaba aplicada". Pero eso
+        // nunca se escribía en Firestore: la app SOLO refleja lo que trae el
+        // listener de "classes" (ver comentario en window.alActualizarClases),
+        // así que la reducción vivía nada más en memoria y cualquier próxima
+        // entrega de ese listener —incluida la propia, disparada por editar
+        // Puntos, que agenda el autoguardado del horario vinculado— la volvía
+        // a pisar con el horario completo que seguía intacto en Firestore. Por
+        // fuera se sentía como "cambié Puntos y se me borró el horario que
+        // acababa de armar". Ahora si se aplica de verdad: se borran en
+        // Firestore los grupos que quedan fuera de la combinación elegida.
+        async function applyCombo(idx) {
           var s = lastCombos[idx];
           if (!s) return;
           if (
@@ -5669,6 +6445,11 @@
             )
           )
             return;
+          var uidFs = window.uidActual && window.uidActual();
+          if (!uidFs) {
+            toast("⚠ Sesión no lista todavía, intenta de nuevo en un momento.");
+            return;
+          }
           var d = new Date();
           var backupName =
             "Respaldo con todos los grupos (" +
@@ -5676,10 +6457,44 @@
             " " +
             m2t(d.getHours() * 60 + d.getMinutes()) +
             ")";
-          saveNamedSchedule(backupName);
-          state.classes = s.cls.slice();
+          // El respaldo tiene que quedar guardado ANTES de borrar nada, y hay
+          // que esperar a que termine (antes se llamaba sin await, así que
+          // "aplicar" podía adelantarse a que el respaldo terminara de
+          // escribirse). saveNamedSchedule() vincula currentSavedId al
+          // respaldo recién creado — eso no es lo que queremos: un respaldo
+          // es una foto fija, no algo a lo que el autoguardado del horario
+          // vinculado deba seguir escribiendo con cada cambio futuro. Por eso
+          // se restaura el vínculo que hubiera antes justo después.
+          var vinculoAntes = currentSavedId;
+          var respaldoOk = await saveNamedSchedule(backupName);
+          currentSavedId = vinculoAntes;
+          updateSavedBanner();
+          if (!respaldoOk) return; // saveNamedSchedule ya mostró el error
+
+          var idsCombo = {};
+          s.cls.forEach(function (c) {
+            idsCombo[c.id] = true;
+          });
+          var operaciones = state.classes
+            .filter(function (c) {
+              return !idsCombo[c.id];
+            })
+            .map(function (c) {
+              return { tipo: "delete", coleccion: "classes", id: c.id };
+            });
+          if (operaciones.length) {
+            var r = await window.firestoreCrud.ejecutarEscritura(function () {
+              return window.firestoreCrud.guardarLote(uidFs, operaciones);
+            });
+            if (!r.ok) {
+              toast("⚠ " + r.error.msg);
+              return;
+            }
+          }
+          // No se toca state.classes ni se llama a render() a mano: el
+          // listener de "classes" (alActualizarClases) va a entregar el
+          // resultado ya sin los grupos borrados y repintar solo.
           resetForm();
-          render();
           $("builderResults").innerHTML = "";
           lastCombos = [];
           toast(
@@ -5688,7 +6503,6 @@
         }
 
         /* PUNTOSS */
-         var PUNTOS_KEY = "generadorHorarios:puntos";
         var puntosData = state.puntos;
         var puntosOpenId = null; // id de la materia desplegada (una a la vez)
 
@@ -5699,9 +6513,34 @@
           }
           puntosData = state.puntos;
         }
-        function savePuntos() {
-          // Los puntos viven en state, así que guardamos todo el estado
-          saveState();
+        // Escritura con retardo de un subject de Puntos completo (créditos,
+        // excluida, actividades) — coalesce ediciones seguidas (ej. escribir
+        // en el campo de créditos) en una sola escritura a Firestore.
+        var _puntosGuardarTimers = {};
+        function programarGuardarSubjectPuntos(sid) {
+          clearTimeout(_puntosGuardarTimers[sid]);
+          _puntosGuardarTimers[sid] = setTimeout(function () {
+            guardarSubjectPuntosAhora(sid);
+          }, 600);
+        }
+        async function guardarSubjectPuntosAhora(sid) {
+          if (!enHorarioDestacado()) return;
+          var uidFs = window.uidActual && window.uidActual();
+          if (!uidFs) return;
+          var s = puntosData.subjects.filter(function (x) {
+            return x.id === sid;
+          })[0];
+          if (!s) return;
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.actualizarConVersion(
+              uidFs,
+              "pointsSubjects",
+              sid,
+              { creditos: s.creditos, excluida: s.excluida, activities: s.activities || [] },
+              s.version,
+            );
+          });
+          if (!r.ok) toast("⚠ " + r.error.msg);
         }
 
         // --- helpers de cálculo ---
@@ -5736,77 +6575,87 @@
           };
         }
 
-        // Trae las materias del horario que aún no estén en Puntos.
-        // Se llama al entrar a la pestaña. Créditos en 0 (los pone el usuario).
-        function sincronizarMaterias() {
-          var enHorario = {};
-          (state.classes || []).forEach(function (c) {
-            if (c.materia) enHorario[c.materia] = true;
+        // --- crear/eliminar (escritura inmediata: son acciones puntuales,
+        // no texto que se esté tecleando) ---
+        async function addSubjectPuntos() {
+          if (!enHorarioDestacado()) {
+            toast("⭐ Abre tu horario destacado para editar Puntos.");
+            return;
+          }
+          var uidFs = window.uidActual && window.uidActual();
+          if (!uidFs) return;
+          var nuevoId = uid();
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.crearDoc(uidFs, "pointsSubjects", nuevoId, {
+              nombre: "Nueva materia",
+              creditos: 3,
+              excluida: false,
+              activities: [],
+            });
           });
-          var yaEnPuntos = {};
-          puntosData.subjects.forEach(function (s) {
-            yaEnPuntos[(s.nombre || "").trim().toLowerCase()] = true;
-          });
-          var agregadas = 0;
-          Object.keys(enHorario).forEach(function (nombre) {
-            if (!yaEnPuntos[nombre.trim().toLowerCase()]) {
-              puntosData.subjects.push({
-                id: uid(),
-                nombre: nombre,
-                creditos: 0,
-                excluida: false,
-                activities: [],
-              });
-              agregadas++;
-            }
-          });
-          if (agregadas > 0) savePuntos();
+          if (!r.ok) {
+            toast("⚠ " + r.error.msg);
+            return;
+          }
+          puntosOpenId = nuevoId;
         }
-
-        // --- crear/eliminar ---
-        function addSubjectPuntos() {
-          puntosData.subjects.push({
-            id: uid(),
-            nombre: "Nueva materia",
-            creditos: 3,
-            excluida: false,
-            activities: [],
-            _open: true,
+        async function delSubjectPuntos(id) {
+          if (!enHorarioDestacado()) {
+            toast("⭐ Abre tu horario destacado para editar Puntos.");
+            return;
+          }
+          var uidFs = window.uidActual && window.uidActual();
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.eliminarDoc(uidFs, "pointsSubjects", id);
           });
-          savePuntos();
-          renderPuntos();
+          if (!r.ok) toast("⚠ " + r.error.msg);
         }
-        function delSubjectPuntos(id) {
-          puntosData.subjects = puntosData.subjects.filter(function (s) {
-            return s.id !== id;
-          });
-          savePuntos();
-          renderPuntos();
-        }
-        function addActPuntos(sid) {
+        async function addActPuntos(sid) {
+          if (!enHorarioDestacado()) {
+            toast("⭐ Abre tu horario destacado para editar Puntos.");
+            return;
+          }
           var s = puntosData.subjects.filter(function (x) {
             return x.id === sid;
           })[0];
           if (!s) return;
-          if (!s.activities) s.activities = [];
-          s.activities.push({ nombre: "", total: 0, obt: 0 });
-          savePuntos();
-          renderPuntos();
+          var nuevas = (s.activities || []).concat([{ nombre: "", total: 0, obt: 0 }]);
+          var uidFs = window.uidActual && window.uidActual();
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.actualizarConVersion(uidFs, "pointsSubjects", sid, { activities: nuevas }, s.version);
+          });
+          if (!r.ok) toast("⚠ " + r.error.msg);
         }
-        function delActPuntos(sid, idx) {
+        async function delActPuntos(sid, idx) {
+          if (!enHorarioDestacado()) {
+            toast("⭐ Abre tu horario destacado para editar Puntos.");
+            return;
+          }
           var s = puntosData.subjects.filter(function (x) {
             return x.id === sid;
           })[0];
           if (!s) return;
-          s.activities.splice(idx, 1);
-          savePuntos();
-          renderPuntos();
+          var nuevas = (s.activities || []).slice();
+          nuevas.splice(idx, 1);
+          var uidFs = window.uidActual && window.uidActual();
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.actualizarConVersion(uidFs, "pointsSubjects", sid, { activities: nuevas }, s.version);
+          });
+          if (!r.ok) toast("⚠ " + r.error.msg);
         }
 
         // --- render principal ---
         function renderPuntos() {
           var host = $("puntosBody");
           if (!host) return;
+          var exportRow = $("puntosExportRow");
+          if (!enHorarioDestacado()) {
+            if (exportRow) exportRow.style.display = "none";
+            host.innerHTML = _gatePuntosActividadesHTML();
+            _wireGateBoton(host);
+            return;
+          }
+          if (exportRow) exportRow.style.display = "";
 
           // Resumen ponderado arriba
           var p = pPonderado();
@@ -6042,7 +6891,7 @@
               })[0];
               if (s) {
                 s.excluida = !s.excluida;
-                savePuntos();
+                programarGuardarSubjectPuntos(s.id);
                 renderPuntos();
               }
             });
@@ -6055,7 +6904,7 @@
               })[0];
               if (s) {
                 s.creditos = +inp.value || 0;
-                savePuntos();
+                programarGuardarSubjectPuntos(s.id);
                 syncPuntosGeneral();
               }
             });
@@ -6114,7 +6963,7 @@
                 }
                 a[campo] = val;
               }
-              savePuntos();
+              programarGuardarSubjectPuntos(s.id);
               syncPuntosScore(parts[0]);
               syncPuntosGeneral();
             });
@@ -6184,80 +7033,170 @@
           }
         }
 
-        // Trae las materias del horario que aún no estén en Puntos
-        function sincronizarMaterias() {
-          // materias únicas del horario
-          var enHorario = {};
-          (state.classes || []).forEach(function (c) {
-            if (c.materia) enHorario[c.materia] = true;
-          });
-          // nombres que ya existen en Puntos (para no duplicar)
-          var yaEnPuntos = {};
-          puntosData.subjects.forEach(function (s) {
-            yaEnPuntos[(s.nombre || "").trim().toLowerCase()] = true;
-          });
-          // agregar las que falten
-          var agregadas = 0;
-          Object.keys(enHorario).forEach(function (nombre) {
-            if (!yaEnPuntos[nombre.trim().toLowerCase()]) {
-              puntosData.subjects.push({
-                id: uid(),
-                nombre: nombre,
-                creditos: 0, // los pones tú a mano
-                excluida: false,
-                activities: [],
-                _open: false,
-              });
-              agregadas++;
-            }
-          });
-          if (agregadas > 0) savePuntos();
+        function idParaMateria(nombre) {
+          var s = (nombre || "").trim().toLowerCase();
+          s = s.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // sin tildes
+          var h = 0;
+          for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+          return "mat-" + Math.abs(h).toString(36);
         }
 
-        // Sincroniza state.puntos con las materias del horario:
-        // agrega las nuevas y quita las que ya no existen (conservando notas).
-        function reconciliarPuntos() {
-          if (!state.puntos) state.puntos = { subjects: [] };
+        // Renombrados de materia en curso: norm(nombreViejo) -> norm(nombreNuevo).
+        // onSubmit() marca uno aquí antes de escribir el cambio de clase y
+        // lo quita cuando renombrarEnPuntos() termina. Mientras está
+        // marcado, reconciliarPuntos() (que se dispara sola con cada
+        // actualización de "classes", incluida la que provoca este mismo
+        // renombrado) no toca esa materia — si no, las dos corren en
+        // paralelo sobre el mismo documento de Puntos: reconciliarPuntos()
+        // lo borra y lo vuelve a crear vacío justo cuando/después de que
+        // renombrarEnPuntos() ya lo había recreado con las notas y
+        // actividades preservadas, y gana la que haya llegado last al
+        // servidor — normalmente reconciliarPuntos(), porque su ejecución
+        // empieza antes. Resultado: cambiar el nombre de una materia en el
+        // horario borraba sus puntos/actividades en la pestaña Puntos.
+        var _renombresPendientes = {};
+
+        // Mantiene Puntos en sincronía con las materias del horario: crea en
+        // Firestore las que falten (con id determinístico según el nombre,
+        // así dos dispositivos nunca generan ids distintos para la misma
+        // materia), borra las que ya no tienen ninguna clase, y fusiona
+        // duplicados (puede haber más de un documento para la misma materia
+        // si vienen de antes de que el id fuera determinístico — por
+        // ejemplo, datos migrados desde localStorage). Se llama sola cada
+        // vez que llega una actualización de "classes" (ver
+        // window.alActualizarClases más abajo), así que ya no hace falta
+        // invocarla a mano después de crear/editar/borrar una clase.
+        async function reconciliarPuntos() {
+          var uidFs = window.uidActual && window.uidActual();
+          if (!uidFs) return;
+          // Sin esto, si "classes" llega antes que "pointsSubjects", este
+          // código vería state.puntos.subjects todavía vacío y podría
+          // volver a "crear" (sobrescribir) una materia que en realidad ya
+          // existe en Firestore con notas cargadas, perdiéndolas.
+          if (!_primerasEntregas.pointsSubjects) return;
           var enHorario = {};
           (state.classes || []).forEach(function (c) {
             if (c.materia) enHorario[norm(c.materia)] = c.materia;
           });
-          // quitar materias que ya no están en el horario
-          state.puntos.subjects = state.puntos.subjects.filter(function (s) {
-            return enHorario[norm(s.nombre)];
+          var actuales = state.puntos.subjects || [];
+
+          var operaciones = [];
+
+          // 0) fusionar duplicados por nombre: se conserva el que tenga más
+          // actividades cargadas (y si empatan, más créditos) bajo el id
+          // canónico, y se borran los demás.
+          var porNombre = {};
+          actuales.forEach(function (s) {
+            var k = norm(s.nombre);
+            (porNombre[k] = porNombre[k] || []).push(s);
           });
-          // agregar materias nuevas del horario (créditos en 0)
+          var vivas = [];
+          Object.keys(porNombre).forEach(function (k) {
+            var grupo = porNombre[k];
+            if (grupo.length === 1) {
+              vivas.push(grupo[0]);
+              return;
+            }
+            grupo.sort(function (a, b) {
+              var pa = (a.activities || []).length, pb = (b.activities || []).length;
+              if (pb !== pa) return pb - pa;
+              return (b.creditos || 0) - (a.creditos || 0);
+            });
+            var elegida = grupo[0];
+            var idCanonico = idParaMateria(elegida.nombre);
+            grupo.forEach(function (dup) {
+              if (dup.id !== idCanonico) {
+                operaciones.push({ tipo: "delete", coleccion: "pointsSubjects", id: dup.id });
+              }
+            });
+            if (elegida.id !== idCanonico) {
+              operaciones.push({
+                tipo: "set",
+                coleccion: "pointsSubjects",
+                id: idCanonico,
+                datos: { nombre: elegida.nombre, creditos: elegida.creditos, excluida: elegida.excluida, activities: elegida.activities || [] },
+              });
+            }
+            vivas.push(Object.assign({}, elegida, { id: idCanonico }));
+          });
+
           var yaEstan = {};
-          state.puntos.subjects.forEach(function (s) {
+          vivas.forEach(function (s) {
             yaEstan[norm(s.nombre)] = true;
           });
+
+          // 1) quitar materias que ya no están en el horario — salvo que:
+          //   a) sea justo el nombre "viejo" de un renombrado en curso (ver
+          //      _renombresPendientes): a esa la va a resolver renombrarEnPuntos(); o
+          //   b) tenga actividades o créditos cargados: se conserva (huérfana,
+          //      ya no ligada a ninguna clase del horario) en vez de borrar de
+          //      un plumazo notas/puntos reales solo porque la materia se quitó
+          //      o se renombró por un camino que esta función no reconoce.
+          vivas.forEach(function (s) {
+            if (enHorario[norm(s.nombre)] || _renombresPendientes[norm(s.nombre)]) return;
+            var tieneDatos = (s.activities && s.activities.length > 0) || (s.creditos && s.creditos > 0);
+            if (tieneDatos) return;
+            operaciones.push({ tipo: "delete", coleccion: "pointsSubjects", id: s.id });
+          });
+
+          // 2) agregar materias nuevas del horario — tampoco si son el
+          // destino de un renombrado en curso, por la misma razón: crearla
+          // vacía aquí pisaría las notas que renombrarEnPuntos() está a
+          // punto de trasladar bajo ese mismo nombre.
           Object.keys(enHorario).forEach(function (k) {
-            if (!yaEstan[k]) {
-              state.puntos.subjects.push({
-                id: uid(),
-                nombre: enHorario[k],
-                creditos: 0,
-                excluida: false,
-                activities: [],
+            var esDestinoDeRenombrado = Object.keys(_renombresPendientes).some(function (viejo) {
+              return _renombresPendientes[viejo] === k;
+            });
+            if (!yaEstan[k] && !esDestinoDeRenombrado) {
+              operaciones.push({
+                tipo: "set",
+                coleccion: "pointsSubjects",
+                id: idParaMateria(enHorario[k]),
+                datos: { nombre: enHorario[k], creditos: 0, excluida: false, activities: [] },
               });
             }
           });
-          puntosData = state.puntos;
+          if (operaciones.length === 0) return;
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.guardarLote(uidFs, operaciones);
+          });
+          if (!r.ok) toast("⚠ " + r.error.msg);
         }
 
-        // Renombra una materia en puntos conservando sus notas
-        // (se llama al editar una clase y cambiarle el nombre).
-        function renombrarEnPuntos(nombreViejo, nombreNuevo) {
+        // Renombra una materia en Puntos conservando sus notas (se llama al
+        // editar una clase y cambiarle el nombre). Como el id es
+        // determinístico según el nombre, "renombrar" es en realidad crear
+        // el documento con el id nuevo y borrar el de id viejo, en un lote.
+        async function renombrarEnPuntos(nombreViejo, nombreNuevo) {
           if (!state.puntos) return;
           if (norm(nombreViejo) === norm(nombreNuevo)) return;
-          // si el nombre viejo aún lo usa otra clase, no renombrar
           var sigueUsado = (state.classes || []).some(function (c) {
             return norm(c.materia) === norm(nombreViejo);
           });
           if (sigueUsado) return;
-          state.puntos.subjects.forEach(function (s) {
-            if (norm(s.nombre) === norm(nombreViejo)) s.nombre = nombreNuevo;
+          var viejo = (state.puntos.subjects || []).filter(function (s) {
+            return norm(s.nombre) === norm(nombreViejo);
+          })[0];
+          if (!viejo) return;
+          var uidFs = window.uidActual && window.uidActual();
+          if (!uidFs) return;
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.guardarLote(uidFs, [
+              { tipo: "delete", coleccion: "pointsSubjects", id: viejo.id },
+              {
+                tipo: "set",
+                coleccion: "pointsSubjects",
+                id: idParaMateria(nombreNuevo),
+                datos: {
+                  nombre: nombreNuevo,
+                  creditos: viejo.creditos,
+                  excluida: viejo.excluida,
+                  activities: viejo.activities || [],
+                },
+              },
+            ]);
           });
+          if (!r.ok) toast("⚠ " + r.error.msg);
         }
 
         // ---------- Actividades por materia ----------
@@ -6282,8 +7221,12 @@
             dl.innerHTML = opts;
           }
         }
-        function onActSubmit(e) {
+        async function onActSubmit(e) {
           e.preventDefault();
+          if (!enHorarioDestacado()) {
+            toast("⭐ Abre tu horario destacado para agendar actividades.");
+            return;
+          }
           var materia = $("actMateria").value.trim();
           var fecha = $("actFecha").value;
           if (!materia) {
@@ -6294,32 +7237,58 @@
             toast("Elige la fecha de la actividad.");
             return;
           }
-          state.activities.push({
-            id: uid(),
-            materia: materia,
-            tipo: $("actTipo").value || "Otro",
-            fecha: fecha,
-            nota: $("actNota").value.trim(),
-            done: false,
+          var uidFs = window.uidActual && window.uidActual();
+          if (!uidFs) {
+            toast("⚠ Sesión no lista todavía, intenta de nuevo en un momento.");
+            return;
+          }
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.crearDoc(uidFs, "activities", uid(), {
+              materia: materia,
+              tipo: $("actTipo").value || "Otro",
+              fecha: fecha,
+              nota: $("actNota").value.trim(),
+              done: false,
+            });
           });
+          if (!r.ok) {
+            toast("⚠ " + r.error.msg);
+            return;
+          }
           $("actMateria").value = "";
           $("actNota").value = "";
           $("actFecha").value = "";
           toast("Actividad agendada.");
-          render();
         }
-        function deleteActivity(id) {
-          state.activities = state.activities.filter(function (a) {
-            return a.id !== id;
+        async function deleteActivity(id) {
+          if (!enHorarioDestacado()) {
+            toast("⭐ Abre tu horario destacado para editar actividades.");
+            return;
+          }
+          var uidFs = window.uidActual && window.uidActual();
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.eliminarDoc(uidFs, "activities", id);
           });
-          render();
+          if (!r.ok) {
+            toast("⚠ " + r.error.msg);
+            return;
+          }
           toast("Actividad eliminada.");
         }
-        function toggleActivityDone(id) {
-          state.activities.forEach(function (a) {
-            if (a.id === id) a.done = !a.done;
+        async function toggleActivityDone(id) {
+          if (!enHorarioDestacado()) {
+            toast("⭐ Abre tu horario destacado para editar actividades.");
+            return;
+          }
+          var a = state.activities.filter(function (x) {
+            return x.id === id;
+          })[0];
+          if (!a) return;
+          var uidFs = window.uidActual && window.uidActual();
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.actualizarConVersion(uidFs, "activities", id, { done: !a.done }, a.version);
           });
-          render();
+          if (!r.ok) toast("⚠ " + r.error.msg);
         }
         function daysUntil(fecha) {
           var d = new Date(fecha + "T00:00:00");
@@ -6329,9 +7298,22 @@
           return Math.round((d - today) / 86400000);
         }
         function renderActivities() {
+          var gate = $("actGate"),
+            content = $("actContent"),
+            cnt = $("actCount");
+          if (gate && content) {
+            var ok = enHorarioDestacado();
+            content.style.display = ok ? "" : "none";
+            gate.style.display = ok ? "none" : "";
+            if (!ok) {
+              gate.innerHTML = _gatePuntosActividadesHTML();
+              _wireGateBoton(gate);
+              if (cnt) cnt.textContent = "—";
+              return;
+            }
+          }
           fillActivityControls();
           var body = $("actList");
-          var cnt = $("actCount");
           if (!body) return;
           var pending = state.activities.filter(function (a) {
             return !a.done;
@@ -6439,27 +7421,68 @@
 
         // ---------- Horario principal (el mío) ----------
         function getPrincipalId() {
-          try {
-            return localStorage.getItem(PRINCIPAL_KEY) || "";
-          } catch (e) {
-            return "";
-          }
+          return favoritoIdCache || "";
         }
-        function setPrincipalId(id) {
+        // Cada cuenta tiene EXACTAMENTE un horario destacado ★, para siempre
+        // — una vez fijado no se puede cambiar ni quitar (ver
+        // _asegurarDestacado, que lo asigna solo si todavía no hay uno).
+        // Antes esto era un toggle libre; se volvió de una sola asignación
+        // porque Puntos/Actividades quedaron ligados solo al destacado
+        // (enHorarioDestacado) — si el destacado pudiera cambiar en
+        // cualquier momento, esos datos globales quedarían saltando de
+        // horario en horario cada vez que alguien lo reasigne.
+        async function setPrincipalId(id) {
           var cur = getPrincipalId();
-          try {
-            if (cur === id) localStorage.removeItem(PRINCIPAL_KEY);
-            else localStorage.setItem(PRINCIPAL_KEY, id);
-          } catch (e) {
-            storageOK = false;
+          if (cur) {
+            if (cur !== id) toast("Tu horario destacado ★ ya está fijo y no se puede cambiar.");
+            return;
           }
-          renderSavedList();
-          refreshCompareSelects();
-          toast(
-            cur === id
-              ? "Ya no está marcado como tu horario principal."
-              : "Marcado como tu horario principal.",
+          var uidFs = window.uidActual && window.uidActual();
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.guardarSingleton(uidFs, "favorites", { scheduleId: id });
+          });
+          if (!r.ok) {
+            toast("⚠ " + r.error.msg);
+            return;
+          }
+          toast("Marcado como tu horario destacado.");
+          renderActivities();
+          renderPuntos();
+        }
+
+        // ---------- Puntos y Actividades: solo en el horario destacado ----------
+        // classes/activities/pointsSubjects son colecciones GLOBALES del
+        // usuario, no algo propio de cada horario guardado — por eso, si se
+        // editan estando "vinculado" a un horario distinto del destacado (o a
+        // ninguno), esos cambios terminan mezclados entre horarios que no
+        // tienen nada que ver (justo la familia de conflictos de sincronización
+        // resueltos arriba). En vez de seguir tapando carreras una por una, se
+        // restringe la funcionalidad al único horario donde tiene sentido:
+        // el destacado ★.
+        function enHorarioDestacado() {
+          return !!favoritoIdCache && currentSavedId === favoritoIdCache;
+        }
+        function _gatePuntosActividadesHTML() {
+          if (!favoritoIdCache) {
+            return (
+              '<div class="hint" style="margin:0">⭐ Todavía no tienes un horario marcado como <b>destacado</b>. ' +
+              'Ve a "Horarios guardados", guarda tu horario y márcalo con la estrella — ahí es donde se editan Puntos y Actividades, ' +
+              "para que nunca se mezclen entre horarios distintos.</div>"
+            );
+          }
+          return (
+            '<div class="hint" style="margin:0">⭐ Estás editando un horario distinto al <b>destacado</b>. ' +
+            "Actividades y Puntos solo se pueden editar ahí, para que no se mezclen entre horarios. " +
+            '<button type="button" class="btn" id="btnIrDestacadoGate" style="margin-top:10px">Abrir mi horario destacado</button></div>'
           );
+        }
+        function _wireGateBoton(host) {
+          var btn = host.querySelector("#btnIrDestacadoGate");
+          if (btn) {
+            btn.addEventListener("click", function () {
+              loadNamedSchedule(favoritoIdCache);
+            });
+          }
         }
 
         // ---------- Filtros / prioridades del armador ----------
@@ -6484,24 +7507,11 @@
           return true;
         }
         function loadBuilderPrefs() {
-          try {
-            var raw = localStorage.getItem(BUILD_KEY);
-            if (raw) {
-              var p = JSON.parse(raw);
-              builderPrefs = {
-                pinned: p.pinned || {},
-                noDays: p.noDays || {},
-                earliest: p.earliest || "",
-                latest: p.latest || "",
-                windows: Array.isArray(p.windows) ? p.windows : [],
-              };
-            }
-          } catch (e) {}
+          // builderPrefs llega vía window.alActualizarSettings (Firestore);
+          // no hay nada que leer de forma local.
         }
         function saveBuilderPrefs() {
-          try {
-            localStorage.setItem(BUILD_KEY, JSON.stringify(builderPrefs));
-          } catch (e) {}
+          programarGuardarSettings({ builderPrefs: builderPrefs });
         }
         function readBuilderPrefs() {
           // lee horas y franjas desde la interfaz hacia el estado
@@ -6770,8 +7780,1210 @@
           toast("QR descargado.");
         }
 
+        // ---------- Perfil académico (users/{uid}) ----------
+        // perfilCache llega vía window.alActualizarPerfil (ver init()),
+        // igual que classes/activities/etc. — mismo mecanismo reactivo,
+        // ninguna fuente de datos nueva (ver firestore-service.js).
+        function _perfilResumenHTML(p) {
+          var faltan = !p.programa && !p.semestre && !p.universidad;
+          if (faltan) {
+            return '<button type="button" class="am-complete" id="btnCompletarPerfil">Completa tu perfil →</button>';
+          }
+          var linea2 = p.semestre ? p.semestre + ".º semestre" : "";
+          return (
+            (p.programa ? "<div><b>" + esc(p.programa) + "</b></div>" : "") +
+            (linea2 ? "<div>" + esc(linea2) + "</div>" : "") +
+            (p.universidad ? "<div>" + esc(p.universidad) + "</div>" : "")
+          );
+        }
+        function _pintarPerfilMenu() {
+          var box = $("accountAcademico");
+          if (!box) return;
+          if (!perfilCache) {
+            box.innerHTML = "";
+            return;
+          }
+          box.innerHTML = _perfilResumenHTML(perfilCache);
+          var btn = box.querySelector("#btnCompletarPerfil");
+          if (btn) btn.addEventListener("click", abrirEditarPerfil);
+        }
+        function llenarSemestres() {
+          var sel = $("peSemestre");
+          if (!sel || sel.options.length > 1) return;
+          for (var i = 1; i <= 12; i++) {
+            var o = document.createElement("option");
+            o.value = String(i);
+            o.textContent = i + ".º semestre";
+            sel.appendChild(o);
+          }
+        }
+        function abrirEditarPerfil() {
+          var menu = $("accountMenu");
+          if (menu) menu.classList.remove("open");
+          var p = perfilCache || {};
+          llenarSemestres();
+          $("peNombre").value = p.nombre || "";
+          $("pePrograma").value = p.programa || "";
+          $("peSemestre").value = p.semestre || "";
+          // La universidad institucional (detectada por el dominio del
+          // correo al crear el perfil) no se puede editar a mano — ver
+          // asegurarPerfil() en firestore-service.js y la regla
+          // universidadInstitucionalFija() en firestore.rules, que es la
+          // que de verdad lo impide aunque alguien se salte este disabled.
+          var institucional = p.universidadTipo === "institucional";
+          var uInput = $("peUniversidad");
+          uInput.value = p.universidad || "";
+          uInput.disabled = institucional;
+          $("peUniversidadHint").style.display = institucional ? "" : "none";
+          $("profileEditModal").classList.add("show");
+        }
+        async function guardarPerfilForm(e) {
+          e.preventDefault();
+          var uidFs = window.uidActual && window.uidActual();
+          if (!uidFs) return;
+          var institucional = perfilCache && perfilCache.universidadTipo === "institucional";
+          var patch = {
+            nombre: $("peNombre").value.trim(),
+            programa: $("pePrograma").value.trim(),
+            semestre: $("peSemestre").value,
+          };
+          // Universidad solo viaja en el patch si es editable — si es
+          // institucional, ni se manda (el campo está disabled, pero por
+          // si acaso: no forma parte del patch en absoluto).
+          if (!institucional) patch.universidad = $("peUniversidad").value.trim();
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.escribirPerfil(uidFs, patch);
+          });
+          if (!r.ok) {
+            toast("⚠ " + r.error.msg);
+            return;
+          }
+          $("profileEditModal").classList.remove("show");
+          toast("Perfil actualizado.");
+        }
+
+        // ---------- Amigos ----------
+        // Todo lo que escribe/lee (buscar, solicitudes, amistades, el
+        // horario de hoy de un amigo) vive detrás de window.firestoreCrud
+        // (ver firebase/firestore-service.js) — aquí solo se arma la UI.
+        // La seguridad real (quién puede ver el horario de quién, quién
+        // puede aceptar qué) está en firestore.rules, no aquí — esto es
+        // solo la interfaz.
+        function _codigoContraparte(sol, miUid) {
+          return sol.from === miUid ? sol.toCodigo : sol.fromCodigo;
+        }
+        function _otroDeAmistad(f, miUid) {
+          var idx = f.users && f.users[0] === miUid ? 1 : 0;
+          return { uid: f.users[idx], codigo: (f.codigos || [])[idx] || "" };
+        }
+        async function _resolverPerfilAmigo(codigo) {
+          if (!codigo) return null;
+          if (_perfilesAmigosCache[codigo]) return _perfilesAmigosCache[codigo];
+          var p = await window.firestoreCrud.buscarPorCodigo(codigo);
+          if (p) _perfilesAmigosCache[codigo] = p;
+          return p;
+        }
+        function _subAmigo(p) {
+          return [p.programa, p.semestre ? p.semestre + ".º semestre" : ""]
+            .filter(Boolean)
+            .join(" · ");
+        }
+        function actualizarBadgeAmigos() {
+          var badge = $("amigosBadge");
+          if (!badge) return;
+          var n = solicitudesRecibidasCache.length;
+          if (n > 0) {
+            badge.textContent = n > 9 ? "9+" : String(n);
+            badge.style.display = "";
+          } else {
+            badge.style.display = "none";
+          }
+        }
+        async function renderSolicitudesRecibidas() {
+          var host = $("friendRequestsList");
+          if (!host) return;
+          var miUid = window.uidActual && window.uidActual();
+          if (!miUid || solicitudesRecibidasCache.length === 0) {
+            host.innerHTML = '<div class="fr-empty">No tienes solicitudes pendientes.</div>';
+            return;
+          }
+          var items = solicitudesRecibidasCache.slice();
+          var perfiles = await Promise.all(
+            items.map(function (r) {
+              return _resolverPerfilAmigo(_codigoContraparte(r, miUid));
+            }),
+          );
+          var html = "";
+          items.forEach(function (r, i) {
+            var codigo = _codigoContraparte(r, miUid);
+            var p = perfiles[i] || { nombre: codigo, programa: "", semestre: "" };
+            html +=
+              '<div class="list-item"><div class="li-main"><div class="li-mat">' +
+              esc(p.nombre || codigo) +
+              '</div><div class="li-sub">' +
+              esc(_subAmigo(p)) +
+              '</div></div><div class="li-actions">' +
+              '<button class="btn accent" data-aceptar="' +
+              r.from +
+              '" style="padding:8px 12px">Aceptar</button>' +
+              '<button class="btn" data-rechazar="' +
+              r.from +
+              '" style="padding:8px 12px">Rechazar</button></div></div>';
+          });
+          host.innerHTML = html;
+          Array.prototype.forEach.call(host.querySelectorAll("[data-aceptar]"), function (b) {
+            b.addEventListener("click", function () {
+              aceptarSolicitudUI(b.getAttribute("data-aceptar"));
+            });
+          });
+          Array.prototype.forEach.call(host.querySelectorAll("[data-rechazar]"), function (b) {
+            b.addEventListener("click", function () {
+              rechazarSolicitudUI(b.getAttribute("data-rechazar"));
+            });
+          });
+        }
+        async function renderMisAmigos() {
+          var host = $("friendsList");
+          if (!host) return;
+          var miUid = window.uidActual && window.uidActual();
+          if (!miUid || amigosCache.length === 0) {
+            host.innerHTML =
+              '<div class="fr-empty">Todavía no tienes amigos.<br>Busca a alguien para enviarle una solicitud.</div>';
+            return;
+          }
+          var otros = amigosCache.map(function (f) {
+            return _otroDeAmistad(f, miUid);
+          });
+          var perfiles = await Promise.all(
+            otros.map(function (o) {
+              return _resolverPerfilAmigo(o.codigo);
+            }),
+          );
+          var html = "";
+          otros.forEach(function (o, i) {
+            var f = amigosCache[i];
+            var p = perfiles[i] || { nombre: o.codigo, programa: "", semestre: "" };
+            var nombre = p.nombre || o.codigo;
+            var compartir = f.compartirCompleto || {};
+            var yoComparto = !!compartir[miUid];
+            var meComparte = !!compartir[o.uid];
+            html +=
+              '<div class="list-item"><div class="li-main"><div class="li-mat">' +
+              esc(nombre) +
+              '</div><div class="li-sub">' +
+              esc(_subAmigo(p)) +
+              (meComparte ? " · Te comparte su horario completo" : "") +
+              '</div><label class="fr-share-toggle"><input type="checkbox" data-compartir="' +
+              o.uid +
+              '"' +
+              (yoComparto ? " checked" : "") +
+              ' /> Compartir mi horario completo con esta persona</label>' +
+              '</div><div class="li-actions">' +
+              '<button class="icon-btn" data-ver="' +
+              o.uid +
+              '" data-nombre="' +
+              esc(nombre) +
+              '" title="Ver horario de hoy">👁</button>' +
+              '<button class="icon-btn del" data-quitar="' +
+              o.uid +
+              '" data-nombre="' +
+              esc(nombre) +
+              '" title="Quitar amigo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>' +
+              "</div></div>";
+          });
+          host.innerHTML = html;
+          Array.prototype.forEach.call(host.querySelectorAll("[data-ver]"), function (b) {
+            b.addEventListener("click", function () {
+              verHorarioAmigo(b.getAttribute("data-ver"), b.getAttribute("data-nombre"));
+            });
+          });
+          Array.prototype.forEach.call(host.querySelectorAll("[data-quitar]"), function (b) {
+            b.addEventListener("click", function () {
+              quitarAmigoUI(b.getAttribute("data-quitar"), b.getAttribute("data-nombre"));
+            });
+          });
+          Array.prototype.forEach.call(host.querySelectorAll("[data-compartir]"), function (chk) {
+            chk.addEventListener("change", async function () {
+              var otroUid = chk.getAttribute("data-compartir");
+              chk.disabled = true;
+              try {
+                await window.firestoreCrud.activarCompartirCompleto(miUid, otroUid, chk.checked);
+                toast(
+                  chk.checked
+                    ? "Ahora comparte tu horario completo con esta persona."
+                    : "Dejaste de compartir tu horario completo con esta persona.",
+                );
+              } catch (err) {
+                console.warn("[Amigos] No se pudo actualizar el opt-in de horario completo:", err);
+                toast("⚠ No se pudo guardar el cambio.");
+                chk.checked = !chk.checked;
+              } finally {
+                chk.disabled = false;
+              }
+            });
+          });
+          refreshCompareSelects();
+        }
+        function _pintarResultadoBusqueda(perfil, codigo, estado) {
+          var host = $("friendSearchResult");
+          if (!host) return;
+          var accion;
+          if (estado === "amigos") {
+            accion = '<span style="color:var(--ok,#2e8b6f);font-weight:600;font-size:13px">✓ Amigos</span>';
+          } else if (estado === "enviada") {
+            accion = '<span style="color:var(--ink-3);font-size:13px">Solicitud enviada ✓</span>';
+          } else if (estado === "recibida") {
+            accion =
+              '<span style="color:var(--ink-3);font-size:13px">Te envió una solicitud — revisa "Solicitudes"</span>';
+          } else {
+            accion = '<button type="button" class="btn accent" id="btnEnviarSolicitud" style="padding:8px 14px">+ Agregar</button>';
+          }
+          host.innerHTML =
+            '<div class="list-item"><div class="li-main"><div class="li-mat">' +
+            esc(perfil.nombre || codigo) +
+            '</div><div class="li-sub">' +
+            esc(_subAmigo(perfil)) +
+            '</div></div><div class="li-actions">' +
+            accion +
+            "</div></div>";
+          var btn = $("btnEnviarSolicitud");
+          if (btn) {
+            btn.addEventListener("click", async function () {
+              btn.disabled = true;
+              var miUid = window.uidActual && window.uidActual();
+              var miCodigo = (perfilCache && perfilCache.codigo) || "";
+              try {
+                await window.firestoreCrud.enviarSolicitud(miUid, miCodigo, perfil.uid, codigo);
+                toast("Solicitud enviada.");
+                _pintarResultadoBusqueda(perfil, codigo, "enviada");
+              } catch (err) {
+                console.warn("[Amigos] No se pudo enviar la solicitud:", err);
+                toast("⚠ No se pudo enviar la solicitud.");
+                btn.disabled = false;
+              }
+            });
+          }
+        }
+        async function buscarAmigoSubmit(e) {
+          e.preventDefault();
+          var codigo = $("friendSearchInput").value.trim().toUpperCase();
+          var host = $("friendSearchResult");
+          var miUid = window.uidActual && window.uidActual();
+          if (!miUid || !codigo || !host) return;
+          host.innerHTML = '<div class="fr-empty">Buscando…</div>';
+          var perfil;
+          try {
+            perfil = await window.firestoreCrud.buscarPorCodigo(codigo);
+          } catch (err) {
+            console.warn("[Amigos] No se pudo buscar por código:", err);
+            host.innerHTML = '<div class="fr-empty">No pudimos cargar la información. Intenta nuevamente.</div>';
+            return;
+          }
+          if (!perfil) {
+            host.innerHTML = '<div class="fr-empty">No encontramos ningún usuario con ese identificador.</div>';
+            return;
+          }
+          if (perfil.uid === miUid) {
+            host.innerHTML = '<div class="fr-empty">Ese eres tú.</div>';
+            return;
+          }
+          var estado;
+          try {
+            estado = await window.firestoreCrud.obtenerEstadoRelacion(miUid, perfil.uid);
+          } catch (err) {
+            console.warn("[Amigos] No se pudo obtener el estado de la relación:", err);
+            host.innerHTML = '<div class="fr-empty">No pudimos cargar la información. Intenta nuevamente.</div>';
+            return;
+          }
+          _pintarResultadoBusqueda(perfil, codigo, estado.estado);
+        }
+        async function aceptarSolicitudUI(fromUid) {
+          var miUid = window.uidActual && window.uidActual();
+          if (!miUid) return;
+          try {
+            await window.firestoreCrud.aceptarSolicitud(fromUid, miUid);
+            toast("Ahora son amigos.");
+          } catch (err) {
+            console.warn("[Amigos] No se pudo aceptar la solicitud:", err);
+            toast("⚠ No se pudo aceptar la solicitud.");
+          }
+        }
+        async function rechazarSolicitudUI(fromUid) {
+          var miUid = window.uidActual && window.uidActual();
+          if (!miUid) return;
+          try {
+            await window.firestoreCrud.eliminarSolicitud(fromUid, miUid);
+          } catch (err) {
+            console.warn("[Amigos] No se pudo rechazar la solicitud:", err);
+            toast("⚠ No se pudo rechazar la solicitud.");
+          }
+        }
+        // friendships/{id} es UN SOLO documento compartido entre los dos
+        // (ver firebase/firestore-service.js: quitarAmigo). Borrarlo los
+        // desvincula a ambos a la vez — la otra persona lo ve desaparecer
+        // solo de su "Mis amigos" por el mismo listener en tiempo real,
+        // sin que ninguno de los dos tenga que hacer nada aparte.
+        async function quitarAmigoUI(otroUid, nombre) {
+          var miUid = window.uidActual && window.uidActual();
+          if (!miUid) return;
+          if (!confirm('¿Quitar a "' + nombre + '" de tus amigos? Ya no podrán ver el horario de hoy del otro, hasta volver a agregarse.')) return;
+          try {
+            await window.firestoreCrud.quitarAmigo(miUid, otroUid);
+            toast('Quitaste a "' + nombre + '" de tus amigos.');
+          } catch (err) {
+            console.warn("[Amigos] No se pudo quitar al amigo:", err);
+            toast("⚠ No se pudo quitar al amigo.");
+          }
+        }
+        // ---------- ¿Quién está libre ahora? ----------
+        // Reutiliza t2m()/nowMinutes() — los mismos que ya usan
+        // renderTodayView()/todayListHTML() para la hora exacta, sin
+        // aproximaciones — y leerResumenHoyDeAmigo() (ya protegido por la
+        // amistad en firestore.rules: no hace falta ninguna regla nueva,
+        // esto solo interpreta datos que ya se podían leer).
+        //
+        // minutosRef es opcional (por defecto "ahora") a propósito: el
+        // mismo cálculo serviría sin cambios para una futura "¿quién está
+        // libre a las 15:00?" — solo pasándole otro minuto de referencia.
+        function estadoAmigoEn(classes, minutosRef) {
+          var nm = minutosRef == null ? nowMinutes() : minutosRef;
+          if (!classes || classes.length === 0) return { estado: "sinClases" };
+          var ordenadas = classes.slice().sort(function (a, b) {
+            return t2m(a.inicio) - t2m(b.inicio);
+          });
+          for (var i = 0; i < ordenadas.length; i++) {
+            var c = ordenadas[i];
+            if (nm >= t2m(c.inicio) && nm < t2m(c.fin)) {
+              return { estado: "enClase", clase: c };
+            }
+          }
+          var siguiente = null;
+          for (var j = 0; j < ordenadas.length; j++) {
+            if (t2m(ordenadas[j].inicio) > nm) {
+              siguiente = ordenadas[j];
+              break;
+            }
+          }
+          return { estado: "libre", siguiente: siguiente };
+        }
+
+        // Los horarios de hoy de cada amigo se leen UNA vez al abrir (no
+        // hay por qué volver a consultar Firestore cada minuto: el estado
+        // libre/en clase se puede recalcular del lado del cliente con la
+        // misma foto). _quienEstaLibreTimer solo vuelve a PINTAR con la
+        // hora actual, cada 45s, sin tocar la red.
+        var _amigosLibresDatos = null; // [{uid, nombre, classes}]
+        var _quienEstaLibreTimer = null;
+        async function abrirQuienEstaLibre() {
+          var miUid = window.uidActual && window.uidActual();
+          if (!miUid) return;
+          var body = $("friendsFreeBody");
+          if (!body) return;
+          $("friendsFreeModal").classList.add("show");
+
+          if (amigosCache.length === 0) {
+            body.innerHTML =
+              '<div class="fr-empty">Todavía no tienes amigos.<br>Agrega amigos para poder ver quién está libre.</div>';
+            _amigosLibresDatos = null;
+            return;
+          }
+
+          body.innerHTML = '<div class="fr-empty">Cargando…</div>';
+          var otros = amigosCache.map(function (f) {
+            return _otroDeAmistad(f, miUid);
+          });
+          try {
+            var perfiles = await Promise.all(
+              otros.map(function (o) {
+                return _resolverPerfilAmigo(o.codigo);
+              }),
+            );
+            var resumenes = await Promise.all(
+              otros.map(function (o) {
+                return window.firestoreCrud.leerResumenHoyDeAmigo(o.uid);
+              }),
+            );
+            _amigosLibresDatos = otros.map(function (o, i) {
+              var p = perfiles[i] || { nombre: o.codigo };
+              return {
+                uid: o.uid,
+                nombre: p.nombre || o.codigo,
+                classes: (resumenes[i] && resumenes[i].classes) || [],
+              };
+            });
+          } catch (err) {
+            console.warn("[Amigos] No se pudo cargar quién está libre:", err);
+            body.innerHTML = '<div class="fr-empty">No pudimos actualizar los horarios.<br>Intenta nuevamente.</div>';
+            _amigosLibresDatos = null;
+            return;
+          }
+          renderQuienEstaLibre();
+          clearInterval(_quienEstaLibreTimer);
+          _quienEstaLibreTimer = setInterval(renderQuienEstaLibre, 45000);
+        }
+        function cerrarQuienEstaLibre() {
+          $("friendsFreeModal").classList.remove("show");
+          clearInterval(_quienEstaLibreTimer);
+          _quienEstaLibreTimer = null;
+        }
+        function renderQuienEstaLibre() {
+          var body = $("friendsFreeBody");
+          if (!body || !_amigosLibresDatos) return;
+          var libres = [];
+          var enClase = [];
+          _amigosLibresDatos.forEach(function (a) {
+            var info = estadoAmigoEn(a.classes);
+            if (info.estado === "enClase") {
+              enClase.push({ nombre: a.nombre, clase: info.clase });
+            } else {
+              libres.push({ nombre: a.nombre, estado: info.estado, siguiente: info.siguiente });
+            }
+          });
+
+          var celebracion;
+          if (enClase.length === 0) {
+            celebracion = '<div class="fr-resumen-libres">🎉 Todos tus amigos están libres ahora.</div>';
+          } else if (libres.length === 0) {
+            celebracion = '<div class="fr-resumen-libres">📚 Todos tus amigos están en clase ahora.</div>';
+          } else {
+            celebracion =
+              '<div class="fr-resumen-libres">🟢 ' +
+              libres.length +
+              (libres.length === 1 ? " libre" : " libres") +
+              " · 🔴 " +
+              enClase.length +
+              (enClase.length === 1 ? " en clase" : " en clase") +
+              "</div>";
+          }
+
+          var html = celebracion;
+          if (libres.length > 0) {
+            html += '<div class="fr-libre-header">🟢 Libres ahora</div>';
+            libres.forEach(function (a) {
+              var sub;
+              if (a.estado === "sinClases") sub = "Sin clases hoy";
+              else if (a.siguiente) sub = "Libre hasta las " + esc(a.siguiente.inicio);
+              else sub = "Libre el resto del día";
+              html +=
+                '<div class="list-item"><div class="li-main"><div class="li-mat">' +
+                esc(a.nombre) +
+                '</div><div class="li-sub">' +
+                sub +
+                "</div></div></div>";
+            });
+          }
+          if (enClase.length > 0) {
+            html +=
+              '<div class="fr-clase-header" style="margin-top:' +
+              (libres.length > 0 ? "18px" : "0") +
+              '">🔴 En clase</div>';
+            enClase.forEach(function (a) {
+              var lugar = [a.clase.curso, a.clase.profesor].filter(Boolean).join(" · ");
+              html +=
+                '<div class="list-item"><div class="li-main"><div class="li-mat">' +
+                esc(a.nombre) +
+                '</div><div class="li-sub">' +
+                esc(a.clase.materia) +
+                " · " +
+                esc(a.clase.inicio) +
+                "-" +
+                esc(a.clase.fin) +
+                (lugar ? "<br>📍 " + esc(lugar) : "") +
+                "</div></div></div>";
+            });
+          }
+          body.innerHTML = html;
+        }
+        async function verHorarioAmigo(uid, nombre) {
+          var nameEl = $("friendScheduleName");
+          var body = $("friendScheduleBody");
+          if (!body) return;
+          if (nameEl) nameEl.textContent = nombre || "";
+          body.innerHTML = '<div class="fr-empty">Cargando…</div>';
+          $("friendScheduleModal").classList.add("show");
+          try {
+            var resumen = await window.firestoreCrud.leerResumenHoyDeAmigo(uid);
+            if (!resumen || !resumen.classes || resumen.classes.length === 0) {
+              body.innerHTML = '<div class="fr-empty">Este usuario no tiene clases programadas para hoy.</div>';
+              return;
+            }
+            body.innerHTML = todayListHTML(resumen.classes, { editable: false });
+          } catch (err) {
+            console.warn("[Amigos] No se pudo cargar el horario del amigo:", err);
+            body.innerHTML = '<div class="fr-empty">No pudimos cargar la información. Intenta nuevamente.</div>';
+          }
+        }
+        function abrirAmigos() {
+          var input = $("friendSearchInput");
+          if (input) input.value = "";
+          var result = $("friendSearchResult");
+          if (result) result.innerHTML = "";
+          var miCodigo = $("miCodigoAmigo");
+          if (miCodigo) miCodigo.textContent = (perfilCache && perfilCache.codigo) || "——————";
+          $("friendsModal").classList.add("show");
+        }
+        function copiarMiCodigo() {
+          var codigo = (perfilCache && perfilCache.codigo) || "";
+          if (!codigo) return;
+          copyText(codigo).then(function () {
+            toast("Código copiado.");
+          }, function () {
+            toast("⚠ No se pudo copiar.");
+          });
+        }
+
+        // ---------- Grupos de estudio ----------
+        function abrirGrupos() {
+          renderGrupoChecklist();
+          renderGruposList();
+          renderInvitacionesGrupo();
+          $("groupsModal").classList.add("show");
+        }
+        // Checklist de amigos para elegir a quién INVITAR al crear un grupo
+        // — los invitados SOLO se eligen de amigos ya aceptados (nunca por
+        // código suelto), reusando amigosCache/_perfilesAmigosCache tal cual
+        // los llena renderMisAmigos(). Nadie entra directo: cada marca acá
+        // termina siendo una invitación aparte (ver crearGrupoUI).
+        function renderGrupoChecklist() {
+          var host = $("groupMiembrosChecklist");
+          if (!host) return;
+          var miUid = window.uidActual && window.uidActual();
+          if (!miUid || amigosCache.length === 0) {
+            host.innerHTML =
+              '<div class="fr-empty">Agrega amigos primero para poder invitarlos a un grupo.</div>';
+            return;
+          }
+          var html = "";
+          amigosCache.forEach(function (f) {
+            var o = _otroDeAmistad(f, miUid);
+            var p = _perfilesAmigosCache[o.codigo];
+            var nombre = (p && p.nombre) || o.codigo;
+            html +=
+              '<label class="fr-share-toggle"><input type="checkbox" data-miembro="' +
+              o.uid +
+              '" /> ' +
+              esc(nombre) +
+              "</label>";
+          });
+          host.innerHTML = html;
+        }
+        async function crearGrupoUI(e) {
+          e.preventDefault();
+          var miUid = window.uidActual && window.uidActual();
+          if (!miUid) return;
+          var nombre = $("groupNombreInput").value.trim();
+          if (!nombre) return;
+          var miNombre = (perfilCache && perfilCache.nombre) || "";
+          var invitados = Array.prototype.map.call(
+            document.querySelectorAll("#groupMiembrosChecklist [data-miembro]:checked"),
+            function (chk) {
+              return chk.getAttribute("data-miembro");
+            },
+          );
+          try {
+            var groupId = await window.firestoreCrud.crearGrupo(miUid, nombre);
+            await Promise.all(
+              invitados.map(function (otroUid) {
+                return window.firestoreCrud.invitarAGrupo(groupId, nombre, miUid, miNombre, otroUid);
+              }),
+            );
+            $("groupCreateForm").reset();
+            toast(
+              invitados.length
+                ? "Grupo creado. Se enviaron " + invitados.length + " invitación(es)."
+                : "Grupo creado.",
+            );
+          } catch (err) {
+            console.warn("[Grupos] No se pudo crear el grupo:", err);
+            toast("⚠ No se pudo crear el grupo.");
+          }
+        }
+        // ---------- Invitaciones a grupos (recibidas) ----------
+        // A diferencia de renderSolicitudesRecibidas() (Amigos), no hace
+        // falta resolver ningún perfil: groupNombre/fromNombre ya viajan
+        // COPIADOS dentro de la invitación (ver invitarAGrupo en
+        // firestore-service.js), justo porque yo todavía no soy miembro del
+        // grupo y no podría leer su nombre de otra forma.
+        function renderInvitacionesGrupo() {
+          var host = $("groupInvitesList");
+          if (!host) return;
+          if (invitacionesGrupoCache.length === 0) {
+            host.innerHTML = '<div class="fr-empty">No tienes invitaciones pendientes.</div>';
+            return;
+          }
+          var html = "";
+          invitacionesGrupoCache.forEach(function (inv) {
+            html +=
+              '<div class="list-item"><div class="li-main"><div class="li-mat">' +
+              esc(inv.groupNombre) +
+              '</div><div class="li-sub">Invitación de ' +
+              esc(inv.fromNombre || "un amigo") +
+              '</div></div><div class="li-actions">' +
+              '<button class="btn accent" data-aceptargrupo="' +
+              inv.groupId +
+              '" style="padding:8px 12px">Aceptar</button>' +
+              '<button class="btn" data-rechazargrupo="' +
+              inv.groupId +
+              '" style="padding:8px 12px">Rechazar</button></div></div>';
+          });
+          host.innerHTML = html;
+          Array.prototype.forEach.call(host.querySelectorAll("[data-aceptargrupo]"), function (b) {
+            b.addEventListener("click", function () {
+              aceptarInvitacionGrupoUI(b.getAttribute("data-aceptargrupo"));
+            });
+          });
+          Array.prototype.forEach.call(host.querySelectorAll("[data-rechazargrupo]"), function (b) {
+            b.addEventListener("click", function () {
+              rechazarInvitacionGrupoUI(b.getAttribute("data-rechazargrupo"));
+            });
+          });
+        }
+        async function aceptarInvitacionGrupoUI(groupId) {
+          var miUid = window.uidActual && window.uidActual();
+          if (!miUid) return;
+          try {
+            await window.firestoreCrud.aceptarInvitacionGrupo(groupId, miUid);
+            toast("Ahora eres parte del grupo.");
+          } catch (err) {
+            console.warn("[Grupos] No se pudo aceptar la invitación:", err);
+            toast("⚠ No se pudo aceptar la invitación.");
+          }
+        }
+        async function rechazarInvitacionGrupoUI(groupId) {
+          var miUid = window.uidActual && window.uidActual();
+          if (!miUid) return;
+          try {
+            await window.firestoreCrud.rechazarInvitacionGrupo(groupId, miUid);
+          } catch (err) {
+            console.warn("[Grupos] No se pudo rechazar la invitación:", err);
+            toast("⚠ No se pudo rechazar la invitación.");
+          }
+        }
+        function actualizarBadgeGrupos() {
+          var badge = $("gruposBadge");
+          if (!badge) return;
+          var n = invitacionesGrupoCache.length;
+          if (n > 0) {
+            badge.textContent = n > 9 ? "9+" : String(n);
+            badge.style.display = "";
+          } else {
+            badge.style.display = "none";
+          }
+        }
+        function renderGruposList() {
+          var host = $("groupsList");
+          if (!host) return;
+          if (gruposEstudioCache.length === 0) {
+            host.innerHTML = '<div class="fr-empty">Todavía no tienes grupos de estudio.</div>';
+            return;
+          }
+          var html = "";
+          gruposEstudioCache.forEach(function (g) {
+            var n = (g.miembros || []).length;
+            html +=
+              '<div class="list-item"><div class="li-main"><div class="li-mat">' +
+              esc(g.nombre) +
+              '</div><div class="li-sub">' +
+              n +
+              (n === 1 ? " integrante" : " integrantes") +
+              '</div></div><div class="li-actions">' +
+              '<button class="icon-btn" data-abrirgrupo="' +
+              g.id +
+              '" title="Ver tablero de reuniones">📋</button>' +
+              "</div></div>";
+          });
+          host.innerHTML = html;
+          Array.prototype.forEach.call(host.querySelectorAll("[data-abrirgrupo]"), function (b) {
+            b.addEventListener("click", function () {
+              abrirGrupoBoard(b.getAttribute("data-abrirgrupo"));
+            });
+          });
+        }
+        // Tablero de UN grupo: listener en vivo que arranca al abrir este
+        // modal y se cierra al salir de él (nunca queda un listener de un
+        // grupo que ya no se está viendo).
+        function abrirGrupoBoard(groupId) {
+          var g = gruposEstudioCache.filter(function (x) {
+            return x.id === groupId;
+          })[0];
+          if (!g) return;
+          _grupoAbiertoId = groupId;
+          $("groupBoardNombre").textContent = g.nombre;
+          $("groupBoardList").innerHTML = '<div class="fr-empty">Cargando…</div>';
+          $("groupBoardModal").classList.add("show");
+          renderGrupoInviteChecklist(g);
+          if (_cancelarReunionesGrupo) {
+            _cancelarReunionesGrupo();
+            _cancelarReunionesGrupo = null;
+          }
+          window.firestoreCrud.escucharReunionesDeGrupo(groupId, renderGrupoBoardList).then(function (cancelar) {
+            if (_grupoAbiertoId === groupId) _cancelarReunionesGrupo = cancelar;
+            else cancelar(); // el modal ya se cerró antes de que esto resolviera
+          });
+        }
+        function cerrarGrupoBoard() {
+          $("groupBoardModal").classList.remove("show");
+          _grupoAbiertoId = null;
+          if (_cancelarReunionesGrupo) {
+            _cancelarReunionesGrupo();
+            _cancelarReunionesGrupo = null;
+          }
+        }
+        // Invitar a un grupo YA creado: cualquier miembro puede invitar
+        // (confirmado con el usuario), no solo el creador — mismo checklist
+        // de amigos que al crear el grupo, pero filtrando a quienes ya son
+        // miembros (no tiene sentido invitar a alguien que ya está adentro).
+        function renderGrupoInviteChecklist(g) {
+          var host = $("groupInviteChecklist");
+          if (!host) return;
+          var miUid = window.uidActual && window.uidActual();
+          var yaMiembros = g.miembros || [];
+          var candidatos = amigosCache.filter(function (f) {
+            var o = _otroDeAmistad(f, miUid);
+            return yaMiembros.indexOf(o.uid) === -1;
+          });
+          if (candidatos.length === 0) {
+            host.innerHTML = '<div class="fr-empty">No tienes más amigos para invitar a este grupo.</div>';
+            return;
+          }
+          var html = "";
+          candidatos.forEach(function (f) {
+            var o = _otroDeAmistad(f, miUid);
+            var p = _perfilesAmigosCache[o.codigo];
+            var nombre = (p && p.nombre) || o.codigo;
+            html +=
+              '<label class="fr-share-toggle"><input type="checkbox" data-invitar="' +
+              o.uid +
+              '" /> ' +
+              esc(nombre) +
+              "</label>";
+          });
+          host.innerHTML = html;
+        }
+        async function invitarAGrupoBoardUI(e) {
+          e.preventDefault();
+          if (!_grupoAbiertoId) return;
+          var miUid = window.uidActual && window.uidActual();
+          if (!miUid) return;
+          var g = gruposEstudioCache.filter(function (x) {
+            return x.id === _grupoAbiertoId;
+          })[0];
+          if (!g) return;
+          var miNombre = (perfilCache && perfilCache.nombre) || "";
+          var elegidos = Array.prototype.map.call(
+            document.querySelectorAll("#groupInviteChecklist [data-invitar]:checked"),
+            function (chk) {
+              return chk.getAttribute("data-invitar");
+            },
+          );
+          if (elegidos.length === 0) return;
+          try {
+            await Promise.all(
+              elegidos.map(function (otroUid) {
+                return window.firestoreCrud.invitarAGrupo(_grupoAbiertoId, g.nombre, miUid, miNombre, otroUid);
+              }),
+            );
+            toast("Invitación(es) enviada(s).");
+            renderGrupoInviteChecklist(g);
+          } catch (err) {
+            console.warn("[Grupos] No se pudo invitar:", err);
+            toast("⚠ No se pudo enviar la invitación.");
+          }
+        }
+        function renderGrupoBoardList(reuniones) {
+          var host = $("groupBoardList");
+          if (!host) return;
+          if (!reuniones || reuniones.length === 0) {
+            host.innerHTML = '<div class="fr-empty">Sin reuniones agendadas todavía.</div>';
+            return;
+          }
+          var lista = reuniones.slice().sort(function (a, b) {
+            return (a.fecha || "").localeCompare(b.fecha || "") || (a.hora || "").localeCompare(b.hora || "");
+          });
+          var hoy = new Date();
+          hoy.setHours(0, 0, 0, 0);
+          var html = "";
+          lista.forEach(function (r) {
+            var dleft = null;
+            if (r.fecha) {
+              var f = new Date(r.fecha + "T00:00:00");
+              if (!isNaN(f.getTime())) dleft = Math.round((f - hoy) / 86400000);
+            }
+            var cuando = r.fecha || "—";
+            if (r.hora) cuando += " " + r.hora;
+            if (dleft !== null) {
+              if (dleft < 0) cuando += " (ya pasó)";
+              else if (dleft === 0) cuando += " (¡hoy!)";
+              else if (dleft <= 7) cuando += " (en " + dleft + (dleft === 1 ? " día" : " días") + ")";
+            }
+            var sub = [cuando];
+            if (r.lugar) sub.push("📍 " + r.lugar);
+            if (r.comentario) sub.push(r.comentario);
+            html +=
+              '<div class="list-item"><div class="li-main"><div class="li-mat">' +
+              esc(r.titulo) +
+              '</div><div class="li-sub">' +
+              esc(sub.join(" · ")) +
+              '</div></div><div class="li-actions">' +
+              '<button class="icon-btn del" data-delreunion="' +
+              r.id +
+              '" title="Quitar">✕</button>' +
+              "</div></div>";
+          });
+          host.innerHTML = html;
+          Array.prototype.forEach.call(host.querySelectorAll("[data-delreunion]"), function (b) {
+            b.addEventListener("click", function () {
+              if (!_grupoAbiertoId) return;
+              window.firestoreCrud
+                .eliminarReunion(_grupoAbiertoId, b.getAttribute("data-delreunion"))
+                .catch(function (err) {
+                  console.warn("[Grupos] No se pudo quitar la reunión:", err);
+                  toast("⚠ No se pudo quitar la reunión.");
+                });
+            });
+          });
+        }
+        async function agregarReunionUI(e) {
+          e.preventDefault();
+          if (!_grupoAbiertoId) return;
+          var miUid = window.uidActual && window.uidActual();
+          if (!miUid) return;
+          var datos = {
+            titulo: $("reunionTitulo").value.trim(),
+            fecha: $("reunionFecha").value,
+            hora: $("reunionHora").value,
+            lugar: $("reunionLugar").value.trim(),
+            comentario: $("reunionComentario").value.trim(),
+          };
+          if (!datos.titulo || !datos.fecha) return;
+          try {
+            await window.firestoreCrud.agregarReunion(_grupoAbiertoId, miUid, datos);
+            $("reunionForm").reset();
+          } catch (err) {
+            console.warn("[Grupos] No se pudo agregar la reunión:", err);
+            toast("⚠ No se pudo agregar la reunión.");
+          }
+        }
+        async function salirDeGrupoUI() {
+          if (!_grupoAbiertoId) return;
+          var miUid = window.uidActual && window.uidActual();
+          if (!miUid) return;
+          if (!confirm("¿Salir de este grupo de estudio?")) return;
+          try {
+            await window.firestoreCrud.salirDeGrupo(_grupoAbiertoId, miUid);
+            cerrarGrupoBoard();
+            toast("Saliste del grupo.");
+          } catch (err) {
+            console.warn("[Grupos] No se pudo salir del grupo:", err);
+            toast("⚠ No se pudo salir del grupo.");
+          }
+        }
+
+        // Mantiene users/{uid}/todaySchedule al día — es lo único que un
+        // amigo puede llegar a leer (ver el comentario grande en
+        // firestore.rules): nunca la colección "classes" completa. Se
+        // recalcula con la MISMA función que pinta mi propio "Resumen de
+        // hoy" (clasesDeHoyDe), así que si ese cálculo cambia algún día,
+        // esto se actualiza solo.
+        //
+        // SOLO se guarda mientras estoy en el horario destacado ★
+        // (enHorarioDestacado, ver la sección de Puntos/Actividades más
+        // arriba). state.classes es el horario "en vivo" — si en vez de
+        // eso estoy viendo temporalmente otro horario guardado (uno
+        // alterno, un respaldo, etc.), NO se toca todaySchedule: mis
+        // amigos deben seguir viendo mi destacado real, no lo que sea que
+        // esté mirando de paso. Si no estoy en el destacado, el snapshot
+        // simplemente se queda como estaba la última vez que sí lo estuve.
+        var _guardarResumenHoyTimer = null;
+        function programarGuardarResumenHoy() {
+          var uidFs = window.uidActual && window.uidActual();
+          if (!uidFs || !perfilCache || !enHorarioDestacado()) return;
+          clearTimeout(_guardarResumenHoyTimer);
+          _guardarResumenHoyTimer = setTimeout(guardarResumenHoyAhora, 800);
+        }
+        async function guardarResumenHoyAhora() {
+          var uidFs = window.uidActual && window.uidActual();
+          if (!uidFs || !perfilCache || !enHorarioDestacado()) return;
+          var items = clasesDeHoyDe(state.classes).map(function (c) {
+            return {
+              inicio: c.inicio,
+              fin: c.fin,
+              materia: c.materia,
+              curso: c.curso || "",
+              profesor: c.profesor || "",
+            };
+          });
+          var resumen = { dayName: DAYS_FULL[todayIndex()], classes: items };
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.guardarResumenHoy(uidFs, resumen);
+          });
+          if (!r.ok) console.warn("[Amigos] No se pudo guardar el resumen de hoy:", r.error);
+        }
+
         // ---------- Init ----------
+        // Firestore es la única fuente de datos: estos son los puntos de
+        // entrada por los que firebase/firestore-service.js entrega cada
+        // colección (carga inicial u onSnapshot en tiempo real). Cada uno
+        // actualiza SOLO su parte de `state` y repinta lo que corresponde
+        // — nunca al revés (la app nunca escribe state.* y espera que se
+        // "suba sola": cada acción del usuario llama a Firestore primero).
+        var _primerasEntregas = {};
+        function _todasListasParaImport() {
+          return _primerasEntregas.classes && _primerasEntregas.activities && _primerasEntregas.pointsSubjects;
+        }
+        // Se resuelve UNA sola vez, apenas las 5 fuentes ya entregaron su
+        // primer dato: si hay un enlace compartido pendiente tiene
+        // prioridad; si no, se "adopta" el horario destacado (ver
+        // _cargarDestacadoAlAbrir) para que la app abra siempre ahí.
+        var _arranqueResuelto = false;
+        function _intentarResolverArranque() {
+          if (_arranqueResuelto) return;
+          if (!_todasListasParaImport() || !_primerasEntregas.schedules || !_primerasEntregas.favorito) return;
+          _arranqueResuelto = true;
+          if (_importCompartidoPendiente) {
+            var data = _importCompartidoPendiente;
+            _importCompartidoPendiente = null;
+            aplicarHorarioCompartido(data);
+            return;
+          }
+          _cargarDestacadoAlAbrir();
+        }
+        // El horario destacado ★ se abre siempre por defecto. classes YA es
+        // la fuente real y persiste sola entre sesiones (activities/
+        // pointsSubjects también, y son globales — ver enHorarioDestacado),
+        // así que si ya tiene contenido no se sobrescribe (eso podría perder
+        // una edición que aún no se hubiera reflejado en el horario
+        // guardado) — solo se "adopta" el destacado para que los próximos
+        // cambios se guarden ahí. Si el horario en vivo está vacío
+        // (dispositivo nuevo, por ejemplo), sí se trae su contenido.
+        function _cargarDestacadoAlAbrir() {
+          if (!favoritoIdCache) {
+            _asegurarDestacado();
+            return;
+          }
+          var entry = getSavedList().filter(function (x) {
+            return x.id === favoritoIdCache;
+          })[0];
+          if (!entry) return;
+          if (currentSavedId === favoritoIdCache) return;
+          var vacio = state.classes.length === 0;
+          if (vacio && (entry.classes || []).length > 0) {
+            reemplazarHorarioActual(entry, null).then(function (ok) {
+              if (ok) {
+                currentSavedId = entry.id;
+                updateSavedBanner();
+              }
+            });
+          } else {
+            currentSavedId = entry.id;
+            updateSavedBanner();
+          }
+        }
+        // La cuenta siempre debe tener EXACTAMENTE un horario destacado ★
+        // (ver setPrincipalId y deleteNamedSchedule: una vez fijado, no se
+        // puede cambiar ni borrar) — así Puntos/Actividades, que solo se
+        // editan en el destacado, siempre tienen un horario "de verdad" al
+        // que estar ligados, sin que el usuario tenga que configurarlo a
+        // mano. Si ya hay horarios guardados pero ninguno marcado, se
+        // adopta el más reciente; si no hay ninguno, se crea uno con lo
+        // que haya en el horario en vivo (vacío o no) y se marca.
+        async function _asegurarDestacado() {
+          var list = getSavedList();
+          if (list.length > 0) {
+            var candidato = list.slice().sort(function (a, b) {
+              return new Date(b.savedAt) - new Date(a.savedAt);
+            })[0];
+            await setPrincipalId(candidato.id);
+            currentSavedId = candidato.id;
+            updateSavedBanner();
+            return;
+          }
+          var uidFs = window.uidActual && window.uidActual();
+          if (!uidFs) return;
+          var ok = await saveNamedSchedule("Mi horario");
+          if (ok) await setPrincipalId(currentSavedId);
+        }
         function init() {
+          // Firebase avisa aquí (ver app-integration.js) en cuanto la
+          // sesión termina, ANTES de que la sesión anónima de reemplazo
+          // esté lista. Sin esto, lo que había en pantalla (horario,
+          // actividades, puntos, nombre del horario guardado) se quedaba
+          // visible hasta que llegara el primer snapshot vacío de la
+          // cuenta nueva — o, si eso se demoraba, hasta recargar la
+          // página. Ahora se borra de inmediato al cerrar sesión.
+          window.__alCambiarSesion = function (user) {
+            if (user) return;
+            state.classes = [];
+            state.activities = [];
+            state.puntos = { subjects: [] };
+            state.meta = { title: "", author: "" };
+            state.settings = { days: 5, dayStart: "07:00", dayEnd: "19:00" };
+            puntosData = state.puntos;
+            currentSavedId = null;
+            savedListCache = [];
+            favoritoIdCache = "";
+            perfilCache = null;
+            solicitudesRecibidasCache = [];
+            solicitudesEnviadasCache = [];
+            amigosCache = [];
+            _perfilesAmigosCache = {};
+            gruposEstudioCache = [];
+            invitacionesGrupoCache = [];
+            actualizarBadgeAmigos();
+            actualizarBadgeGrupos();
+            $("friendsModal").classList.remove("show");
+            $("friendScheduleModal").classList.remove("show");
+            cerrarQuienEstaLibre();
+            cerrarGrupoBoard();
+            if ($("groupsModal")) $("groupsModal").classList.remove("show");
+            _pintarPerfilMenu();
+            // También se reinicia el "arranque": sin esto, _asegurarDestacado
+            // (que crea/adopta el destacado ★ de una cuenta nueva) nunca
+            // volvería a correr para la sesión anónima que reemplaza a la
+            // que se acaba de cerrar, porque _arranqueResuelto ya había
+            // quedado en true desde la carga original de la página.
+            _arranqueResuelto = false;
+            _primerasEntregas = {};
+            syncMetaInputs();
+            render();
+            renderPuntos();
+            renderSavedList();
+            updateSavedBanner();
+            refreshCompareSelects();
+          };
+          window.alActualizarClases = function (arr) {
+            state.classes = arr || [];
+            render();
+            _primerasEntregas.classes = true;
+            reconciliarPuntos();
+            _intentarResolverArranque();
+            programarGuardarEnActual();
+            programarGuardarResumenHoy();
+          };
+          window.alActualizarActividades = function (arr) {
+            state.activities = arr || [];
+            render();
+            _primerasEntregas.activities = true;
+            _intentarResolverArranque();
+            // Ya no dispara programarGuardarEnActual(): los horarios
+            // guardados dejaron de incluir una copia de activities (ver
+            // reemplazarHorarioActual), así que un cambio aquí no tiene
+            // nada que escribir en ese documento.
+          };
+          window.alActualizarPuntos = function (arr) {
+            state.puntos.subjects = arr || [];
+            puntosData = state.puntos;
+            renderPuntos();
+            var esPrimera = !_primerasEntregas.pointsSubjects;
+            _primerasEntregas.pointsSubjects = true;
+            // Si "classes" ya había llegado antes que "pointsSubjects", su
+            // intento de reconciliar se abstuvo (ver guardia en
+            // reconciliarPuntos); ahora que ya sabemos el estado real, se
+            // reintenta una vez.
+            if (esPrimera) reconciliarPuntos();
+            _intentarResolverArranque();
+            // Igual que en alActualizarActividades: ya no hay copia de
+            // puntos en el horario guardado que mantener al día.
+          };
+          window.alActualizarPerfil = function (data) {
+            perfilCache = data;
+            // accountName/accountEmail arrancan pintados desde el usuario
+            // de Auth (ver _pintarUsuario en app-integration.js); en
+            // cuanto llega el perfil de Firestore, el nombre pasa a ser el
+            // editable por el usuario (puede diferir del de Google/
+            // Microsoft si lo cambió en "Editar perfil").
+            if (data) {
+              var nombreEl = $("accountName");
+              var emailEl = $("accountEmail");
+              if (nombreEl && data.nombre) nombreEl.textContent = data.nombre;
+              if (emailEl) emailEl.textContent = data.email || "";
+            }
+            _pintarPerfilMenu();
+            // Por si "classes" ya había llegado antes que el perfil (el
+            // guard de programarGuardarResumenHoy lo habría descartado sin
+            // perfilCache todavía) — se reintenta una vez aquí.
+            programarGuardarResumenHoy();
+          };
+          window.alActualizarSolicitudesRecibidas = function (arr) {
+            solicitudesRecibidasCache = arr || [];
+            actualizarBadgeAmigos();
+            renderSolicitudesRecibidas();
+          };
+          window.alActualizarSolicitudesEnviadas = function (arr) {
+            // No tiene una sección propia visible aparte del estado que
+            // se muestra al buscar (ver _pintarResultadoBusqueda) — se
+            // cachea igual, por si más adelante se quiere listar.
+            solicitudesEnviadasCache = arr || [];
+          };
+          window.alActualizarAmigos = function (arr) {
+            amigosCache = arr || [];
+            renderMisAmigos();
+          };
+          window.alActualizarGruposEstudio = function (arr) {
+            gruposEstudioCache = arr || [];
+            if ($("groupsModal") && $("groupsModal").classList.contains("show")) {
+              renderGruposList();
+            }
+            // Si el tablero abierto era de un grupo del que me acaban de
+            // sacar (o que se borró), ciérralo — ya no tengo acceso.
+            var abierto = _grupoAbiertoId
+              ? gruposEstudioCache.filter(function (g) {
+                  return g.id === _grupoAbiertoId;
+                })[0]
+              : null;
+            if (_grupoAbiertoId && !abierto) {
+              // Me sacaron del grupo (o se borró) mientras lo tenía abierto.
+              cerrarGrupoBoard();
+            } else if (abierto) {
+              renderGrupoInviteChecklist(abierto);
+            }
+          };
+          window.alActualizarInvitacionesGrupo = function (arr) {
+            invitacionesGrupoCache = arr || [];
+            actualizarBadgeGrupos();
+            if ($("groupsModal") && $("groupsModal").classList.contains("show")) {
+              renderInvitacionesGrupo();
+            }
+          };
+          window.alActualizarGuardados = function (arr) {
+            savedListCache = arr || [];
+            renderSavedList();
+            updateSavedBanner();
+            refreshCompareSelects();
+            _primerasEntregas.schedules = true;
+            _intentarResolverArranque();
+          };
+          window.alActualizarFavorito = function (data) {
+            favoritoIdCache = (data && data.scheduleId) || "";
+            renderSavedList();
+            refreshCompareSelects();
+            renderActivities();
+            renderPuntos();
+            _primerasEntregas.favorito = true;
+            _intentarResolverArranque();
+          };
+          window.alActualizarSettings = function (data) {
+            data = data || {};
+            state.meta = Object.assign({ title: "", author: "" }, data.meta || {});
+            state.settings = Object.assign({ days: 5, dayStart: "07:00", dayEnd: "19:00" }, data.settings || {});
+            if (state.settings.days < 5) state.settings.days = 5;
+            if (state.settings.days > 7) state.settings.days = 7;
+            builderPrefs = Object.assign({ pinned: {}, noDays: {}, earliest: "", latest: "", windows: [] }, data.builderPrefs || {});
+            notifOnCache = !!data.notifOn;
+            if (typeof data.theme === "string") applyTheme(data.theme);
+            if (typeof data.viewMode === "string") {
+              viewMode = data.viewMode === "today" ? "today" : data.viewMode === "acts" ? "acts" : "week";
+              syncViewToggle();
+            }
+            syncMetaInputs();
+            render();
+            if (window.__repintarBtnNotif) window.__repintarBtnNotif();
+            programarGuardarEnActual();
+          };
+          window.alErrorFirestore = function () {
+            toast("⚠ Se perdió la conexión con la nube. Reintentando...");
+          };
+
           window.renderPuntos = renderPuntos;
           window.reconciliarPuntos = reconciliarPuntos;
             // Plegar / desplegar el formulario de clase
@@ -6784,12 +8996,7 @@
 
 
           initTheme();
-          loadBuilderPrefs();
-          var restored = loadState();
-          var shared = importFromHash();
-          try {
-            if (localStorage.getItem(VIEW_KEY) === "today") viewMode = "today";
-          } catch (e) {}
+          checkForSharedLink();
           addSessionRow(null, "", "07:00", "08:00");
           buildSwatches();
           setColor(PALETTE[0]);
@@ -6809,7 +9016,6 @@
             toggleTheme();
             render();
           });
-          $("btnSaveChanges").addEventListener("click", saveChangesToCurrent);
           $("btnStopEditing").addEventListener("click", stopEditingSaved);
           $("btnSaveNamed").addEventListener("click", function () {
             saveNamedSchedule($("saveName").value);
@@ -6839,6 +9045,105 @@
           $("qrModal").addEventListener("click", function (e) {
             if (e.target === this) closeQR();
           });
+          $("btnEditarPerfil").addEventListener("click", abrirEditarPerfil);
+          $("profileEditClose").addEventListener("click", function () {
+            $("profileEditModal").classList.remove("show");
+          });
+          $("profileEditModal").addEventListener("click", function (e) {
+            if (e.target === this) this.classList.remove("show");
+          });
+          $("profileEditForm").addEventListener("submit", guardarPerfilForm);
+          // A prueba de elementos que falten (comentados en el HTML, etc.):
+          // antes, si UNO de estos $(id) devolvía null, el .addEventListener
+          // de ese null tiraba abajo TODO el resto de init() que viniera
+          // después — incluido, por ejemplo, el cableado de Amigos, que por
+          // eso dejaba de responder aunque su propio código estuviera bien.
+          if ($("btnAbrirAjustes")) {
+            $("btnAbrirAjustes").addEventListener("click", function () {
+              var menu = $("accountMenu");
+              if (menu) menu.classList.remove("open");
+              $("settingsModal").classList.add("show");
+            });
+          }
+          if ($("btnAmigos")) {
+            $("btnAmigos").addEventListener("click", function () {
+              if ($("btnAmigos").disabled) return; // sin sesión: no abre nada, no consulta Firestore
+              abrirAmigos();
+            });
+          }
+          if ($("friendsModalClose")) {
+            $("friendsModalClose").addEventListener("click", function () {
+              $("friendsModal").classList.remove("show");
+            });
+          }
+          if ($("friendsModal")) {
+            $("friendsModal").addEventListener("click", function (e) {
+              if (e.target === this) this.classList.remove("show");
+            });
+          }
+          if ($("friendSearchForm")) {
+            $("friendSearchForm").addEventListener("submit", buscarAmigoSubmit);
+          }
+          if ($("btnCopiarCodigo")) {
+            $("btnCopiarCodigo").addEventListener("click", copiarMiCodigo);
+          }
+          if ($("friendScheduleClose")) {
+            $("friendScheduleClose").addEventListener("click", function () {
+              $("friendScheduleModal").classList.remove("show");
+            });
+          }
+          if ($("friendScheduleModal")) {
+            $("friendScheduleModal").addEventListener("click", function (e) {
+              if (e.target === this) this.classList.remove("show");
+            });
+          }
+          if ($("btnQuienEstaLibre")) {
+            $("btnQuienEstaLibre").addEventListener("click", abrirQuienEstaLibre);
+          }
+          if ($("friendsFreeClose")) {
+            $("friendsFreeClose").addEventListener("click", cerrarQuienEstaLibre);
+          }
+          if ($("friendsFreeModal")) {
+            $("friendsFreeModal").addEventListener("click", function (e) {
+              if (e.target === this) cerrarQuienEstaLibre();
+            });
+          }
+          if ($("btnGrupos")) {
+            $("btnGrupos").addEventListener("click", function () {
+              if ($("btnGrupos").disabled) return;
+              abrirGrupos();
+            });
+          }
+          if ($("groupsModalClose")) {
+            $("groupsModalClose").addEventListener("click", function () {
+              $("groupsModal").classList.remove("show");
+            });
+          }
+          if ($("groupsModal")) {
+            $("groupsModal").addEventListener("click", function (e) {
+              if (e.target === this) this.classList.remove("show");
+            });
+          }
+          if ($("groupCreateForm")) {
+            $("groupCreateForm").addEventListener("submit", crearGrupoUI);
+          }
+          if ($("groupBoardClose")) {
+            $("groupBoardClose").addEventListener("click", cerrarGrupoBoard);
+          }
+          if ($("groupBoardModal")) {
+            $("groupBoardModal").addEventListener("click", function (e) {
+              if (e.target === this) cerrarGrupoBoard();
+            });
+          }
+          if ($("reunionForm")) {
+            $("reunionForm").addEventListener("submit", agregarReunionUI);
+          }
+          if ($("btnSalirGrupo")) {
+            $("btnSalirGrupo").addEventListener("click", salirDeGrupoUI);
+          }
+          if ($("groupInviteForm")) {
+            $("groupInviteForm").addEventListener("submit", invitarAGrupoBoardUI);
+          }
           document.addEventListener("keydown", function (e) {
             if (e.key === "Escape") closeQR();
           });
@@ -6868,8 +9173,18 @@
           $("btnBuild").addEventListener("click", generateCombos);
           setInterval(updateNowIndicators, 30000);
           $("btnSettings").addEventListener("click", function () {
-            $("settingsPanel").classList.toggle("open");
+            $("settingsModal").classList.add("show");
           });
+          if ($("settingsModalClose")) {
+            $("settingsModalClose").addEventListener("click", function () {
+              $("settingsModal").classList.remove("show");
+            });
+          }
+          if ($("settingsModal")) {
+            $("settingsModal").addEventListener("click", function (e) {
+              if (e.target === this) this.classList.remove("show");
+            });
+          }
           $("btnPDF").addEventListener("click", exportPDF);
           $("btnImage").addEventListener("click", exportImage);
           $("btnSave").addEventListener("click", saveFile);
@@ -6880,58 +9195,89 @@
             if (this.files && this.files[0]) loadFile(this.files[0]);
             this.value = "";
           });
-          $("btnClear").addEventListener("click", function () {
+          if ($("btnExportActPDF")) {
+            $("btnExportActPDF").addEventListener("click", exportActividadesPDF);
+          }
+          if ($("btnExportActCSV")) {
+            $("btnExportActCSV").addEventListener("click", exportActividadesCSV);
+          }
+          if ($("btnExportPuntosPDF")) {
+            $("btnExportPuntosPDF").addEventListener("click", exportPuntosPDF);
+          }
+          if ($("btnExportPuntosCSV")) {
+            $("btnExportPuntosCSV").addEventListener("click", exportPuntosCSV);
+          }
+          $("btnClear").addEventListener("click", async function () {
             if (state.classes.length === 0) {
               toast("El horario ya está vacío.");
               return;
             }
             if (
-              confirm(
+              !confirm(
                 "¿Vaciar todo el horario? Esta acción no se puede deshacer (guarda un archivo antes si quieres conservarlo).",
               )
-            ) {
-              state.classes = [];
-              state.activities = [];
-              state.puntos = { subjects: [] };
-              puntosData = state.puntos;
-              state.meta = { title: "", author: "" };
-              state.settings = { days: 5, dayStart: "07:00", dayEnd: "19:00" };
-              currentSavedId = null;
-              clearStorage();
-              syncMetaInputs();
-              resetForm();
-              render();
-              updateSavedBanner();
-              toast("Horario vaciado.");
+            )
+              return;
+            var uidFs = window.uidActual && window.uidActual();
+            if (!uidFs) {
+              toast("⚠ Sesión no lista todavía, intenta de nuevo en un momento.");
+              return;
             }
+            var operaciones = [];
+            state.classes.forEach(function (c) {
+              operaciones.push({ tipo: "delete", coleccion: "classes", id: c.id });
+            });
+            state.activities.forEach(function (a) {
+              operaciones.push({ tipo: "delete", coleccion: "activities", id: a.id });
+            });
+            (state.puntos.subjects || []).forEach(function (s) {
+              operaciones.push({ tipo: "delete", coleccion: "pointsSubjects", id: s.id });
+            });
+            var r = await window.firestoreCrud.ejecutarEscritura(function () {
+              return window.firestoreCrud.guardarLote(uidFs, operaciones);
+            });
+            if (!r.ok) {
+              toast("⚠ " + r.error.msg);
+              return;
+            }
+            await window.firestoreCrud.ejecutarEscritura(function () {
+              return window.firestoreCrud.guardarSingleton(uidFs, "settings", {
+                meta: { title: "", author: "" },
+                settings: { days: 5, dayStart: "07:00", dayEnd: "19:00" },
+              });
+            });
+            currentSavedId = null;
+            resetForm();
+            toast("Horario vaciado.");
           });
 
+          window.__appState = state; // lo usa el bloque PWA (avisos) para leer el horario actual sin localStorage
+          window.__notifOnActual = function () {
+            return notifOnCache;
+          };
           render();
-          if (shared) {
-            toast("Horario compartido cargado.");
-          } else if (restored && state.classes.length > 0) {
-            toast("Horario restaurado de tu última sesión.");
-          } else if (!storageOK) {
-            toast(
-              "Aviso: el guardado automático no está disponible en esta vista.",
-            );
+          if (window.__pedirEstadoFirestore) window.__pedirEstadoFirestore();
+
+          // Menú de acciones (botón hamburguesa arriba) — se abre como modal,
+          // igual que Amigos/Cuenta, en vez del panel desplegable de antes.
+          if ($("btnMenu")) {
+            $("btnMenu").addEventListener("click", function () {
+              $("actionsModal").classList.add("show");
+            });
           }
-          
-          // Menú de acciones (botón hamburguesa arriba)
-          var btnMenu = $("btnMenu");
-          if (btnMenu) {
-            btnMenu.addEventListener("click", function () {
-              var tb = document.querySelector(".toolbar");
-              if (tb) tb.classList.toggle("open");
+          if ($("actionsModalClose")) {
+            $("actionsModalClose").addEventListener("click", function () {
+              $("actionsModal").classList.remove("show");
+            });
+          }
+          if ($("actionsModal")) {
+            $("actionsModal").addEventListener("click", function (e) {
+              if (e.target === this) this.classList.remove("show");
             });
           }
 
           loadPuntos();
           renderPuntos();
-
-          window.renderPuntos = renderPuntos;
-          window.sincronizarMaterias = sincronizarMaterias;
-
         }
 
         if (document.readyState === "loading")
@@ -6940,22 +9286,16 @@
       })();
     </script>
 
-    <!-- Configuración de Firebase (preparada; desactivada por defecto).
-         Es un archivo pequeño y no descarga los SDK mientras esté apagado. -->
-    <script src="firebase-config.js"></script>
-
     <!-- ============================================================
          BLOQUE PWA — Script independiente y aditivo.
-         No modifica ninguna función existente de la aplicación:
-         lee los mismos datos desde localStorage y usa sus propios
-         elementos (#btnInstall, #btnNotif, #toast).
+         No modifica ninguna función existente de la aplicación.
          Contiene:
            1. Registro del Service Worker + aviso de nueva versión
            2. Botón "Instalar aplicación" (Android/Windows/macOS/iOS)
            3. Indicador de conexión (online/offline)
-           4. Respaldo en IndexedDB (espejo de localStorage)
-           5. Notificaciones locales: clase en 15 min, actividad
-              próxima y recordatorios personalizados
+           4. Notificaciones locales: clase en 15 min, actividad
+              próxima y recordatorios personalizados (lee el horario
+              desde window.__appState, no desde localStorage)
          ============================================================ -->
     <script>
       (function () {
@@ -7108,101 +9448,19 @@
           avisar("Conexión restablecida.");
         });
 
-        /* ============================================================
-           4. RESPALDO EN INDEXEDDB (espejo de localStorage)
-           localStorage sigue siendo la fuente principal (así no se
-           toca NADA del código existente). Este bloque copia
-           periódicamente los datos a IndexedDB, que es más resistente
-           a limpiezas del navegador. Si un día localStorage aparece
-           vacío pero IndexedDB tiene respaldo, se restaura solo.
-           ============================================================ */
-        var CLAVES = [
-          "generadorHorarios:v1",
-          "generadorHorarios:saved",
-          "generadorHorarios:theme",
-          "generadorHorarios:view",
-          "generadorHorarios:principal",
-          "generadorHorarios:builderPrefs",
-          "generadorHorarios:notifOn",
-        ];
-        function abrirDB() {
-          return new Promise(function (res, rej) {
-            var rq = indexedDB.open("horariosU", 1);
-            rq.onupgradeneeded = function () {
-              rq.result.createObjectStore("kv");
-            };
-            rq.onsuccess = function () {
-              res(rq.result);
-            };
-            rq.onerror = function () {
-              rej(rq.error);
-            };
-          });
-        }
-        function respaldarEnIDB() {
-          abrirDB()
-            .then(function (db) {
-              var tx = db.transaction("kv", "readwrite");
-              var st = tx.objectStore("kv");
-              CLAVES.forEach(function (k) {
-                var v = localStorage.getItem(k);
-                if (v !== null) st.put(v, k);
-              });
-            })
-            .catch(function () {});
-        }
-        function restaurarDesdeIDB() {
-          // Solo si el dato principal falta en localStorage
-          if (localStorage.getItem("generadorHorarios:v1") !== null) return;
-          if (sessionStorage.getItem("idbRestaurado")) return; // evita bucles
-          abrirDB()
-            .then(function (db) {
-              var tx = db.transaction("kv", "readonly");
-              var st = tx.objectStore("kv");
-              var pendientes = CLAVES.length,
-                restauro = false;
-              CLAVES.forEach(function (k) {
-                var rq = st.get(k);
-                rq.onsuccess = function () {
-                  if (rq.result != null) {
-                    localStorage.setItem(k, rq.result);
-                    restauro = true;
-                  }
-                  if (--pendientes === 0 && restauro) {
-                    sessionStorage.setItem("idbRestaurado", "1");
-                    location.reload(); // recarga para que la app lea los datos
-                  }
-                };
-                rq.onerror = function () {
-                  --pendientes;
-                };
-              });
-            })
-            .catch(function () {});
-        }
-        try {
-          restaurarDesdeIDB();
-          // Respaldar: al cargar, cada 60 s, y al salir/ocultar la pestaña
-          setTimeout(respaldarEnIDB, 4000);
-          setInterval(respaldarEnIDB, 60000);
-          document.addEventListener("visibilitychange", function () {
-            if (document.visibilityState === "hidden") respaldarEnIDB();
-          });
-        } catch (e) {
-          /* navegador sin IndexedDB: no pasa nada, localStorage sigue */
-        }
 
         /* ============================================================
-           5. NOTIFICACIONES LOCALES (no requieren Firebase ni backend)
+           4. NOTIFICACIONES LOCALES (no requieren backend)
            - solicitarPermisoNotificaciones(): pide permiso al usuario.
            - notificarLocal(titulo, opciones): muestra una notificación.
            - programarRecordatorio(titulo, cuerpo, fechaHora):
              recordatorio personalizado (mientras la app esté abierta).
            - Revisor automático cada 60 s (si los avisos están activos):
-               · "Clase en 15 minutos" leyendo el horario guardado.
+               · "Clase en 15 minutos" leyendo window.__appState.
                · "Actividad próxima" (mañana o hoy) leyendo la agenda.
-           Los datos se leen de localStorage, así que este bloque no
-           toca ninguna función interna de la app.
+           La intención de avisos (notifOn) vive en Firestore
+           (window.__notifOnActual); solo el permiso del navegador y el
+           registro de "ya avisado" quedan en este dispositivo.
            ============================================================ */
         var DIAS = [
           "Domingo",
@@ -7285,20 +9543,13 @@
           }
         }
         function revisarProximos() {
-          if (localStorage.getItem("generadorHorarios:notifOn") !== "1") return;
+          if (!(window.__notifOnActual && window.__notifOnActual())) return;
           if (
             !("Notification" in window) ||
             Notification.permission !== "granted"
           )
             return;
-          var data;
-          try {
-            data = JSON.parse(
-              localStorage.getItem("generadorHorarios:v1") || "{}",
-            );
-          } catch (e) {
-            return;
-          }
+          var data = window.__appState || { classes: [], activities: [] };
           var ahora = new Date();
           var hoyDia = DIAS[ahora.getDay()];
           var minAhora = ahora.getHours() * 60 + ahora.getMinutes();
@@ -7359,33 +9610,39 @@
         function pintarBtnNotif() {
           if (!btnNotif) return;
           var on =
-            localStorage.getItem("generadorHorarios:notifOn") === "1" &&
+            !!(window.__notifOnActual && window.__notifOnActual()) &&
             "Notification" in window &&
             Notification.permission === "granted";
           $("btnNotifTxt").textContent = on ? "Avisos ✓" : "Avisos";
         }
+        window.__repintarBtnNotif = pintarBtnNotif;
+        function guardarNotifOn(valor) {
+          var uidFs = window.uidActual && window.uidActual();
+          if (!uidFs || !window.firestoreCrud) return;
+          window.firestoreCrud
+            .ejecutarEscritura(function () {
+              return window.firestoreCrud.guardarSingleton(uidFs, "settings", { notifOn: valor });
+            })
+            .then(function (r) {
+              if (!r.ok) avisar("⚠ " + r.error.msg);
+            });
+        }
         if (btnNotif) {
           btnNotif.addEventListener("click", function () {
-            var on = localStorage.getItem("generadorHorarios:notifOn") === "1";
+            var on = !!(window.__notifOnActual && window.__notifOnActual());
             if (on) {
-              localStorage.setItem("generadorHorarios:notifOn", "0");
-              pintarBtnNotif();
+              guardarNotifOn(false);
               avisar("Avisos desactivados.");
               return;
             }
             solicitarPermisoNotificaciones().then(function (perm) {
               if (perm === "granted") {
-                localStorage.setItem("generadorHorarios:notifOn", "1");
-                pintarBtnNotif();
+                guardarNotifOn(true);
                 avisar(
                   "Avisos activados: te avisaré 15 min antes de cada clase y cuando una actividad esté cerca.",
                   4500,
                 );
                 revisarProximos();
-                // Si algún día activas Firebase, aquí se engancha solo:
-                if (window.FIREBASE_HABILITADO) {
-                  window.inicializarFirebaseMessaging();
-                }
               } else if (perm === "denied") {
                 avisar(
                   "Las notificaciones están bloqueadas. Actívalas en la configuración del sitio en tu navegador.",
@@ -7450,7 +9707,18 @@
             });
           }
         } catch (e) {}
+
+        /* --- atajos del manifest: ir directo a una pestaña (Actividades/Puntos) --- */
+        try {
+          var _tabAtajo = new URLSearchParams(location.search).get("tab");
+          var _TABS_VALIDOS = ["inicio", "clases", "actividades", "horarios", "puntos"];
+          if (_tabAtajo && _TABS_VALIDOS.indexOf(_tabAtajo) !== -1) {
+            irATab(_tabAtajo);
+          }
+        } catch (e) {}
       })();
     </script>
+    <script type="module" src="firebase/app-integration.js"></script>
+
   </body>
 </html>

@@ -15,7 +15,7 @@
    borra la caché vieja y avisa a la página para recargar.
    ============================================================ */
 
-const CACHE_VERSION = "v4"; // <-- CAMBIA ESTO EN CADA PUBLICACIÓN
+const CACHE_VERSION = "v18"; // <-- CAMBIA ESTO EN CADA PUBLICACIÓN
 const CACHE_NAME = "horarios-u-" + CACHE_VERSION;
 
 /* ---------- FIREBASE CLOUD MESSAGING (unificado aquí) ----------
@@ -28,12 +28,12 @@ importScripts(
   "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js",
 );
 firebase.initializeApp({
-  apiKey: "AIzaSyCkGXqYL4DhULvSSeaenOm7LCGyoxL6Kf8",
-  authDomain: "horario-e742d.firebaseapp.com",
-  projectId: "horario-e742d",
-  storageBucket: "horario-e742d.firebasestorage.app",
-  messagingSenderId: "695403520583",
-  appId: "1:695403520583:web:f448b3274c90e6fa91c762",
+  apiKey: "AIzaSyCPV2he6Nij2v12_D-o1qxdUUwh-Jjeq8k",
+  authDomain: "horapprio.firebaseapp.com",
+  projectId: "horapprio",
+  storageBucket: "horapprio.firebasestorage.app",
+  messagingSenderId: "724835384331",
+  appId: "1:724835384331:web:8b6e61eee917eac442db0e",
 });
 firebase.messaging().onBackgroundMessage((payload) => {
   const n = payload.notification || {};
@@ -54,7 +54,6 @@ const APP_SHELL = [
   "./index.html",
   "./offline.html",
   "./manifest.json",
-  "./firebase-config.js",
   "./icons/icon-72.png",
   "./icons/icon-96.png",
   "./icons/icon-128.png",
@@ -125,6 +124,14 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return; // no interceptar POST etc.
 
+  // Los archivos de Firebase y config SIEMPRE desde la red (network-first)
+  // para que los cambios se reflejen sin pelear con el caché.
+  if (req.url.includes("/firebase/") || req.url.includes("firebase-config")) {
+    event.respondWith(
+      fetch(req).catch(() => caches.match(req)) // si no hay red, usa caché
+    );
+    return;
+  }
   // 1) Peticiones de navegación (documentos HTML)
   if (req.mode === "navigate") {
     event.respondWith(

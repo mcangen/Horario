@@ -40,6 +40,20 @@
       "description": "Abre la vista de clases de hoy",
       "url": "./index.html?vista=hoy",
       "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Actividades",
+      "short_name": "Actividades",
+      "description": "Abre la pestaña de Actividades",
+      "url": "./index.html?tab=actividades",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Puntos",
+      "short_name": "Puntos",
+      "description": "Abre la pestaña de Puntos",
+      "url": "./index.html?tab=puntos",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
     }
   ]
 }

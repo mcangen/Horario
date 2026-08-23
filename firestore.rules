@@ -1,0 +1,312 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // "universidadTipo: institucional" solo se puede declarar si el
+    // EMAIL VERIFICADO del token de Firebase (request.auth.token.email —
+    // lo firma Firebase al autenticar, el cliente no puede mandarlo ni
+    // falsificarlo) es del dominio de la universidad. Esta es la
+    // comprobación que de verdad no se puede saltar desde el frontend:
+    // aunque alguien edite el JS de la app o mande la petición a mano, el
+    // token con el que Firestore evalúa esta regla sigue siendo el suyo.
+    //
+    // El guard "!('universidadTipo' in request.resource.data)" es clave:
+    // "Editar perfil" guarda con set(..., {merge:true}) mandando solo los
+    // campos que cambian (nombre/programa/semestre) — universidadTipo no
+    // viaja en ESA escritura. Sin este guard, leer un campo que no viene
+    // en el patch de esta escritura puede fallar la evaluación de la
+    // regla, y Firestore trata cualquier error de regla como "denegado"
+    // — eso era el "no tienes permiso para esta acción" al completar el
+    // perfil, no un problema de sesión.
+    function esInstitucionalValido() {
+      return !('universidadTipo' in request.resource.data)
+        || request.resource.data.universidadTipo != 'institucional'
+        || (request.auth.token.email is string
+            && request.auth.token.email.lower().matches('.*@unimagdalena[.]edu[.]co$'));
+    }
+
+    // Si el documento YA existía marcado como institucional, ni
+    // "universidad" ni "universidadTipo" pueden cambiar — pero si ESTA
+    // escritura sencillamente no toca alguno de esos dos campos (como al
+    // editar solo programa/semestre), no hay nada que proteger ahí: cada
+    // campo se revisa solo cuando la escritura lo incluye.
+    function universidadInstitucionalFija() {
+      return resource == null
+        || !('universidadTipo' in resource.data)
+        || resource.data.universidadTipo != 'institucional'
+        || (
+          (!('universidadTipo' in request.resource.data)
+            || request.resource.data.universidadTipo == 'institucional')
+          && (!('universidad' in request.resource.data)
+            || request.resource.data.universidad == resource.data.universidad)
+        );
+    }
+
+    // Cada usuario (con cuenta de Google, Microsoft o sesión anónima)
+    // solo puede leer/escribir su propio documento y todo lo que cuelgue
+    // de él (classes, activities, pointsSubjects, schedules, settings,
+    // favorites). Nadie puede acceder a datos de otro uid, ni de forma
+    // anónima ni autenticada.
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if request.auth != null && request.auth.uid == uid
+        && esInstitucionalValido()
+        && universidadInstitucionalFija();
+    }
+
+    // ---------- Amigos ----------
+    // id determinístico y ordenado: "a_b" con a<b siempre, así da igual
+    // quién de los dos crea el documento, y una amistad entre las mismas
+    // dos personas solo puede tener UN id posible (duplicados imposibles
+    // por construcción, no hace falta comprobarlo aparte).
+    function idPar(a, b) {
+      return a < b ? a + '_' + b : b + '_' + a;
+    }
+    function existeAmistad(a, b) {
+      return exists(/databases/$(database)/documents/friendships/$(idPar(a, b)));
+    }
+    // El otro integrante de una amistad, dado el arreglo "users" (siempre
+    // de tamaño 2) y uno de los dos uids.
+    function otroDeAmistad(usuarios, uid) {
+      return usuarios[0] == uid ? usuarios[1] : usuarios[0];
+    }
+    // ¿Este amigo (dueno) activó el opt-in para dejarme ver su horario
+    // COMPLETO a mí (quienPide)? Ver "compartirCompleto" en
+    // firebase/firestore-service.js (activarCompartirCompleto). Sin este
+    // opt-in, un amigo solo puede ver el snapshot de "hoy" de arriba.
+    function compartioHorarioCompleto(dueno, quienPide) {
+      return get(/databases/$(database)/documents/friendships/$(idPar(dueno, quienPide)))
+        .data.get('compartirCompleto', {}).get(dueno, false) == true;
+    }
+
+    // Directorio público mínimo (nombre/programa/semestre + uid) para
+    // poder BUSCAR por CÓDIGO de amigo (no por correo — así nadie necesita
+    // compartir su correo, ni la búsqueda lo expone). El id del documento
+    // ES el código: leerlo exige conocerlo exacto de antemano. "list"
+    // queda cerrado del todo: nunca se puede enumerar/raspar la lista
+    // completa de usuarios, solo consultar un código puntual que ya se
+    // conoce.
+    //
+    // A diferencia del correo, un código no vive en el token de Firebase
+    // (no hay forma de "verificarlo" contra algo que Firebase ya firmó),
+    // así que la protección es distinta: cualquiera puede CREAR una
+    // entrada nueva mientras el código esté libre y apunte a su propio
+    // uid (así es como se "reclama" un código, ver _reclamarCodigo en
+    // firestore-service.js); una vez que un código ya tiene dueño, SOLO
+    // ESE dueño (resource.data.uid) puede seguir escribiendo ahí — nadie
+    // más puede robarle/reasignarle el código a otro uid. Tampoco se
+    // puede borrar: un código, una vez asignado, no se libera.
+    match /userDirectory/{codigoId} {
+      allow get: if request.auth != null;
+      allow list: if false;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow update: if request.auth != null
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.uid == request.auth.uid;
+      allow delete: if false;
+    }
+
+    match /friendRequests/{reqId} {
+      // Yo puedo ver una solicitud si soy quien la mandó o quien la
+      // recibió — nunca la de otros dos usuarios. "resource == null" es
+      // el caso normal de obtenerEstadoRelacion(): comprobar si YA existe
+      // una solicitud entre dos personas empieza, la mayoría de las
+      // veces, sin que exista ninguna — leer un documento que no existe
+      // no expone nada (no hay datos que proteger), así que se permite;
+      // sin este guard, Firestore intenta leer resource.data.from de un
+      // resource inexistente, la evaluación falla, y eso se trata como
+      // "denegado" aunque la intención de la regla era permitirlo.
+      allow read: if request.auth != null
+        && (resource == null || resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+      // fromCodigo no se puede verificar contra el token (no es un correo
+      // firmado por Firebase) — se verifica contra MI PROPIO users/{uid}
+      // .codigo, que solo yo pude haber escrito (ver asegurarPerfil): así
+      // nadie puede mandar una solicitud haciéndose pasar por el código
+      // de otra persona.
+      allow create: if request.auth != null
+        && request.resource.data.from == request.auth.uid
+        && request.resource.data.to != request.auth.uid
+        && request.resource.data.fromCodigo == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.codigo
+        && request.resource.data.status == 'pending'
+        && reqId == request.resource.data.from + '_' + request.resource.data.to;
+      // Aceptar: SOLO quien la recibió, y solo si sigue pendiente — así
+      // nadie puede aceptar una solicitud ajena ni "revivir" una vieja.
+      // Los guards "!('from' in ...)" son el mismo patrón que arriba en
+      // esInstitucionalValido(): aceptar solo manda {status, updatedAt}
+      // (ver aceptarSolicitud() en firestore-service.js), así que from/to
+      // no viajan en esa escritura — si vinieran, igual no podrían
+      // cambiar.
+      allow update: if request.auth != null
+        && request.auth.uid == resource.data.to
+        && resource.data.status == 'pending'
+        && (!('from' in request.resource.data) || request.resource.data.from == resource.data.from)
+        && (!('to' in request.resource.data) || request.resource.data.to == resource.data.to)
+        && 'status' in request.resource.data
+        && request.resource.data.status == 'accepted';
+      // Rechazar (o cancelar la que yo mismo mandé) = borrar el documento.
+      // resource == null cubre borrar algo que ya no existía (doble clic,
+      // o alguien más ya lo había borrado) — no hay nada que proteger ahí.
+      allow delete: if request.auth != null
+        && (resource == null || resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+    }
+
+    match /friendships/{fId} {
+      // Mismo guard "resource == null" que en friendRequests, por la
+      // misma razón: obtenerEstadoRelacion() consulta esto para CUALQUIER
+      // par de personas, y lo normal es que todavía no exista amistad.
+      allow read: if request.auth != null
+        && (resource == null || request.auth.uid in resource.data.users);
+      // Solo se puede crear una amistad entre dos personas para las que
+      // YA existe un hilo de solicitud (en cualquier dirección) — así
+      // nunca se "inventa" una amistad sin haber pasado por pedir/
+      // recibir, y el id tiene que coincidir con el par ordenado (evita
+      // duplicados y evita que alguien intente registrar la amistad de
+      // otras dos personas usando SU PROPIO uid en el id).
+      allow create: if request.auth != null
+        && request.resource.data.users.size() == 2
+        && request.auth.uid in request.resource.data.users
+        && fId == idPar(request.resource.data.users[0], request.resource.data.users[1])
+        && (
+          exists(/databases/$(database)/documents/friendRequests/$(request.resource.data.users[0] + '_' + request.resource.data.users[1]))
+          || exists(/databases/$(database)/documents/friendRequests/$(request.resource.data.users[1] + '_' + request.resource.data.users[0]))
+        );
+      allow delete: if request.auth != null
+        && (resource == null || request.auth.uid in resource.data.users); // "quitar amigo"
+      // Único cambio permitido después de creada: cada integrante puede
+      // prender/apagar SU PROPIA bandera de "compartir mi horario
+      // completo con esta persona" (comparar horarios semana completa,
+      // no solo "hoy") — nunca la del otro, y "users" no puede cambiar.
+      allow update: if request.auth != null
+        && request.auth.uid in resource.data.users
+        && request.resource.data.users == resource.data.users
+        && request.resource.data.get('compartirCompleto', {})
+             .get(otroDeAmistad(resource.data.users, request.auth.uid), false)
+           == resource.data.get('compartirCompleto', {})
+             .get(otroDeAmistad(resource.data.users, request.auth.uid), false);
+    }
+
+    // El snapshot de HOY (ver guardarResumenHoy en firestore-service.js):
+    // nunca contiene más que las clases de hoy, así que exponerlo a un
+    // amigo nunca expone el horario semanal completo — esa colección
+    // (classes, en la regla genérica de subcolecciones más abajo) sigue
+    // siendo 100% privada, sin cambios. Firestore evalúa varias reglas
+    // que matcheen la misma ruta como OR, así que esto se SUMA a la regla
+    // genérica de abajo (que solo deja pasar al dueño) en vez de
+    // reemplazarla.
+    match /users/{uid}/todaySchedule/{docId} {
+      allow read: if request.auth != null
+        && (request.auth.uid == uid || existeAmistad(request.auth.uid, uid));
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Horario semanal COMPLETO: sigue siendo privado por defecto (la
+    // regla genérica de abajo ya lo cubre para el dueño). Esto se SUMA
+    // solo para permitir la lectura cuando el dueño activó el opt-in de
+    // "Comparar horarios" hacia quien pide — ver compartioHorarioCompleto
+    // arriba y activarCompartirCompleto en firestore-service.js. Nadie
+    // queda expuesto sin haberlo decidido explícitamente, amigo por
+    // amigo.
+    match /users/{uid}/classes/{docId} {
+      allow read: if request.auth != null
+        && existeAmistad(request.auth.uid, uid)
+        && compartioHorarioCompleto(uid, request.auth.uid);
+    }
+    match /users/{uid}/settings/{docId} {
+      allow read: if request.auth != null
+        && existeAmistad(request.auth.uid, uid)
+        && compartioHorarioCompleto(uid, request.auth.uid);
+    }
+
+    match /users/{uid}/{coleccion}/{docId} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // ---------- Grupos de estudio ----------
+    // Un grupo pequeño de amigos con un tablero compartido de próximas
+    // reuniones (ver studyGroups/{id}/reuniones abajo). Nadie entra a un
+    // grupo sin invitación propia: un grupo se CREA solo con quien lo crea
+    // como miembro; sumar a alguien más pasa siempre por groupInvites de
+    // abajo (invitar → esa persona acepta o rechaza), nunca de una.
+    match /studyGroups/{groupId} {
+      allow read: if request.auth != null
+        && (resource == null || request.auth.uid in resource.data.miembros);
+      allow create: if request.auth != null
+        && request.resource.data.miembros == [request.auth.uid]
+        && request.resource.data.creadoPor == request.auth.uid;
+      // Tres caminos, y solo tres: (a) el creador administra nombre/
+      // miembros libremente; (b) cualquier OTRO miembro puede sacarse A
+      // SÍ MISMO de la lista ("salir del grupo"); (c) alguien que YA
+      // tiene una invitación pendiente/aceptada para este grupo (ver
+      // groupInvites abajo) se agrega a SÍ MISMO — así es como entra un
+      // invitado, nunca porque otro lo haya metido directo.
+      allow update: if request.auth != null
+        && request.auth.uid in resource.data.miembros
+        && (
+          (request.auth.uid == resource.data.creadoPor
+            && request.resource.data.creadoPor == resource.data.creadoPor)
+          || (
+            request.resource.data.creadoPor == resource.data.creadoPor
+            && request.resource.data.nombre == resource.data.nombre
+            && resource.data.miembros.removeAll([request.auth.uid]) == request.resource.data.miembros
+          )
+        )
+        || (
+          request.auth != null
+          && !(request.auth.uid in resource.data.miembros)
+          && request.auth.uid in request.resource.data.miembros
+          && request.resource.data.miembros.removeAll([request.auth.uid]) == resource.data.miembros
+          && request.resource.data.nombre == resource.data.nombre
+          && request.resource.data.creadoPor == resource.data.creadoPor
+          && exists(/databases/$(database)/documents/groupInvites/$(groupId + '_' + request.auth.uid))
+        );
+      allow delete: if request.auth != null
+        && (resource == null || resource.data.creadoPor == request.auth.uid);
+    }
+    // Tablero compartido de reuniones: cualquier miembro puede agregar,
+    // editar o borrar cualquier entrada (es un tablero de EQUIPO, no hay
+    // "dueño" por fila) — la única puerta es pertenecer al grupo.
+    match /studyGroups/{groupId}/reuniones/{id} {
+      allow read, write: if request.auth != null
+        && request.auth.uid in get(/databases/$(database)/documents/studyGroups/$(groupId)).data.miembros;
+    }
+
+    // Invitaciones a un grupo: igual espíritu que friendRequests, pero
+    // "aceptar" no crea un documento nuevo — hace que el propio invitado
+    // se agregue a studyGroups/{groupId}.miembros (ver el tercer caso de
+    // "allow update" arriba). groupNombre/fromNombre viajan COPIADOS aquí
+    // porque el invitado no puede leer el grupo todavía (no es miembro) —
+    // sin este snapshot no habría forma de mostrarle a quién/a qué grupo
+    // lo invitaron antes de aceptar.
+    match /groupInvites/{inviteId} {
+      allow read: if request.auth != null
+        && (resource == null || resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+      // Quien invita debe SER YA miembro del grupo (cualquier miembro
+      // puede invitar, no solo el creador) y no puede invitar a alguien
+      // que ya está adentro.
+      allow create: if request.auth != null
+        && request.resource.data.from == request.auth.uid
+        && request.resource.data.to != request.auth.uid
+        && request.auth.uid in get(/databases/$(database)/documents/studyGroups/$(request.resource.data.groupId)).data.miembros
+        && !(request.resource.data.to in get(/databases/$(database)/documents/studyGroups/$(request.resource.data.groupId)).data.miembros)
+        && request.resource.data.status == 'pending'
+        && inviteId == request.resource.data.groupId + '_' + request.resource.data.to;
+      // Aceptar/rechazar: SOLO quien la recibió, y solo si sigue
+      // pendiente — mismo patrón de guards que friendRequests.
+      allow update: if request.auth != null
+        && request.auth.uid == resource.data.to
+        && resource.data.status == 'pending'
+        && (!('from' in request.resource.data) || request.resource.data.from == resource.data.from)
+        && (!('to' in request.resource.data) || request.resource.data.to == resource.data.to)
+        && (!('groupId' in request.resource.data) || request.resource.data.groupId == resource.data.groupId)
+        && 'status' in request.resource.data
+        && request.resource.data.status == 'accepted';
+      // Rechazar (o cancelar la que yo mismo mandé) = borrar el documento.
+      allow delete: if request.auth != null
+        && (resource == null || resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+    }
+
+    // Todo lo demás: denegado por defecto (comportamiento implícito
+    // de Firestore para cualquier ruta que no coincida arriba).
+  }
+}
