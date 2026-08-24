@@ -34,6 +34,16 @@ function _normalizar(user) {
         proveedor: user.isAnonymous
           ? "anonymous"
           : (user.providerData[0] && user.providerData[0].providerId) || "desconocido",
+        // true solo en la primerísima sesión de esta cuenta (Firebase deja
+        // creationTime == lastSignInTime hasta el segundo inicio de sesión)
+        // — así se puede saludar/recordar iniciar sesión a alguien
+        // genuinamente nuevo, sin volver a molestar a quien ya lleva
+        // tiempo usando la app de forma anónima.
+        esNuevo: !!(
+          user.metadata &&
+          user.metadata.creationTime &&
+          user.metadata.creationTime === user.metadata.lastSignInTime
+        ),
       }
     : null;
 }

@@ -248,6 +248,7 @@ function _conectarUI() {
     _pintarUsuario(user);
     _pintarBotonAmigos(user);
     _pintarBotonGrupos(user);
+    _recordarLoginSiEsNuevo(user);
     // Avisa a index.html (script clásico, no módulo) cuando la sesión
     // termina, para que borre de la pantalla el horario/actividades/
     // puntos de la cuenta que se acaba de ir — sin esto, lo que había
@@ -330,6 +331,28 @@ function _pintarBotonGrupos(user) {
     const board = document.getElementById("groupBoardModal");
     if (board) board.classList.remove("show");
   }
+}
+
+// Recordatorio de una sola vez, solo para cuentas genuinamente nuevas
+// (ver "esNuevo" en auth-service.js:_normalizar): reusa el mismo
+// #authModal que ya abre btnCuenta, así que no hay UI nueva que
+// mantener — es opcional (el modal ya deja bien claro que la app
+// funciona igual sin cuenta), nunca bloquea nada.
+const RECORDATORIO_LOGIN_KEY = "generadorHorarios:vioRecordatorioLogin";
+function _recordarLoginSiEsNuevo(user) {
+  if (!user || !user.esAnonimo || !user.esNuevo) return;
+  let yaVisto = false;
+  try {
+    yaVisto = localStorage.getItem(RECORDATORIO_LOGIN_KEY) === "1";
+  } catch (e) {}
+  if (yaVisto) return;
+  try {
+    localStorage.setItem(RECORDATORIO_LOGIN_KEY, "1");
+  } catch (e) {}
+  setTimeout(function () {
+    const modal = document.getElementById("authModal");
+    if (modal) modal.classList.add("show");
+  }, 900);
 }
 
 function _pintarEstado(estado) {

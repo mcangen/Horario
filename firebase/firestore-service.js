@@ -10,7 +10,7 @@
 
 import { getFirebase } from "./firebase-config.js";
 
-const SUBCOLECCIONES = ["classes", "activities", "pointsSubjects", "schedules"];
+const SUBCOLECCIONES = ["classes", "activities", "pointsSubjects", "schedules", "notes"];
 const SINGLETONS = ["settings", "favorites"];
 
 // Mismo algoritmo que idParaMateria() en index.html — un id determinístico
@@ -656,6 +656,7 @@ const _cache = {
   amigos: [],
   gruposEstudio: [],
   invitacionesGrupo: [],
+  notes: [],
 };
 const _NOMBRES_CALLBACK = {
   classes: "alActualizarClases",
@@ -670,6 +671,7 @@ const _NOMBRES_CALLBACK = {
   amigos: "alActualizarAmigos",
   gruposEstudio: "alActualizarGruposEstudio",
   invitacionesGrupo: "alActualizarInvitacionesGrupo",
+  notes: "alActualizarNotas",
 };
 const _yaEntregada = {};
 let _cancelarTodas = null;
