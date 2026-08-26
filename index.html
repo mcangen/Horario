@@ -1121,6 +1121,17 @@
         color: var(--ink-2);
         margin-bottom: 10px;
       }
+      .cmp-hint-movil {
+        display: none;
+      }
+      @media (max-width: 940px) {
+        .cmp-hint-movil {
+          display: block;
+          font-size: 11.5px;
+          color: var(--ink-2);
+          margin: -4px 0 10px;
+        }
+      }
       .cmp-legend i {
         display: inline-block;
         width: 12px;
@@ -1166,6 +1177,44 @@
         color: var(--ink-2);
         margin-top: 3px;
         font-family: var(--mono);
+      }
+      .cmp-seg[data-tip] {
+        cursor: pointer;
+      }
+      .cmp-tooltip {
+        position: fixed;
+        z-index: 500;
+        background: var(--ink);
+        color: var(--paper);
+        padding: 8px 10px;
+        border-radius: 8px;
+        font-size: 12px;
+        line-height: 1.4;
+        max-width: 240px;
+        pointer-events: none;
+        display: none;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+      }
+      .cmp-tooltip.show {
+        display: block;
+      }
+      .cmp-tip-item + .cmp-tip-item {
+        margin-top: 4px;
+      }
+      .cmp-tip-hora {
+        font-family: var(--mono);
+        opacity: 0.85;
+        font-size: 11px;
+      }
+      .cmp-tip-persona {
+        font-weight: 700;
+        margin-top: 6px;
+      }
+      .cmp-tip-persona:first-child {
+        margin-top: 0;
+      }
+      .cmp-tip-sep {
+        height: 6px;
       }
 
       /* ---------- Armado de horario ---------- */
@@ -2263,7 +2312,7 @@
     cursor: pointer;
   }
   .fr-share-toggle input { margin: 0; flex: none; }
-  .fr-libre-header, .fr-clase-header {
+  .fr-libre-header, .fr-clase-header, .fr-sininfo-header {
     font-family: var(--disp);
     font-size: 13px;
     font-weight: 800;
@@ -2273,6 +2322,7 @@
   }
   .fr-libre-header { color: var(--ok, #2e8b6f); }
   .fr-clase-header { color: var(--hard, #c7402f); }
+  .fr-sininfo-header { color: var(--ink-3); }
   .fr-resumen-libres {
     font-size: 13px;
     color: var(--ink-2);
@@ -3716,6 +3766,7 @@
     </div>
 
     <div class="toast" id="toast"></div>
+    <div class="cmp-tooltip" id="cmpTooltip"></div>
     <!-- Modal del QR  -->
     <div class="modal-back" id="qrModal">
       <div class="modal">
@@ -6796,10 +6847,52 @@
             esc(A.name) +
             '</span><span><i style="background:rgba(180,95,189,.55)"></i>' +
             esc(B.name) +
-            '</span><span><i style="background:rgba(46,139,111,.25)"></i>Libres ambos</span><span><i style="background:rgba(199,64,47,.55)"></i>Ocupados ambos</span></div>';
-          function segs(list, cls) {
+            '</span><span><i style="background:rgba(46,139,111,.25)"></i>Libres ambos</span><span><i style="background:rgba(199,64,47,.55)"></i>Ocupados ambos</span></div>' +
+            '<div class="cmp-hint-movil">👆 Presiona sobre la barra para ver las clases</div>';
+          // Tooltip al pasar el mouse (o tocar en celular) sobre una franja:
+          // qué clase hay ahí, con curso y hora exacta — y si la franja es
+          // de "ocupados ambos", el nombre de cada quien junto a la suya
+          // (ver _cmpMostrarTip/_cmpOcultarTip, cableado una sola vez en
+          // init() sobre #compareResults por delegación).
+          function _clasesEnVentana(classes, s, e) {
+            return classes
+              .filter(function (c) {
+                return t2m(c.inicio) < e && t2m(c.fin) > s;
+              })
+              .sort(function (a, b) {
+                return t2m(a.inicio) - t2m(b.inicio);
+              });
+          }
+          function _tipUnaPersona(lista) {
+            return lista
+              .map(function (c) {
+                return (
+                  '<div class="cmp-tip-item"><b>' +
+                  esc(c.materia) +
+                  "</b>" +
+                  (c.curso ? " · " + esc(c.curso) : "") +
+                  '<div class="cmp-tip-hora">' +
+                  esc(c.inicio) +
+                  "–" +
+                  esc(c.fin) +
+                  "</div></div>"
+                );
+              })
+              .join("");
+          }
+          function _tipAmbos(nombreA, listaA, nombreB, listaB) {
+            return (
+              '<div class="cmp-tip-persona">' + esc(nombreA) + "</div>" +
+              _tipUnaPersona(listaA) +
+              '<div class="cmp-tip-sep"></div>' +
+              '<div class="cmp-tip-persona">' + esc(nombreB) + "</div>" +
+              _tipUnaPersona(listaB)
+            );
+          }
+          function segs(list, cls, tipBuilder) {
             return list
               .map(function (iv) {
+                var tip = tipBuilder ? tipBuilder(iv[0], iv[1]) : "";
                 return (
                   '<span class="cmp-seg ' +
                   cls +
@@ -6807,39 +6900,59 @@
                   ((iv[0] - start) / span) * 100 +
                   "%;width:" +
                   ((iv[1] - iv[0]) / span) * 100 +
-                  '%"></span>'
+                  '%"' +
+                  (tip ? ' data-tip="' + esc(tip) + '"' : "") +
+                  "></span>"
                 );
               })
               .join("");
           }
           days.forEach(function (d) {
-            function busyOf(sch) {
+            var clasesDiaA = A.classes.filter(function (c) { return c.dia === d; });
+            var clasesDiaB = B.classes.filter(function (c) { return c.dia === d; });
+            function busyOf(clasesDia) {
               return mergeIntervals(
-                sch.classes
-                  .filter(function (c) {
-                    return c.dia === d;
-                  })
-                  .map(function (c) {
-                    return [t2m(c.inicio), t2m(c.fin)];
-                  }),
+                clasesDia.map(function (c) {
+                  return [t2m(c.inicio), t2m(c.fin)];
+                }),
               );
             }
-            var ba = busyOf(A),
-              bb = busyOf(B);
+            var ba = busyOf(clasesDiaA),
+              bb = busyOf(clasesDiaB);
             var overlapBoth = intersectIntervals(ba, bb);
             var both = mergeIntervals(ba.concat(bb));
             var free = subtractFree([start, end], both);
             free.forEach(function (f) {
               totalFree += f[1] - f[0];
             });
+            // "a" y "b" se pintan solo en su franja EXCLUSIVA (sin la parte
+            // que se solapa, que ya la pinta "x" encima) — si no se recorta
+            // aquí, los tres tipos de franja quedan apilados unos sobre
+            // otros en la zona de solape: se ve bien (arriba gana "x"), pero
+            // el área de "a"/"b" ahí queda inalcanzable al pasar el mouse o
+            // tocar, porque físicamente está tapada.
+            var soloA = [], soloB = [];
+            ba.forEach(function (iv) { soloA = soloA.concat(subtractFree(iv, overlapBoth)); });
+            bb.forEach(function (iv) { soloB = soloB.concat(subtractFree(iv, overlapBoth)); });
             html +=
               '<div class="cmp-day"><div class="cmp-day-name">' +
               esc(d) +
               '</div><div class="cmp-bar">' +
               segs(free, "f") +
-              segs(ba, "a") +
-              segs(bb, "b") +
-              segs(overlapBoth, "x") +
+              segs(soloA, "a", function (s, e) {
+                return _tipUnaPersona(_clasesEnVentana(clasesDiaA, s, e));
+              }) +
+              segs(soloB, "b", function (s, e) {
+                return _tipUnaPersona(_clasesEnVentana(clasesDiaB, s, e));
+              }) +
+              segs(overlapBoth, "x", function (s, e) {
+                return _tipAmbos(
+                  A.name,
+                  _clasesEnVentana(clasesDiaA, s, e),
+                  B.name,
+                  _clasesEnVentana(clasesDiaB, s, e),
+                );
+              }) +
               "</div>";
             html +=
               '<div class="cmp-free">' +
@@ -6863,6 +6976,29 @@
             ").</div>" +
             html;
           out.innerHTML = html;
+        }
+        // Tooltip de Comparar horarios: funciona con mouse (hover) y con
+        // toque en celular (tap) sobre el mismo elemento compartido
+        // #cmpTooltip — se posiciona con coordenadas fijas (viewport) para
+        // no quedar recortado por el "overflow:hidden" de .cmp-bar.
+        function _cmpMostrarTip(el) {
+          var tip = el.getAttribute("data-tip");
+          var host = $("cmpTooltip");
+          if (!tip || !host) return;
+          host.innerHTML = tip;
+          host.classList.add("show");
+          var r = el.getBoundingClientRect();
+          var tr = host.getBoundingClientRect();
+          var left = r.left + r.width / 2 - tr.width / 2;
+          left = Math.max(8, Math.min(left, window.innerWidth - tr.width - 8));
+          var top = r.top - tr.height - 8;
+          if (top < 8) top = r.bottom + 8;
+          host.style.left = left + "px";
+          host.style.top = top + "px";
+        }
+        function _cmpOcultarTip() {
+          var host = $("cmpTooltip");
+          if (host) host.classList.remove("show");
         }
 
         // ---------- Modo "armado de horario" ----------
@@ -8532,6 +8668,18 @@
           var idx = f.users && f.users[0] === miUid ? 1 : 0;
           return { uid: f.users[idx], codigo: (f.codigos || [])[idx] || "" };
         }
+        // ¿Este amigo activó "compartir mi horario completo" hacia mí? Si sí,
+        // podemos leer directo su colección "classes" (la fuente en vivo,
+        // siempre al día) en vez de depender del snapshot todaySchedule
+        // (que solo se actualiza cuando ÉL abre la app) — ver el comentario
+        // grande junto a _resumenHoyEsVigente().
+        function _amigoComparteCompleto(uid) {
+          var miUid = window.uidActual && window.uidActual();
+          var f = amigosCache.filter(function (fr) {
+            return _otroDeAmistad(fr, miUid).uid === uid;
+          })[0];
+          return !!(f && f.compartirCompleto && f.compartirCompleto[uid]);
+        }
         async function _resolverPerfilAmigo(codigo) {
           if (!codigo) return null;
           if (_perfilesAmigosCache[codigo]) return _perfilesAmigosCache[codigo];
@@ -8801,6 +8949,26 @@
         // minutosRef es opcional (por defecto "ahora") a propósito: el
         // mismo cálculo serviría sin cambios para una futura "¿quién está
         // libre a las 15:00?" — solo pasándole otro minuto de referencia.
+        // El snapshot de "hoy" de un amigo (users/{uid}/todaySchedule) solo
+        // se recalcula cuando ESE amigo abre la app (no hay backend que lo
+        // haga por él) — si no la ha abierto hoy, el documento sigue
+        // teniendo el "hoy" de la última vez que sí la abrió (ej. el
+        // lunes), con sus clases de ESE día. Sin este chequeo, "clases: []"
+        // de un lunes viejo se mostraría como "sin clases hoy" (libre 🟢)
+        // aunque hoy sea miércoles y en realidad no se sepa nada — o peor,
+        // las clases de un lunes viejo se mostrarían como si fueran de hoy.
+        // Comparamos la FECHA (no solo el nombre del día) de "updatedAt"
+        // contra la fecha real de hoy.
+        function _resumenHoyEsVigente(resumen) {
+          if (!resumen || !resumen.updatedAt || typeof resumen.updatedAt.toDate !== "function") return false;
+          var actualizado = resumen.updatedAt.toDate();
+          var hoy = new Date();
+          return (
+            actualizado.getFullYear() === hoy.getFullYear() &&
+            actualizado.getMonth() === hoy.getMonth() &&
+            actualizado.getDate() === hoy.getDate()
+          );
+        }
         function estadoAmigoEn(classes, minutosRef) {
           var nm = minutosRef == null ? nowMinutes() : minutosRef;
           if (!classes || classes.length === 0) return { estado: "sinClases" };
@@ -8854,17 +9022,36 @@
                 return _resolverPerfilAmigo(o.codigo);
               }),
             );
+            // Si el amigo comparte su horario completo, se usa esa fuente
+            // en vivo (nunca desactualizada) en vez del snapshot de "hoy",
+            // que depende de que él haya abierto la app — ver
+            // _amigoComparteCompleto() y el comentario junto a
+            // _resumenHoyEsVigente().
             var resumenes = await Promise.all(
               otros.map(function (o) {
-                return window.firestoreCrud.leerResumenHoyDeAmigo(o.uid);
+                if (_amigoComparteCompleto(o.uid)) {
+                  return window.firestoreCrud
+                    .leerHorarioCompletoDeAmigo(o.uid)
+                    .then(function (datos) {
+                      return { classes: clasesDeHoyDe(datos.classes || []), vigente: true };
+                    })
+                    .catch(function () {
+                      return { classes: [], vigente: false };
+                    });
+                }
+                return window.firestoreCrud.leerResumenHoyDeAmigo(o.uid).then(function (r) {
+                  return { classes: (r && r.classes) || [], vigente: _resumenHoyEsVigente(r) };
+                });
               }),
             );
             _amigosLibresDatos = otros.map(function (o, i) {
               var p = perfiles[i] || { nombre: o.codigo };
+              var r = resumenes[i];
               return {
                 uid: o.uid,
                 nombre: p.nombre || o.codigo,
-                classes: (resumenes[i] && resumenes[i].classes) || [],
+                classes: r.classes,
+                vigente: r.vigente,
               };
             });
           } catch (err) {
@@ -8887,7 +9074,12 @@
           if (!body || !_amigosLibresDatos) return;
           var libres = [];
           var enClase = [];
+          var sinInfo = [];
           _amigosLibresDatos.forEach(function (a) {
+            if (!a.vigente) {
+              sinInfo.push({ nombre: a.nombre });
+              return;
+            }
             var info = estadoAmigoEn(a.classes);
             if (info.estado === "enClase") {
               enClase.push({ nombre: a.nombre, clase: info.clase });
@@ -8897,7 +9089,9 @@
           });
 
           var celebracion;
-          if (enClase.length === 0) {
+          if (libres.length === 0 && enClase.length === 0) {
+            celebracion = "";
+          } else if (enClase.length === 0) {
             celebracion = '<div class="fr-resumen-libres">🎉 Todos tus amigos están libres ahora.</div>';
           } else if (libres.length === 0) {
             celebracion = '<div class="fr-resumen-libres">📚 Todos tus amigos están en clase ahora.</div>';
@@ -8948,6 +9142,18 @@
                 "</div></div></div>";
             });
           }
+          if (sinInfo.length > 0) {
+            html +=
+              '<div class="fr-sininfo-header" style="margin-top:' +
+              (libres.length > 0 || enClase.length > 0 ? "18px" : "0") +
+              '">⚪ Sin información de hoy</div>';
+            sinInfo.forEach(function (a) {
+              html +=
+                '<div class="list-item"><div class="li-main"><div class="li-mat">' +
+                esc(a.nombre) +
+                '</div><div class="li-sub">No ha abierto la app hoy — pídele que te comparta el horario completo para verlo sin que él entre</div></div></div>';
+            });
+          }
           body.innerHTML = html;
         }
         async function verHorarioAmigo(uid, nombre) {
@@ -8958,12 +9164,27 @@
           body.innerHTML = '<div class="fr-empty">Cargando…</div>';
           $("friendScheduleModal").classList.add("show");
           try {
-            var resumen = await window.firestoreCrud.leerResumenHoyDeAmigo(uid);
-            if (!resumen || !resumen.classes || resumen.classes.length === 0) {
+            var hoyClases;
+            if (_amigoComparteCompleto(uid)) {
+              // Horario completo compartido: se calcula "hoy" al vuelo desde
+              // sus clases reales (recurrentes) — es la fuente en vivo, así
+              // que nunca puede quedar vieja como el snapshot de abajo.
+              var datosCompletos = await window.firestoreCrud.leerHorarioCompletoDeAmigo(uid);
+              hoyClases = clasesDeHoyDe(datosCompletos.classes || []);
+            } else {
+              var resumen = await window.firestoreCrud.leerResumenHoyDeAmigo(uid);
+              if (!_resumenHoyEsVigente(resumen)) {
+                body.innerHTML =
+                  '<div class="fr-empty">Este usuario no ha abierto la app hoy, así que no hay información actualizada de su horario de hoy.<br><br>Dile a tu amigo que te comparta el horario completo para poder verlo sin necesidad de que él entre a la app.</div>';
+                return;
+              }
+              hoyClases = resumen.classes || [];
+            }
+            if (hoyClases.length === 0) {
               body.innerHTML = '<div class="fr-empty">Este usuario no tiene clases programadas para hoy.</div>';
               return;
             }
-            body.innerHTML = todayListHTML(resumen.classes, { editable: false });
+            body.innerHTML = todayListHTML(hoyClases, { editable: false });
           } catch (err) {
             console.warn("[Amigos] No se pudo cargar el horario del amigo:", err);
             body.innerHTML = '<div class="fr-empty">No pudimos cargar la información. Intenta nuevamente.</div>';
@@ -10180,7 +10401,12 @@
           var end = input.selectionEnd != null ? input.selectionEnd : input.value.length;
           input.value = input.value.slice(0, start) + txt + input.value.slice(end);
           var pos = start + txt.length;
-          input.focus();
+          // Sin .focus() a propósito — y de hecho .blur() si ya lo tenía:
+          // enfocar el input abre el teclado del celular encima de todo,
+          // molesto cuando ya se está usando el teclado en pantalla de la
+          // calculadora. setSelectionRange() deja el cursor bien puesto
+          // igual, esté o no enfocado el campo.
+          input.blur();
           input.setSelectionRange(pos, pos);
           calcMostrarPreview();
         }
@@ -10198,6 +10424,7 @@
         function calcIgualUI() {
           var input = $("calcInput"), res = $("calcResultado");
           if (!input) return;
+          input.blur();
           var expr = input.value.trim();
           if (!expr) return;
           try {
@@ -10608,6 +10835,31 @@
           document.addEventListener("keydown", function (e) {
             if (e.key === "Escape") closeQR();
           });
+
+          // Tooltip de Comparar horarios (mouse) — por delegación en el
+          // contenedor de resultados, así funciona sin re-cablear nada
+          // cada vez que runCompare() rehace el HTML de las franjas.
+          if ($("compareResults")) {
+            $("compareResults").addEventListener("mouseover", function (e) {
+              var seg = e.target.closest && e.target.closest(".cmp-seg[data-tip]");
+              if (seg) _cmpMostrarTip(seg);
+            });
+            $("compareResults").addEventListener("mouseout", function (e) {
+              var seg = e.target.closest && e.target.closest(".cmp-seg[data-tip]");
+              if (seg) _cmpOcultarTip();
+            });
+          }
+          // Toque en celular: tocar una franja la muestra (o cambia a la
+          // nueva); tocar cualquier otro lado la cierra.
+          document.addEventListener("click", function (e) {
+            var seg = e.target.closest && e.target.closest(".cmp-seg[data-tip]");
+            if (seg) {
+              e.stopPropagation();
+              _cmpMostrarTip(seg);
+            } else {
+              _cmpOcultarTip();
+            }
+          });
           $("qrCopy").addEventListener("click", function () {
             if (!qrLastUrl) return;
             copyText(qrLastUrl)
@@ -10800,18 +11052,18 @@
           if ($("calcIgual")) $("calcIgual").addEventListener("click", calcIgualUI);
           if ($("calcAC")) {
             $("calcAC").addEventListener("click", function () {
+              $("calcInput").blur();
               $("calcInput").value = "";
               $("calcResultado").textContent = "";
-              $("calcInput").focus();
             });
           }
           if ($("calcDel")) {
             $("calcDel").addEventListener("click", function () {
               var input = $("calcInput");
+              input.blur();
               var pos = input.selectionStart != null ? input.selectionStart : input.value.length;
               if (pos > 0) {
                 input.value = input.value.slice(0, pos - 1) + input.value.slice(pos);
-                input.focus();
                 input.setSelectionRange(pos - 1, pos - 1);
               }
               calcMostrarPreview();
@@ -10820,6 +11072,7 @@
           if ($("calcSigno")) {
             $("calcSigno").addEventListener("click", function () {
               var input = $("calcInput");
+              input.blur();
               if (input.value && input.value[0] === "-") input.value = input.value.slice(1);
               else input.value = "-" + input.value;
               calcMostrarPreview();
