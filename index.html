@@ -2767,7 +2767,6 @@
           <div style="display:flex; gap:8px; justify-content:end; align-items: center; flex-direction: column;">
             <div style="display: flex; align-items: center; gap: 5px;">
             <button
-              data-tab="inicio"
               class="btn icon-only"
               id="btnMenu"
               type="button"
@@ -10390,6 +10389,18 @@
             reconciliarPuntos();
             _intentarResolverArranque();
             programarGuardarEnActual();
+            // Si ya estoy viendo Calendario (por ejemplo, porque es la
+            // pestaña con la que abrió la app), su grilla de mes y el
+            // detalle del día NO se repintan solos con render() de arriba
+            // — son funciones aparte (ver alEntrarACalendario). Sin esto,
+            // las clases llegan de Firestore un instante DESPUÉS de que
+            // irATab(tabInicial) ya pintó el calendario vacío al cargar,
+            // y se quedaba así hasta que el usuario volviera a entrar a
+            // la pestaña.
+            if (document.body.getAttribute("data-tab") === "calendario") {
+              renderCalendarioMes();
+              renderDetalleDiaCalendario(_calDiaSeleccionado);
+            }
           };
           window.alActualizarActividades = function (arr) {
             state.activities = arr || [];
@@ -10400,6 +10411,12 @@
             // guardados dejaron de incluir una copia de activities (ver
             // reemplazarHorarioActual), así que un cambio aquí no tiene
             // nada que escribir en ese documento.
+            // Mismo motivo que en alActualizarClases: los puntitos de
+            // "tiene actividad" del calendario dependen de state.activities.
+            if (document.body.getAttribute("data-tab") === "calendario") {
+              renderCalendarioMes();
+              renderDetalleDiaCalendario(_calDiaSeleccionado);
+            }
           };
           window.alActualizarPuntos = function (arr) {
             state.puntos.subjects = arr || [];
