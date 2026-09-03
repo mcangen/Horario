@@ -2312,7 +2312,7 @@
     cursor: pointer;
   }
   .fr-share-toggle input { margin: 0; flex: none; }
-  .fr-libre-header, .fr-clase-header, .fr-sininfo-header {
+  .fr-libre-header, .fr-clase-header {
     font-family: var(--disp);
     font-size: 13px;
     font-weight: 800;
@@ -2322,7 +2322,6 @@
   }
   .fr-libre-header { color: var(--ok, #2e8b6f); }
   .fr-clase-header { color: var(--hard, #c7402f); }
-  .fr-sininfo-header { color: var(--ink-3); }
   .fr-resumen-libres {
     font-size: 13px;
     color: var(--ink-2);
@@ -2698,13 +2697,13 @@
         <b>HorApprio</b>
       </div>
       <div class="sn-sec">General</div>
-      <button type="button" data-nav="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg><span>Inicio</span></button>
+      <button type="button" data-nav="calendario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/></svg><span>Calendario</span></button>
       <button type="button" data-nav="clases"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg><span>Clases</span></button>
       <button type="button" data-nav="actividades"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/><path d="M8.5 14.5l2 2 4-4"/></svg><span>Actividades</span></button>
       <button type="button" data-nav="puntos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/></svg><span>Puntos</span></button>
       <button type="button" data-nav="horarios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg><span>Horarios/Guardar</span></button>
       <div class="sn-sec">Herramientas</div>
-      <button type="button" data-nav="calendario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/></svg><span>Calendario</span></button>
+      <button type="button" data-nav="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 10h18"/><path d="M8 14h2M8 17h2M14 14h2M14 17h2"/></svg><span>Semana</span></button>
       <button type="button" data-nav="accesos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg><span>Accesos directos</span></button>
       <button type="button" data-nav="enfoque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><span>Modo enfoque</span></button>
       <button type="button" data-nav="notas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M9 13h6M9 17h6"/></svg><span>Notas</span></button>
@@ -2715,7 +2714,7 @@
     <nav class="bottomnav" aria-label="Navegación principal">
       <button type="button" data-nav="puntos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/></svg><span>Puntos</span></button>
       <button type="button" data-nav="actividades" aria-label="Actividades"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/><path d="M8.5 14.5l2 2 4-4"/></svg><span>Actividades</span></button>
-      <button type="button" data-nav="inicio" aria-label="Inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg><span>Inicio</span></button>
+      <button type="button" data-nav="calendario" aria-label="Calendario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/></svg><span>Calendario</span></button>
       <button type="button" data-nav="clases" aria-label="Clases"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg><span>Clases</span></button>
       <button type="button" data-nav="mas" aria-label="Más opciones"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg><span>Más</span></button>
     </nav>
@@ -2730,9 +2729,9 @@
             <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg>
             Horarios/Guardar
           </button>
-          <button type="button" class="btn" data-nav="calendario" style="width:100%;justify-content:flex-start;margin-bottom:8px">
-            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/></svg>
-            Calendario
+          <button type="button" class="btn" data-nav="inicio" style="width:100%;justify-content:flex-start;margin-bottom:8px">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 10h18"/><path d="M8 14h2M8 17h2M14 14h2M14 17h2"/></svg>
+            Semana
           </button>
           <button type="button" class="btn" data-nav="accesos" style="width:100%;justify-content:flex-start;margin-bottom:8px">
             <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg>
@@ -3402,9 +3401,8 @@
                     Superpone dos horarios y encuentra las franjas en que ambos
                     están libres (mínimo 30 min) — ideal para cuadrar trabajos en
                     grupo. Guarda el horario de tu compañero en "Horarios
-                    guardados" para poder elegirlo aquí, o elige directo a un
-                    amigo 👤 que haya activado "Compartir mi horario completo
-                    con esta persona" en Amigos.
+                    guardados" para poder elegirlo aquí, o elige directo a
+                    cualquiera de tus amigos 👤.
                   </div>
                   <div id="compareResults"></div>
                 </div>
@@ -4354,7 +4352,6 @@
               banner.style.display = "none";
               renderActivities();
               renderPuntos();
-              programarGuardarResumenHoy();
               return;
             }
             $("currentSavedName").textContent = entry.name;
@@ -4364,11 +4361,6 @@
           }
           renderActivities();
           renderPuntos();
-          // Si esto acaba de hacer que enHorarioDestacado() pase a ser
-          // cierto (o falso), el snapshot que ven mis amigos tiene que
-          // reflejarlo — ver el comentario grande junto a
-          // programarGuardarResumenHoy() más abajo.
-          programarGuardarResumenHoy();
         }
         // Si el horario actual está "vinculado" a un horario guardado (por
         // ejemplo el destacado ★, que se carga solo al abrir la app), cada
@@ -4948,9 +4940,9 @@
 
         // ---------- Vista "solo hoy" ----------
         // Clases de HOY, ordenadas por hora de inicio — extraída de
-        // renderTodayView() para poder reusarla tal cual con el horario de
-        // un amigo (ver "Amigos" más abajo: guardarResumenHoyAmigos) sin
-        // duplicar el filtro+orden en dos lugares.
+        // renderTodayView() para poder reusarla tal cual con el horario
+        // completo de un amigo (ver "Amigos" más abajo) sin duplicar el
+        // filtro+orden en dos lugares.
         function clasesDeHoyDe(classes) {
           var dayName = DAYS_FULL[todayIndex()];
           return (classes || [])
@@ -6712,13 +6704,9 @@
               "</option>";
           });
           var miUid = window.uidActual && window.uidActual();
-          var amigosConHorario = (amigosCache || []).filter(function (f) {
-            var o = _otroDeAmistad(f, miUid);
-            return !!(f.compartirCompleto && f.compartirCompleto[o.uid]);
-          });
-          if (amigosConHorario.length) {
-            opts += '<optgroup label="Amigos (compartieron su horario completo)">';
-            amigosConHorario.forEach(function (f) {
+          if ((amigosCache || []).length) {
+            opts += '<optgroup label="Amigos">';
+            amigosCache.forEach(function (f) {
               var o = _otroDeAmistad(f, miUid);
               var p = _perfilesAmigosCache[o.codigo];
               var nombre = (p && p.nombre) || o.codigo;
@@ -6754,11 +6742,11 @@
           };
         }
         // Igual que scheduleFor(), pero también acepta "amigo:<uid>" — el
-        // horario semanal COMPLETO de un amigo que activó el opt-in (ver
-        // renderMisAmigos/activarCompartirCompleto). Es la ÚNICA parte
-        // async: si el amigo no compartió (o dejó de hacerlo justo antes
-        // de este clic), firestore.rules deniega la lectura y aquí se
-        // convierte en null, igual que "no se pudo cargar".
+        // horario semanal COMPLETO de un amigo (leerHorarioCompletoDeAmigo,
+        // ver firestore-service.js). Es la ÚNICA parte async: si por algo
+        // ya no fueran amigos justo antes de este clic, firestore.rules
+        // deniega la lectura y aquí se convierte en null, igual que "no se
+        // pudo cargar".
         async function scheduleForAsync(val) {
           if (typeof val === "string" && val.indexOf("amigo:") === 0) {
             var uid = val.slice("amigo:".length);
@@ -8668,18 +8656,6 @@
           var idx = f.users && f.users[0] === miUid ? 1 : 0;
           return { uid: f.users[idx], codigo: (f.codigos || [])[idx] || "" };
         }
-        // ¿Este amigo activó "compartir mi horario completo" hacia mí? Si sí,
-        // podemos leer directo su colección "classes" (la fuente en vivo,
-        // siempre al día) en vez de depender del snapshot todaySchedule
-        // (que solo se actualiza cuando ÉL abre la app) — ver el comentario
-        // grande junto a _resumenHoyEsVigente().
-        function _amigoComparteCompleto(uid) {
-          var miUid = window.uidActual && window.uidActual();
-          var f = amigosCache.filter(function (fr) {
-            return _otroDeAmistad(fr, miUid).uid === uid;
-          })[0];
-          return !!(f && f.compartirCompleto && f.compartirCompleto[uid]);
-        }
         async function _resolverPerfilAmigo(codigo) {
           if (!codigo) return null;
           if (_perfilesAmigosCache[codigo]) return _perfilesAmigosCache[codigo];
@@ -8765,24 +8741,14 @@
           );
           var html = "";
           otros.forEach(function (o, i) {
-            var f = amigosCache[i];
             var p = perfiles[i] || { nombre: o.codigo, programa: "", semestre: "" };
             var nombre = p.nombre || o.codigo;
-            var compartir = f.compartirCompleto || {};
-            var yoComparto = !!compartir[miUid];
-            var meComparte = !!compartir[o.uid];
             html +=
               '<div class="list-item"><div class="li-main"><div class="li-mat">' +
               esc(nombre) +
               '</div><div class="li-sub">' +
               esc(_subAmigo(p)) +
-              (meComparte ? " · Te comparte su horario completo" : "") +
-              '</div><label class="fr-share-toggle"><input type="checkbox" data-compartir="' +
-              o.uid +
-              '"' +
-              (yoComparto ? " checked" : "") +
-              ' /> Compartir mi horario completo con esta persona</label>' +
-              '</div><div class="li-actions">' +
+              '</div></div><div class="li-actions">' +
               '<button class="icon-btn" data-ver="' +
               o.uid +
               '" data-nombre="' +
@@ -8804,26 +8770,6 @@
           Array.prototype.forEach.call(host.querySelectorAll("[data-quitar]"), function (b) {
             b.addEventListener("click", function () {
               quitarAmigoUI(b.getAttribute("data-quitar"), b.getAttribute("data-nombre"));
-            });
-          });
-          Array.prototype.forEach.call(host.querySelectorAll("[data-compartir]"), function (chk) {
-            chk.addEventListener("change", async function () {
-              var otroUid = chk.getAttribute("data-compartir");
-              chk.disabled = true;
-              try {
-                await window.firestoreCrud.activarCompartirCompleto(miUid, otroUid, chk.checked);
-                toast(
-                  chk.checked
-                    ? "Ahora comparte tu horario completo con esta persona."
-                    : "Dejaste de compartir tu horario completo con esta persona.",
-                );
-              } catch (err) {
-                console.warn("[Amigos] No se pudo actualizar el opt-in de horario completo:", err);
-                toast("⚠ No se pudo guardar el cambio.");
-                chk.checked = !chk.checked;
-              } finally {
-                chk.disabled = false;
-              }
             });
           });
           refreshCompareSelects();
@@ -8930,7 +8876,7 @@
         async function quitarAmigoUI(otroUid, nombre) {
           var miUid = window.uidActual && window.uidActual();
           if (!miUid) return;
-          if (!confirm('¿Quitar a "' + nombre + '" de tus amigos? Ya no podrán ver el horario de hoy del otro, hasta volver a agregarse.')) return;
+          if (!confirm('¿Quitar a "' + nombre + '" de tus amigos? Ya no podrán ver el horario completo del otro, hasta volver a agregarse.')) return;
           try {
             await window.firestoreCrud.quitarAmigo(miUid, otroUid);
             toast('Quitaste a "' + nombre + '" de tus amigos.');
@@ -8942,33 +8888,17 @@
         // ---------- ¿Quién está libre ahora? ----------
         // Reutiliza t2m()/nowMinutes() — los mismos que ya usan
         // renderTodayView()/todayListHTML() para la hora exacta, sin
-        // aproximaciones — y leerResumenHoyDeAmigo() (ya protegido por la
-        // amistad en firestore.rules: no hace falta ninguna regla nueva,
-        // esto solo interpreta datos que ya se podían leer).
+        // aproximaciones — y leerHorarioCompletoDeAmigo() + clasesDeHoyDe()
+        // (ya protegido por la amistad en firestore.rules: no hace falta
+        // ninguna regla nueva, esto solo interpreta datos que ya se podían
+        // leer). Al ser siempre la fuente en vivo (nunca un snapshot
+        // aparte que alguien tenga que recalcular), clasesDeHoyDe() ya
+        // calcula el día correcto en cada llamada — no hace falta ningún
+        // chequeo de vigencia.
         //
         // minutosRef es opcional (por defecto "ahora") a propósito: el
         // mismo cálculo serviría sin cambios para una futura "¿quién está
         // libre a las 15:00?" — solo pasándole otro minuto de referencia.
-        // El snapshot de "hoy" de un amigo (users/{uid}/todaySchedule) solo
-        // se recalcula cuando ESE amigo abre la app (no hay backend que lo
-        // haga por él) — si no la ha abierto hoy, el documento sigue
-        // teniendo el "hoy" de la última vez que sí la abrió (ej. el
-        // lunes), con sus clases de ESE día. Sin este chequeo, "clases: []"
-        // de un lunes viejo se mostraría como "sin clases hoy" (libre 🟢)
-        // aunque hoy sea miércoles y en realidad no se sepa nada — o peor,
-        // las clases de un lunes viejo se mostrarían como si fueran de hoy.
-        // Comparamos la FECHA (no solo el nombre del día) de "updatedAt"
-        // contra la fecha real de hoy.
-        function _resumenHoyEsVigente(resumen) {
-          if (!resumen || !resumen.updatedAt || typeof resumen.updatedAt.toDate !== "function") return false;
-          var actualizado = resumen.updatedAt.toDate();
-          var hoy = new Date();
-          return (
-            actualizado.getFullYear() === hoy.getFullYear() &&
-            actualizado.getMonth() === hoy.getMonth() &&
-            actualizado.getDate() === hoy.getDate()
-          );
-        }
         function estadoAmigoEn(classes, minutosRef) {
           var nm = minutosRef == null ? nowMinutes() : minutosRef;
           if (!classes || classes.length === 0) return { estado: "sinClases" };
@@ -9022,36 +8952,28 @@
                 return _resolverPerfilAmigo(o.codigo);
               }),
             );
-            // Si el amigo comparte su horario completo, se usa esa fuente
-            // en vivo (nunca desactualizada) en vez del snapshot de "hoy",
-            // que depende de que él haya abierto la app — ver
-            // _amigoComparteCompleto() y el comentario junto a
-            // _resumenHoyEsVigente().
+            // El horario completo de cada amigo es siempre la fuente en
+            // vivo (ver leerHorarioCompletoDeAmigo) — nunca hace falta
+            // preguntarse si está "actualizado", clasesDeHoyDe() calcula
+            // el día correcto en cada llamada.
             var resumenes = await Promise.all(
               otros.map(function (o) {
-                if (_amigoComparteCompleto(o.uid)) {
-                  return window.firestoreCrud
-                    .leerHorarioCompletoDeAmigo(o.uid)
-                    .then(function (datos) {
-                      return { classes: clasesDeHoyDe(datos.classes || []), vigente: true };
-                    })
-                    .catch(function () {
-                      return { classes: [], vigente: false };
-                    });
-                }
-                return window.firestoreCrud.leerResumenHoyDeAmigo(o.uid).then(function (r) {
-                  return { classes: (r && r.classes) || [], vigente: _resumenHoyEsVigente(r) };
-                });
+                return window.firestoreCrud
+                  .leerHorarioCompletoDeAmigo(o.uid)
+                  .then(function (datos) {
+                    return clasesDeHoyDe(datos.classes || []);
+                  })
+                  .catch(function () {
+                    return [];
+                  });
               }),
             );
             _amigosLibresDatos = otros.map(function (o, i) {
               var p = perfiles[i] || { nombre: o.codigo };
-              var r = resumenes[i];
               return {
                 uid: o.uid,
                 nombre: p.nombre || o.codigo,
-                classes: r.classes,
-                vigente: r.vigente,
+                classes: resumenes[i],
               };
             });
           } catch (err) {
@@ -9074,12 +8996,7 @@
           if (!body || !_amigosLibresDatos) return;
           var libres = [];
           var enClase = [];
-          var sinInfo = [];
           _amigosLibresDatos.forEach(function (a) {
-            if (!a.vigente) {
-              sinInfo.push({ nombre: a.nombre });
-              return;
-            }
             var info = estadoAmigoEn(a.classes);
             if (info.estado === "enClase") {
               enClase.push({ nombre: a.nombre, clase: info.clase });
@@ -9089,9 +9006,7 @@
           });
 
           var celebracion;
-          if (libres.length === 0 && enClase.length === 0) {
-            celebracion = "";
-          } else if (enClase.length === 0) {
+          if (enClase.length === 0) {
             celebracion = '<div class="fr-resumen-libres">🎉 Todos tus amigos están libres ahora.</div>';
           } else if (libres.length === 0) {
             celebracion = '<div class="fr-resumen-libres">📚 Todos tus amigos están en clase ahora.</div>';
@@ -9142,18 +9057,6 @@
                 "</div></div></div>";
             });
           }
-          if (sinInfo.length > 0) {
-            html +=
-              '<div class="fr-sininfo-header" style="margin-top:' +
-              (libres.length > 0 || enClase.length > 0 ? "18px" : "0") +
-              '">⚪ Sin información de hoy</div>';
-            sinInfo.forEach(function (a) {
-              html +=
-                '<div class="list-item"><div class="li-main"><div class="li-mat">' +
-                esc(a.nombre) +
-                '</div><div class="li-sub">No ha abierto la app hoy — pídele que te comparta el horario completo para verlo sin que él entre</div></div></div>';
-            });
-          }
           body.innerHTML = html;
         }
         async function verHorarioAmigo(uid, nombre) {
@@ -9164,22 +9067,10 @@
           body.innerHTML = '<div class="fr-empty">Cargando…</div>';
           $("friendScheduleModal").classList.add("show");
           try {
-            var hoyClases;
-            if (_amigoComparteCompleto(uid)) {
-              // Horario completo compartido: se calcula "hoy" al vuelo desde
-              // sus clases reales (recurrentes) — es la fuente en vivo, así
-              // que nunca puede quedar vieja como el snapshot de abajo.
-              var datosCompletos = await window.firestoreCrud.leerHorarioCompletoDeAmigo(uid);
-              hoyClases = clasesDeHoyDe(datosCompletos.classes || []);
-            } else {
-              var resumen = await window.firestoreCrud.leerResumenHoyDeAmigo(uid);
-              if (!_resumenHoyEsVigente(resumen)) {
-                body.innerHTML =
-                  '<div class="fr-empty">Este usuario no ha abierto la app hoy, así que no hay información actualizada de su horario de hoy.<br><br>Dile a tu amigo que te comparta el horario completo para poder verlo sin necesidad de que él entre a la app.</div>';
-                return;
-              }
-              hoyClases = resumen.classes || [];
-            }
+            // Horario completo: se calcula "hoy" al vuelo desde sus clases
+            // reales (recurrentes) — es la fuente en vivo, siempre al día.
+            var datosCompletos = await window.firestoreCrud.leerHorarioCompletoDeAmigo(uid);
+            var hoyClases = clasesDeHoyDe(datosCompletos.classes || []);
             if (hoyClases.length === 0) {
               body.innerHTML = '<div class="fr-empty">Este usuario no tiene clases programadas para hoy.</div>';
               return;
@@ -9554,47 +9445,6 @@
             console.warn("[Grupos] No se pudo salir del grupo:", err);
             toast("⚠ No se pudo salir del grupo.");
           }
-        }
-
-        // Mantiene users/{uid}/todaySchedule al día — es lo único que un
-        // amigo puede llegar a leer (ver el comentario grande en
-        // firestore.rules): nunca la colección "classes" completa. Se
-        // recalcula con la MISMA función que pinta mi propio "Resumen de
-        // hoy" (clasesDeHoyDe), así que si ese cálculo cambia algún día,
-        // esto se actualiza solo.
-        //
-        // SOLO se guarda mientras estoy en el horario destacado ★
-        // (enHorarioDestacado, ver la sección de Puntos/Actividades más
-        // arriba). state.classes es el horario "en vivo" — si en vez de
-        // eso estoy viendo temporalmente otro horario guardado (uno
-        // alterno, un respaldo, etc.), NO se toca todaySchedule: mis
-        // amigos deben seguir viendo mi destacado real, no lo que sea que
-        // esté mirando de paso. Si no estoy en el destacado, el snapshot
-        // simplemente se queda como estaba la última vez que sí lo estuve.
-        var _guardarResumenHoyTimer = null;
-        function programarGuardarResumenHoy() {
-          var uidFs = window.uidActual && window.uidActual();
-          if (!uidFs || !perfilCache || !enHorarioDestacado()) return;
-          clearTimeout(_guardarResumenHoyTimer);
-          _guardarResumenHoyTimer = setTimeout(guardarResumenHoyAhora, 800);
-        }
-        async function guardarResumenHoyAhora() {
-          var uidFs = window.uidActual && window.uidActual();
-          if (!uidFs || !perfilCache || !enHorarioDestacado()) return;
-          var items = clasesDeHoyDe(state.classes).map(function (c) {
-            return {
-              inicio: c.inicio,
-              fin: c.fin,
-              materia: c.materia,
-              curso: c.curso || "",
-              profesor: c.profesor || "",
-            };
-          });
-          var resumen = { dayName: DAYS_FULL[todayIndex()], classes: items };
-          var r = await window.firestoreCrud.ejecutarEscritura(function () {
-            return window.firestoreCrud.guardarResumenHoy(uidFs, resumen);
-          });
-          if (!r.ok) console.warn("[Amigos] No se pudo guardar el resumen de hoy:", r.error);
         }
 
         // ---------- Init ----------
@@ -10540,7 +10390,6 @@
             reconciliarPuntos();
             _intentarResolverArranque();
             programarGuardarEnActual();
-            programarGuardarResumenHoy();
           };
           window.alActualizarActividades = function (arr) {
             state.activities = arr || [];
@@ -10581,10 +10430,6 @@
               if (emailEl) emailEl.textContent = data.email || "";
             }
             _pintarPerfilMenu();
-            // Por si "classes" ya había llegado antes que el perfil (el
-            // guard de programarGuardarResumenHoy lo habría descartado sin
-            // perfilCache todavía) — se reintenta una vez aquí.
-            programarGuardarResumenHoy();
           };
           window.alActualizarSolicitudesRecibidas = function (arr) {
             solicitudesRecibidasCache = arr || [];
@@ -11518,6 +11363,13 @@
            muestra las tarjetas. Ningún dato ni función se ve afectado.
            ============================================================ */
         var TAB_KEY = "generadorHorarios:tab";
+        // "inicio" es el id INTERNO de la grilla semanal + formulario de
+        // agregar clase — se mantiene así a propósito aunque en pantalla
+        // ahora se llame "Semana" y ya no sea la pestaña principal
+        // (Calendario lo es). Cambiar este string obligaría a tocar la
+        // regla CSS del grid de 2 columnas, irATab("inicio") al editar una
+        // clase, y el atajo de PWA ?vista=hoy — todos siguen apuntando
+        // aquí sin saber (ni necesitar saber) cómo se llama el botón hoy.
         var TABS_VALIDAS = [
           "inicio", "clases", "actividades", "puntos",
           "horarios", "calendario", "accesos", "enfoque",
@@ -11527,7 +11379,7 @@
         // estas 4 viven detrás del botón "Más" (ver #masModal) en vez de
         // ir directo en la barra. En PC (.sidenav) no hay ese problema:
         // las 4 son botones normales, sin overflow.
-        var TABS_OVERFLOW = ["horarios", "calendario", "accesos", "enfoque", "notas", "calculadora"];
+        var TABS_OVERFLOW = ["horarios", "inicio", "accesos", "enfoque", "notas", "calculadora"];
         function irATab(t) {
           if (TABS_VALIDAS.indexOf(t) < 0) t = "inicio";
           document.body.setAttribute("data-tab", t);
@@ -11577,10 +11429,12 @@
             if (e.target === this) this.classList.remove("show");
           });
         }
-        // pestaña inicial: la última usada (o Inicio)
-        var tabInicial = "inicio";
+        // pestaña inicial: la última usada (o Calendario, la nueva pestaña
+        // principal — "inicio" como identificador interno NO cambió, ver
+        // el comentario grande junto a TABS_VALIDAS)
+        var tabInicial = "calendario";
         try {
-          tabInicial = localStorage.getItem(TAB_KEY) || "inicio";
+          tabInicial = localStorage.getItem(TAB_KEY) || "calendario";
         } catch (e) {}
         irATab(tabInicial);
         window.irATab = irATab; // por si se necesita desde consola/futuro

@@ -456,47 +456,12 @@ export async function quitarAmigo(miUid, otroUid) {
   await fb.deleteDoc(fb.doc(fb.db, "friendships", _idPar(miUid, otroUid)));
 }
 
-// El snapshot de "hoy" que un amigo puede leer (ver users/{uid}/
-// todaySchedule/{docId} en firestore.rules) — reemplazo completo, nunca
-// merge, para que sea exactamente lo que index.html calculó con
-// clasesDeHoyDe() y nada más.
-export async function guardarResumenHoy(uid, resumen) {
-  const { fb, ref } = await _docRef(uid, "todaySchedule", "singleton");
-  await fb.setDoc(ref, {
-    dayName: resumen.dayName,
-    classes: resumen.classes,
-    updatedAt: fb.serverTimestamp(),
-  });
-}
-
 // Lectura puntual (no listener): se abre el modal, se mira, se cierra —
 // no hace falta mantenerlo sincronizado en vivo como sí las solicitudes.
-export async function leerResumenHoyDeAmigo(uid) {
-  const { fb, ref } = await _docRef(uid, "todaySchedule", "singleton");
-  const snap = await fb.getDoc(ref);
-  return snap.exists() ? snap.data() : null;
-}
-
-// Comparar horarios COMPLETOS (no solo "hoy") es opt-in por amigo: cada
-// quien prende/apaga su propia bandera dentro del MISMO documento de la
-// amistad. La regla en firestore.rules impide que yo toque la bandera
-// del otro — merge:true en un mapa anidado solo escribe mi llave, sin
-// tocar la del otro (Firestore hace merge recursivo de mapas, a
-// diferencia de los arreglos, que si se reemplazan enteros).
-export async function activarCompartirCompleto(miUid, otroUid, valor) {
-  const fb = await getFirebase();
-  const ref = fb.doc(fb.db, "friendships", _idPar(miUid, otroUid));
-  await fb.setDoc(
-    ref,
-    { compartirCompleto: { [miUid]: !!valor }, updatedAt: fb.serverTimestamp() },
-    { merge: true },
-  );
-}
-
-// Lectura puntual (no listener, mismo estilo que leerResumenHoyDeAmigo):
-// el horario semanal COMPLETO de un amigo. Si ese amigo no activó el
-// opt-in hacia mí, firestore.rules deniega esta lectura con
-// "permission denied" — este archivo no decide el permiso, solo lo pide.
+// El horario semanal completo de un amigo se ve automáticamente en
+// cuanto existe la amistad (ver firestore.rules) — si por alguna razón
+// ya no fueran amigos, esto deniega con "permission denied", pero este
+// archivo no decide el permiso, solo lo pide.
 export async function leerHorarioCompletoDeAmigo(uid) {
   const fb = await getFirebase();
   const [classesSnap, settingsSnap] = await Promise.all([

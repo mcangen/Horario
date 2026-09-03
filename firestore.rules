@@ -66,19 +66,6 @@ service cloud.firestore {
     function existeAmistad(a, b) {
       return exists(/databases/$(database)/documents/friendships/$(idPar(a, b)));
     }
-    // El otro integrante de una amistad, dado el arreglo "users" (siempre
-    // de tamaño 2) y uno de los dos uids.
-    function otroDeAmistad(usuarios, uid) {
-      return usuarios[0] == uid ? usuarios[1] : usuarios[0];
-    }
-    // ¿Este amigo (dueno) activó el opt-in para dejarme ver su horario
-    // COMPLETO a mí (quienPide)? Ver "compartirCompleto" en
-    // firebase/firestore-service.js (activarCompartirCompleto). Sin este
-    // opt-in, un amigo solo puede ver el snapshot de "hoy" de arriba.
-    function compartioHorarioCompleto(dueno, quienPide) {
-      return get(/databases/$(database)/documents/friendships/$(idPar(dueno, quienPide)))
-        .data.get('compartirCompleto', {}).get(dueno, false) == true;
-    }
 
     // Directorio público mínimo (nombre/programa/semestre + uid) para
     // poder BUSCAR por CÓDIGO de amigo (no por correo — así nadie necesita
@@ -173,49 +160,21 @@ service cloud.firestore {
         );
       allow delete: if request.auth != null
         && (resource == null || request.auth.uid in resource.data.users); // "quitar amigo"
-      // Único cambio permitido después de creada: cada integrante puede
-      // prender/apagar SU PROPIA bandera de "compartir mi horario
-      // completo con esta persona" (comparar horarios semana completa,
-      // no solo "hoy") — nunca la del otro, y "users" no puede cambiar.
-      allow update: if request.auth != null
-        && request.auth.uid in resource.data.users
-        && request.resource.data.users == resource.data.users
-        && request.resource.data.get('compartirCompleto', {})
-             .get(otroDeAmistad(resource.data.users, request.auth.uid), false)
-           == resource.data.get('compartirCompleto', {})
-             .get(otroDeAmistad(resource.data.users, request.auth.uid), false);
+      allow update: if false; // una amistad no se edita, solo se crea o se borra
     }
 
-    // El snapshot de HOY (ver guardarResumenHoy en firestore-service.js):
-    // nunca contiene más que las clases de hoy, así que exponerlo a un
-    // amigo nunca expone el horario semanal completo — esa colección
-    // (classes, en la regla genérica de subcolecciones más abajo) sigue
-    // siendo 100% privada, sin cambios. Firestore evalúa varias reglas
-    // que matcheen la misma ruta como OR, así que esto se SUMA a la regla
-    // genérica de abajo (que solo deja pasar al dueño) en vez de
+    // Horario semanal COMPLETO: privado por defecto (la regla genérica de
+    // abajo ya lo cubre para el dueño). Esto se SUMA solo para permitir la
+    // lectura a cualquier amigo aceptado — ver la nota de arriba, ya no es
+    // opt-in: en cuanto existe la amistad, ambos ven el horario completo
+    // del otro. Firestore evalúa varias reglas que matcheen la misma ruta
+    // como OR, así que esto se SUMA a la regla genérica de abajo en vez de
     // reemplazarla.
-    match /users/{uid}/todaySchedule/{docId} {
-      allow read: if request.auth != null
-        && (request.auth.uid == uid || existeAmistad(request.auth.uid, uid));
-      allow write: if request.auth != null && request.auth.uid == uid;
-    }
-
-    // Horario semanal COMPLETO: sigue siendo privado por defecto (la
-    // regla genérica de abajo ya lo cubre para el dueño). Esto se SUMA
-    // solo para permitir la lectura cuando el dueño activó el opt-in de
-    // "Comparar horarios" hacia quien pide — ver compartioHorarioCompleto
-    // arriba y activarCompartirCompleto en firestore-service.js. Nadie
-    // queda expuesto sin haberlo decidido explícitamente, amigo por
-    // amigo.
     match /users/{uid}/classes/{docId} {
-      allow read: if request.auth != null
-        && existeAmistad(request.auth.uid, uid)
-        && compartioHorarioCompleto(uid, request.auth.uid);
+      allow read: if request.auth != null && existeAmistad(request.auth.uid, uid);
     }
     match /users/{uid}/settings/{docId} {
-      allow read: if request.auth != null
-        && existeAmistad(request.auth.uid, uid)
-        && compartioHorarioCompleto(uid, request.auth.uid);
+      allow read: if request.auth != null && existeAmistad(request.auth.uid, uid);
     }
 
     match /users/{uid}/{coleccion}/{docId} {
