@@ -2687,7 +2687,90 @@
     font-size: 32px;
   }
     </style>
-    
+
+    <!-- ---------- Tutorial guiado (recorrido inicial, opcional) ---------- -->
+    <style>
+      #tutShield {
+        position: fixed;
+        inset: 0;
+        z-index: 9990;
+        background: transparent;
+      }
+      #tutShield.dim {
+        background: rgba(15, 20, 30, 0.62);
+      }
+      #tutSpot {
+        position: fixed;
+        z-index: 9991;
+        border-radius: 12px;
+        pointer-events: none;
+        box-shadow:
+          0 0 0 4px var(--accent),
+          0 0 0 9999px rgba(15, 20, 30, 0.62);
+        transition:
+          left 0.25s ease,
+          top 0.25s ease,
+          width 0.25s ease,
+          height 0.25s ease;
+      }
+      #tutTip {
+        position: fixed;
+        z-index: 9995;
+        width: 340px;
+        max-width: calc(100vw - 24px);
+        background: var(--card);
+        color: var(--ink);
+        border-radius: 16px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+        padding: 18px 20px;
+        font-family: var(--body);
+      }
+      #tutTip.sheet {
+        left: 10px !important;
+        right: 10px;
+        width: auto;
+        bottom: calc(66px + env(safe-area-inset-bottom) + 10px) !important;
+        top: auto !important;
+      }
+      .tut-count {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--accent-ink);
+        margin: 0 0 6px;
+      }
+      #tutTip h3 {
+        font-family: var(--disp);
+        font-weight: 800;
+        font-size: 18px;
+        margin: 0 0 8px;
+        color: var(--ink);
+      }
+      #tutTip p {
+        font-size: 13.5px;
+        line-height: 1.55;
+        color: var(--ink-2);
+        margin: 0 0 16px;
+      }
+      .tut-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      #tutSkip {
+        font-size: 12.5px;
+        color: var(--ink-3);
+        padding: 8px 10px;
+      }
+      @media (max-width: 940px) {
+        #tutTip {
+          width: auto;
+        }
+      }
+    </style>
+
   </head>
   <body>
     <!-- Barra lateral (PC)  -->
@@ -2894,6 +2977,20 @@
             />
           </svg>
           Ajustar Hora
+        </button>
+        <button class="btn" id="btnVerTutorial" type="button" title="Repetir el recorrido guiado de la app">
+          <svg
+            class="ic"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="9" />
+            <path d="M9.5 9a2.5 2.5 0 0 1 4.87.9c0 1.6-2.37 1.9-2.37 3.35" />
+            <path d="M12 17.2v.05" />
+          </svg>
+          Ver tutorial
         </button>
         <button class="btn accent" id="btnPDF" type="button">
           <svg
@@ -3130,7 +3227,7 @@
                     autocomplete="off"
                   />
                 </div>
-                <div class="row">
+                <div class="row" data-tut="sesionesRow">
                   <label>Días, cursos y horarios <b style="color: #ffffff;">(LUNES A SABADOS EN AJUSTES)</b></label>
                   <div id="sessionsList"></div>
                   <button
@@ -3817,6 +3914,7 @@
             <label for="peNombre">Nombre</label>
             <input type="text" id="peNombre" autocomplete="off" />
           </div>
+          <div data-tut="perfilAcademico">
           <div class="field" style="margin-bottom:12px">
             <label for="pePrograma">Programa académico</label>
             <input type="text" id="pePrograma" placeholder="Ej. Ingeniería Electrónica" autocomplete="off" />
@@ -3833,6 +3931,7 @@
             <div id="peUniversidadHint" style="font-size:12px;color:var(--ink-3);margin-top:4px;display:none">
               Detectada por tu correo institucional — no se puede cambiar.
             </div>
+          </div>
           </div>
           <button type="submit" class="btn accent" style="width:100%;justify-content:center">Guardar</button>
         </form>
@@ -3880,6 +3979,15 @@
 
         <div class="fr-section">
           <h4>Mis amigos</h4>
+          <div class="field" id="friendsFilterField" style="margin-bottom:10px;display:none">
+            <input
+              type="text"
+              id="friendsFilterInput"
+              placeholder="Buscar por nombre..."
+              autocomplete="off"
+              style="width:100%"
+            />
+          </div>
           <div id="friendsList"><div class="fr-empty">Todavía no tienes amigos.<br>Busca a alguien para enviarle una solicitud.</div></div>
         </div>
       </div>
@@ -8721,11 +8829,18 @@
             });
           });
         }
+        // caché de "Mis amigos" ya resuelto (nombre/subtítulo por perfil),
+        // para poder filtrar en vivo con el buscador sin re-leer Firestore
+        // en cada tecla — ver pintarMisAmigosFiltrado().
+        var _misAmigosCache = [];
         async function renderMisAmigos() {
           var host = $("friendsList");
           if (!host) return;
+          var filtro = $("friendsFilterField");
           var miUid = window.uidActual && window.uidActual();
           if (!miUid || amigosCache.length === 0) {
+            _misAmigosCache = [];
+            if (filtro) filtro.style.display = "none";
             host.innerHTML =
               '<div class="fr-empty">Todavía no tienes amigos.<br>Busca a alguien para enviarle una solicitud.</div>';
             return;
@@ -8738,25 +8853,52 @@
               return _resolverPerfilAmigo(o.codigo);
             }),
           );
-          var html = "";
-          otros.forEach(function (o, i) {
+          _misAmigosCache = otros.map(function (o, i) {
             var p = perfiles[i] || { nombre: o.codigo, programa: "", semestre: "" };
             var nombre = p.nombre || o.codigo;
+            return { uid: o.uid, nombre: nombre, sub: _subAmigo(p) };
+          });
+          if (filtro) filtro.style.display = _misAmigosCache.length > 1 ? "" : "none";
+          pintarMisAmigosFiltrado();
+          refreshCompareSelects();
+        }
+        // Dibuja _misAmigosCache filtrado por lo que haya en el buscador
+        // (o la lista completa si está vacío). Solo toca el DOM del
+        // listado — no vuelve a leer Firestore, así que se puede llamar
+        // en cada "input" del buscador sin costo.
+        function pintarMisAmigosFiltrado() {
+          var host = $("friendsList");
+          if (!host) return;
+          var input = $("friendsFilterInput");
+          var q = input ? input.value.trim().toLowerCase() : "";
+          var lista = !q
+            ? _misAmigosCache
+            : _misAmigosCache.filter(function (a) {
+                return a.nombre.toLowerCase().indexOf(q) !== -1;
+              });
+          if (lista.length === 0) {
+            host.innerHTML = q
+              ? '<div class="fr-empty">Ningún amigo coincide con “' + esc(input.value.trim()) + '”.</div>'
+              : '<div class="fr-empty">Todavía no tienes amigos.<br>Busca a alguien para enviarle una solicitud.</div>';
+            return;
+          }
+          var html = "";
+          lista.forEach(function (o) {
             html +=
               '<div class="list-item"><div class="li-main"><div class="li-mat">' +
-              esc(nombre) +
+              esc(o.nombre) +
               '</div><div class="li-sub">' +
-              esc(_subAmigo(p)) +
+              esc(o.sub) +
               '</div></div><div class="li-actions">' +
               '<button class="icon-btn" data-ver="' +
               o.uid +
               '" data-nombre="' +
-              esc(nombre) +
+              esc(o.nombre) +
               '" title="Ver horario de hoy">👁</button>' +
               '<button class="icon-btn del" data-quitar="' +
               o.uid +
               '" data-nombre="' +
-              esc(nombre) +
+              esc(o.nombre) +
               '" title="Quitar amigo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>' +
               "</div></div>";
           });
@@ -8771,7 +8913,6 @@
               quitarAmigoUI(b.getAttribute("data-quitar"), b.getAttribute("data-nombre"));
             });
           });
-          refreshCompareSelects();
         }
         function _pintarResultadoBusqueda(perfil, codigo, estado) {
           var host = $("friendSearchResult");
@@ -9085,6 +9226,8 @@
           if (input) input.value = "";
           var result = $("friendSearchResult");
           if (result) result.innerHTML = "";
+          var filtroInput = $("friendsFilterInput");
+          if (filtroInput) filtroInput.value = "";
           var miCodigo = $("miCodigoAmigo");
           if (miCodigo) miCodigo.textContent = (perfilCache && perfilCache.codigo) || "——————";
           $("friendsModal").classList.add("show");
@@ -9631,15 +9774,24 @@
 
           html += '<div class="cal-detalle-sec"><h4>Actividades</h4>';
           if (acts.length) {
+            html += '<div class="today-list">';
             acts.forEach(function (a) {
+              var actColor = TIPO_COLOR[a.tipo] || "#54607A";
+              var actMatColor = colorForMateria(a.materia);
               html +=
-                '<div class="list-item"><div class="li-main"><div class="li-mat">' +
+                '<div class="today-item" style="cursor:default;border-left-color:' +
+                actMatColor +
+                '"><span style="flex:1;min-width:0"><span class="tm">' +
                 esc(a.materia) +
-                '</div><div class="li-sub">' +
+                ' <span class="act-tag" style="background:' +
+                actColor +
+                '">' +
                 esc(a.tipo) +
-                (a.nota ? " · " + esc(a.nota) : "") +
-                "</div></div></div>";
+                "</span></span>" +
+                (a.nota ? '<span class="ts">' + esc(a.nota) + "</span>" : "") +
+                "</span></div>";
             });
+            html += "</div>";
           } else {
             html += '<div class="fr-empty">Sin actividades este día.</div>';
           }
@@ -9647,16 +9799,21 @@
 
           html += '<div class="cal-detalle-sec"><h4>Reuniones de grupo</h4>';
           if (reus.length) {
+            html += '<div class="today-list">';
             reus.forEach(function (r) {
-              var sub = [r.hora, r.grupoNombre].filter(Boolean).join(" · ");
+              var sub = [r.grupoNombre, r.lugar ? "📍 " + r.lugar : null]
+                .filter(Boolean)
+                .join(" · ");
               html +=
-                '<div class="list-item"><div class="li-main"><div class="li-mat">' +
+                '<div class="today-item" style="cursor:default;border-left-color:#B45FBD"><span class="tt">' +
+                esc(r.hora || "") +
+                '</span><span style="flex:1;min-width:0"><span class="tm">' +
                 esc(r.titulo) +
-                '</div><div class="li-sub">' +
-                esc(sub) +
-                (r.lugar ? " · 📍 " + esc(r.lugar) : "") +
-                "</div></div></div>";
+                "</span>" +
+                (sub ? '<span class="ts">' + esc(sub) + "</span>" : "") +
+                "</span></div>";
             });
+            html += "</div>";
           } else {
             html += '<div class="fr-empty">Sin reuniones este día.</div>';
           }
@@ -10634,6 +10791,9 @@
           if ($("friendSearchForm")) {
             $("friendSearchForm").addEventListener("submit", buscarAmigoSubmit);
           }
+          if ($("friendsFilterInput")) {
+            $("friendsFilterInput").addEventListener("input", pintarMisAmigosFiltrado);
+          }
           if ($("btnCopiarCodigo")) {
             $("btnCopiarCodigo").addEventListener("click", copiarMiCodigo);
           }
@@ -11478,6 +11638,356 @@
         } catch (e) {}
       })();
     </script>
+
+    <!-- ---------- Tutorial guiado (recorrido inicial, opcional) ----------
+         Independiente del script grande de arriba: solo usa cosas que ya
+         quedan expuestas en window (irATab) y el mismo mecanismo de
+         modales (.modal-back.show) que usa el resto de la app. No
+         requiere sesión ni datos — funciona igual con el horario vacío. -->
+    <script>
+      (function () {
+        var TUTORIAL_KEY = "horapprio:tutorialVisto:v1";
+
+        function $(id) {
+          return document.getElementById(id);
+        }
+        function esVisible(el) {
+          if (!el) return false;
+          var r = el.getBoundingClientRect();
+          return r.width > 0 && r.height > 0;
+        }
+        // cada paso puede traer varios selectores candidatos (por si el
+        // elemento "ideal" no existe todavía, ej. sin materias en Puntos):
+        // se usa el primero que exista y esté visible en pantalla.
+        function elegirObjetivo(selectores) {
+          if (!selectores) return null;
+          for (var i = 0; i < selectores.length; i++) {
+            var lista = document.querySelectorAll(selectores[i]);
+            for (var j = 0; j < lista.length; j++) {
+              if (esVisible(lista[j])) return lista[j];
+            }
+          }
+          return null;
+        }
+
+        var PASOS = [
+          {
+            sel: [".brand h1"],
+            titulo: "¡Bienvenido a HorApprio! 👋",
+            cuerpo:
+              "Te damos un recorrido rápido por la app para que sepas dónde está cada cosa. No es obligatorio: puedes darle <b>Siguiente</b> sin tocar nada, o <b>Saltar tutorial</b> cuando quieras.",
+          },
+          {
+            modal: "authModal",
+            sel: ["#btnGoogleLogin"],
+            titulo: "Inicia sesión con Google",
+            cuerpo:
+              "Con tu cuenta de Google guardas tu horario en la nube, lo ves desde cualquier dispositivo y desbloqueas Amigos y Grupos de estudio. Sin iniciar sesión la app funciona igual, pero solo en este navegador.",
+          },
+          {
+            modal: "authModal",
+            sel: ["#btnMicrosoftLogin"],
+            titulo: "Acceso institucional (próximamente)",
+            cuerpo:
+              "Esta opción para entrar con tu correo de Unimagdalena <b>todavía no está disponible</b> — muy pronto. Por ahora usa la opción de Google.",
+          },
+          {
+            modal: "profileEditModal",
+            sel: ['[data-tut="perfilAcademico"]'],
+            titulo: "Tu perfil académico",
+            cuerpo:
+              "Una vez inicies sesión, entra a tu cuenta (ícono de arriba a la derecha) → <b>“Editar perfil”</b> para poner tu programa, semestre y universidad. Tus amigos ven estos datos junto a tu horario destacado.",
+          },
+          {
+            tab: "inicio",
+            sel: ["#formCard"],
+            titulo: "Crear clase",
+            cuerpo:
+              "Aquí agregas cada materia: nombre, profesor (opcional) y el color con el que se va a ver en tu calendario.",
+          },
+          {
+            tab: "inicio",
+            sel: ['[data-tut="sesionesRow"]'],
+            titulo: "Días, cursos y horarios",
+            cuerpo:
+              'Agrega un bloque por cada sesión de la materia — el curso y el horario pueden variar en cada día — con “+ Agregar otro día”. Por defecto solo ves de lunes a viernes; si necesitas sábados o domingos, actívalos desde el menú ⋮ de arriba, en <b>“Ajustar Hora”</b>.',
+          },
+          {
+            tab: "inicio",
+            sel: [".color-row"],
+            titulo: "Color",
+            cuerpo:
+              "Elige un color para identificar la materia de un vistazo en el calendario.",
+          },
+          {
+            tab: "inicio",
+            sel: ["#submitBtn"],
+            titulo: "Agregar al horario",
+            cuerpo:
+              "Cuando termines, dale aquí. Verás la clase reflejada al instante en el calendario semanal de al lado.",
+          },
+          {
+            tab: "calendario",
+            sel: ["#calMesGrid", "#calendarioCard"],
+            titulo: "Calendario",
+            cuerpo:
+              "La vista general de tu horario: un calendario mensual con puntos de color — azul si hay clase, verde si hay actividad y morado si hay una reunión de grupo. Toca cualquier día para ver el detalle debajo.",
+          },
+          {
+            tab: "clases",
+            sel: ["#statsCard"],
+            titulo: "Estadísticas",
+            cuerpo:
+              "Un resumen rápido de tu carga: número de clases, horas semanales y materias.",
+          },
+          {
+            tab: "clases",
+            sel: ["#total-class", "#listBody"],
+            titulo: "Todas tus clases",
+            cuerpo:
+              "El listado completo de lo que agregaste. Usa el lápiz ✏️ para editar una clase y el bote de basura 🗑️ para eliminarla.",
+          },
+          {
+            tab: "actividades",
+            sel: ["#activitiesCard"],
+            titulo: "Actividades",
+            cuerpo:
+              "Agenda parciales, talleres, exposiciones o entregas: elige la materia, el tipo y <b>la fecha que quieras</b> — no tiene que coincidir con un día de clase. Aparecen también marcadas en el Calendario.",
+          },
+          {
+            tab: "puntos",
+            sel: [".pg-eye", "#puntosCard .card-h", "#puntosCard"],
+            titulo: "Puntos y ponderado",
+            cuerpo:
+              "Lleva tus notas por materia en escala 0–500; el ponderado se calcula solo. El ojito 👁️ junto a cada materia la incluye o excluye del cálculo (útil si está homologada), y el lápiz ✏️ abre el detalle de la materia para escribir sus créditos.",
+          },
+          {
+            tab: "horarios",
+            sel: ["#saveName"],
+            titulo: "Guardar tu horario",
+            cuerpo:
+              "Ponle un nombre y guárdalo en este navegador. Puedes tener varios horarios guardados (por ejemplo, distintas combinaciones de grupos) y cargar el que necesites.",
+          },
+          {
+            tab: "horarios",
+            sel: [".star-btn", "#savedList", "#savedCard"],
+            titulo: "El horario destacado ★",
+            cuerpo:
+              "Marca uno de tus horarios guardados con la estrella para volverlo tu “destacado”. Es el <b>único</b> que ven tus amigos, y el único donde funcionan Puntos y Actividades.",
+          },
+          {
+            sel: ["#btnAmigos"],
+            titulo: "Amigos",
+            cuerpo:
+              "Agrega amigos con su código de 6 caracteres (el tuyo aparece aquí una vez inicies sesión) para ver el horario de hoy de cada uno y quién está libre en este momento.",
+          },
+          {
+            sel: ["#btnGrupos"],
+            titulo: "Grupos de estudio",
+            cuerpo:
+              "Crea un grupo con tus amigos y agenden reuniones: título, fecha, hora y lugar. Todas las reuniones de tus grupos aparecen también marcadas en el Calendario.",
+          },
+          {
+            sel: ["#btnMenu"],
+            titulo: "Más opciones",
+            cuerpo:
+              "Desde aquí exportas tu horario a PDF o imagen, lo guardas o cargas como archivo, generas un enlace o código QR para compartirlo, y ajustas el rango de horas y los días de la semana (incluye sábado y domingo) en “Ajustar Hora”.",
+          },
+          {
+            sel: [],
+            titulo: "¡Listo! 🎉",
+            cuerpo:
+              'Eso es todo. Ya puedes explorar por tu cuenta — y si quieres repetir este recorrido, lo encuentras cuando quieras en el menú ⋮ → <b>“Ver tutorial”</b>.',
+          },
+        ];
+
+        var idx = 0,
+          activo = false,
+          modalAbierto = null,
+          shield = null,
+          spot = null,
+          tip = null;
+
+        function cerrarModalAbierto() {
+          if (modalAbierto) {
+            var m = $(modalAbierto);
+            if (m) m.classList.remove("show");
+            modalAbierto = null;
+          }
+        }
+
+        function crearDOM() {
+          shield = document.createElement("div");
+          shield.id = "tutShield";
+          spot = document.createElement("div");
+          spot.id = "tutSpot";
+          tip = document.createElement("div");
+          tip.id = "tutTip";
+          tip.innerHTML =
+            '<div class="tut-count" id="tutCount"></div>' +
+            '<h3 id="tutTitulo"></h3>' +
+            '<p id="tutCuerpo"></p>' +
+            '<div class="tut-actions">' +
+            '<button type="button" class="btn ghost" id="tutSkip">Saltar tutorial</button>' +
+            '<div style="flex:1"></div>' +
+            '<button type="button" class="btn ghost" id="tutBack">Atrás</button>' +
+            '<button type="button" class="btn accent" id="tutNext">Siguiente</button>' +
+            "</div>";
+          document.body.appendChild(shield);
+          document.body.appendChild(spot);
+          document.body.appendChild(tip);
+          $("tutSkip").addEventListener("click", cerrarTutorial);
+          $("tutBack").addEventListener("click", function () {
+            irPaso(idx - 1);
+          });
+          $("tutNext").addEventListener("click", function () {
+            if (idx >= PASOS.length - 1) {
+              cerrarTutorial();
+              return;
+            }
+            irPaso(idx + 1);
+          });
+          window.addEventListener("resize", function () {
+            if (activo) posicionar(elegirObjetivo(PASOS[idx].sel));
+          });
+        }
+
+        function posicionar(target) {
+          var vw = window.innerWidth,
+            vh = window.innerHeight;
+          var movil = vw <= 940;
+          if (target) {
+            var r = target.getBoundingClientRect();
+            var pad = 6;
+            spot.style.display = "block";
+            spot.style.left = Math.max(0, r.left - pad) + "px";
+            spot.style.top = Math.max(0, r.top - pad) + "px";
+            spot.style.width = r.width + pad * 2 + "px";
+            spot.style.height = r.height + pad * 2 + "px";
+            shield.classList.remove("dim");
+          } else {
+            spot.style.display = "none";
+            shield.classList.add("dim");
+          }
+
+          if (movil) {
+            tip.classList.add("sheet");
+            tip.style.left = "";
+            tip.style.top = "";
+          } else {
+            tip.classList.remove("sheet");
+            tip.style.right = "";
+            tip.style.bottom = "";
+            var margen = 14;
+            var tw = tip.offsetWidth || 340;
+            var th = tip.offsetHeight || 160;
+            var left, top;
+            if (target) {
+              var r2 = target.getBoundingClientRect();
+              top = r2.bottom + 16;
+              if (top + th > vh - margen) top = r2.top - th - 16;
+              if (top < margen) top = Math.max(margen, (vh - th) / 2);
+              left = r2.left + r2.width / 2 - tw / 2;
+              left = Math.min(Math.max(left, margen), vw - tw - margen);
+            } else {
+              left = (vw - tw) / 2;
+              top = (vh - th) / 2;
+            }
+            tip.style.left = left + "px";
+            tip.style.top = top + "px";
+          }
+        }
+
+        function renderPaso() {
+          var paso = PASOS[idx];
+          var target = elegirObjetivo(paso.sel);
+          if (target) {
+            try {
+              target.scrollIntoView({ block: "center", behavior: "auto" });
+            } catch (e) {}
+          }
+          requestAnimationFrame(function () {
+            posicionar(target);
+          });
+          $("tutCount").textContent = "Paso " + (idx + 1) + " de " + PASOS.length;
+          $("tutTitulo").textContent = paso.titulo;
+          $("tutCuerpo").innerHTML = paso.cuerpo;
+          $("tutBack").style.display = idx === 0 ? "none" : "";
+          $("tutNext").textContent =
+            idx === PASOS.length - 1 ? "Empezar a usar la app" : "Siguiente";
+        }
+
+        function irPaso(i) {
+          if (i < 0 || i >= PASOS.length) return;
+          idx = i;
+          var paso = PASOS[idx];
+          var modalDeseado = paso.modal || null;
+          if (modalDeseado !== modalAbierto) {
+            cerrarModalAbierto();
+            if (modalDeseado) {
+              var m = $(modalDeseado);
+              if (m) {
+                m.classList.add("show");
+                modalAbierto = modalDeseado;
+              }
+            }
+          }
+          if (
+            paso.tab &&
+            document.body.getAttribute("data-tab") !== paso.tab &&
+            window.irATab
+          ) {
+            window.irATab(paso.tab);
+          }
+          requestAnimationFrame(function () {
+            requestAnimationFrame(renderPaso);
+          });
+        }
+
+        function cerrarTutorial() {
+          activo = false;
+          cerrarModalAbierto();
+          if (shield) shield.parentNode.removeChild(shield);
+          if (spot) spot.parentNode.removeChild(spot);
+          if (tip) tip.parentNode.removeChild(tip);
+          shield = spot = tip = null;
+          try {
+            localStorage.setItem(TUTORIAL_KEY, "1");
+          } catch (e) {}
+        }
+
+        function iniciarTutorial() {
+          if (activo) return;
+          activo = true;
+          idx = 0;
+          modalAbierto = null;
+          crearDOM();
+          irPaso(0);
+        }
+        window.iniciarTutorialHorApprio = iniciarTutorial;
+
+        // primera visita: se abre solo, con un pequeño respiro para que
+        // el resto de la app termine de pintarse primero
+        try {
+          if (!localStorage.getItem(TUTORIAL_KEY)) {
+            window.addEventListener("load", function () {
+              setTimeout(iniciarTutorial, 900);
+            });
+          }
+        } catch (e) {}
+
+        document.addEventListener("DOMContentLoaded", function () {
+          var btn = $("btnVerTutorial");
+          if (btn) {
+            btn.addEventListener("click", function () {
+              if ($("actionsModal")) $("actionsModal").classList.remove("show");
+              iniciarTutorial();
+            });
+          }
+        });
+      })();
+    </script>
+
     <script type="module" src="firebase/app-integration.js"></script>
 
   </body>
