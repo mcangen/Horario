@@ -176,6 +176,11 @@ service cloud.firestore {
     match /users/{uid}/settings/{docId} {
       allow read: if request.auth != null && existeAmistad(request.auth.uid, uid);
     }
+    // Copia pública del horario destacado ★ (solo clases + días/horas,
+    // nunca puntos ni actividades): es lo que ven los amigos.
+    match /users/{uid}/compartido/{docId} {
+      allow read: if request.auth != null && existeAmistad(request.auth.uid, uid);
+    }
 
     match /users/{uid}/{coleccion}/{docId} {
       allow read, write: if request.auth != null && request.auth.uid == uid;

@@ -3435,22 +3435,12 @@
                     "
                   >
                     <div style="font-size: 13px; color: var(--ink)">
-                      Editando (se guarda solo): <b id="currentSavedName"></b>
-                    </div>
-                    <div style="display: flex; gap: 8px">
-                      <button
-                        class="btn ghost"
-                        id="btnStopEditing"
-                        type="button"
-                        style="padding: 7px 12px; font-size: 13px"
-                        title="Dejar de editar este horario guardado (para guardar como uno nuevo abajo)"
-                      >
-                        Guardar como otro
-                      </button>
+                      Abierto (se guarda solo): <b id="currentSavedName"></b>
+                      <span id="currentSavedStar" style="display: none; color: var(--accent-ink)"> · ★ lo ven tus amigos</span>
                     </div>
                   </div>
                   <div class="field" style="margin-bottom: 6px">
-                    <label for="saveName">Guardar el horario actual como</label>
+                    <label for="saveName">Crear nuevo horario</label>
                     <div style="display: flex; gap: 8px">
                       <input
                         type="text"
@@ -3463,15 +3453,17 @@
                         class="btn accent"
                         id="btnSaveNamed"
                         type="button"
-                        title="Guardar en este navegador"
+                        title="Crear un horario nuevo vacío y abrirlo"
                       >
-                        Guardar
+                        Crear
                       </button>
                     </div>
                   </div>
                   <div class="hint" style="margin-bottom: 14px">
-                    Se guarda en este navegador (sin descargar nada). Si usas un
-                    nombre existente, lo reemplaza. <br> <b>(Antes de entrar a un link de horario, no olvides guardar o guardar los cambios de tu horario actual)</b>
+                    Cada horario guarda sus propias clases, actividades y puntos,
+                    y todo se guarda solo. Crear uno nuevo no borra nada del que
+                    tenías abierto: lo encuentras abajo para volver a abrirlo.
+                    Marca con ★ el horario que quieres que vean tus amigos.
                   </div>
                   <div id="savedList"></div>
                 </div>
@@ -4446,47 +4438,60 @@
           if (!r.ok) toast("⚠ " + r.error.msg);
         }
 
-        // ---------- Vínculo con el horario guardado que se está editando ----------
+        // ---------- Vínculo con el horario guardado que está abierto ----------
+        // Modelo: cada horario guardado (users/{uid}/schedules/{id}) es
+        // DUEÑO de su contenido completo — clases, actividades y puntos.
+        // Las colecciones en vivo (classes/activities/pointsSubjects) son
+        // solo "el horario que está abierto ahora mismo" (currentSavedId,
+        // recordado entre sesiones en settings.horarioAbiertoId). Cada
+        // cambio se copia solo al documento del horario abierto, y al
+        // cambiar de horario primero se guarda el actual y luego se carga
+        // el otro completo — así ningún horario pisa a otro.
+        //
+        // El destacado ★ es solo "el que ven mis amigos" (se publica una
+        // copia con clases + días/horas en users/{uid}/compartido/destacado,
+        // ver publicarDestacado) y se puede cambiar cuando se quiera.
+        var FORMATO_HORARIO = 2; // docs con formato 2 ya guardan activities/puntos propios
+        var horarioAbiertoIdCache = ""; // settings.horarioAbiertoId (último horario abierto)
+
         function updateSavedBanner() {
           var banner = $("currentSavedBanner");
           if (!banner) return;
-          if (currentSavedId) {
-            var entry = getSavedList().filter(function (x) {
-              return x.id === currentSavedId;
-            })[0];
-            if (!entry) {
-              currentSavedId = null;
-              banner.style.display = "none";
-              renderActivities();
-              renderPuntos();
-              return;
-            }
+          var entry = currentSavedId
+            ? getSavedList().filter(function (x) {
+                return x.id === currentSavedId;
+              })[0]
+            : null;
+          if (entry) {
             $("currentSavedName").textContent = entry.name;
+            $("currentSavedStar").style.display = entry.id === favoritoIdCache ? "" : "none";
             banner.style.display = "flex";
           } else {
             banner.style.display = "none";
           }
-          renderActivities();
-          renderPuntos();
         }
-        // Si el horario actual está "vinculado" a un horario guardado (por
-        // ejemplo el destacado ★, que se carga solo al abrir la app), cada
-        // cambio se refleja ahí automáticamente — ya no hace falta un botón
-        // "Guardar cambios". Sin control de versión: el dato real vive en
-        // classes/activities/pointsSubjects, así que este snapshot es solo
-        // una copia de conveniencia y perder una carrera contra OTRO cambio
-        // del MISMO horario no arriesga ningún dato del usuario.
-        //
-        // Pero hay una carrera distinta y sí destructiva: mientras se está
-        // CAMBIANDO de horario (ver _reemplazandoHorario / reemplazarHorarioActual),
-        // classes/activities/pointsSubjects pasan, en un instante, a reflejar
-        // el horario NUEVO (B) — pero currentSavedId todavía apunta al
-        // horario VIEJO (A) hasta que loadNamedSchedule() termina de esperar
-        // esa operación. Si en esa ventana (más probable cuanto más lenta la
-        // red) esta función llega a ejecutarse, escribe el contenido de B
-        // por encima del documento de A, perdiendo el horario A por
-        // completo. _reemplazandoHorario evita que esto dispare mientras
-        // ese cambio de horario está en curso.
+        function snapshotHorarioActual(name) {
+          return {
+            name: name,
+            savedAt: new Date().toISOString(),
+            formato: FORMATO_HORARIO,
+            meta: state.meta,
+            settings: state.settings,
+            classes: clasesLimpias(),
+            activities: actividadesLimpias(),
+            puntos: puntosLimpios(),
+          };
+        }
+        function _recordarHorarioAbierto(id) {
+          horarioAbiertoIdCache = id || "";
+          programarGuardarSettings({ horarioAbiertoId: id || "" });
+        }
+
+        // Autoguardado del horario abierto. _reemplazandoHorario evita la
+        // carrera destructiva de cambiar de horario: mientras las colecciones
+        // en vivo pasan a reflejar el horario NUEVO, currentSavedId todavía
+        // puede apuntar al VIEJO — si el autoguardado corriera en esa
+        // ventana, escribiría el contenido nuevo encima del viejo.
         var _guardarEnActualTimer = null;
         var _reemplazandoHorario = false;
         function programarGuardarEnActual() {
@@ -4495,100 +4500,179 @@
           _guardarEnActualTimer = setTimeout(guardarEnActualAhora, 800);
         }
         async function guardarEnActualAhora() {
-          if (!currentSavedId || _reemplazandoHorario) return;
+          clearTimeout(_guardarEnActualTimer);
+          if (!currentSavedId || _reemplazandoHorario) return true;
           var entry = getSavedList().filter(function (x) {
             return x.id === currentSavedId;
           })[0];
-          if (!entry) {
-            currentSavedId = null;
-            updateSavedBanner();
-            return;
-          }
+          if (!entry) return true;
           var uidFs = window.uidActual && window.uidActual();
-          if (!uidFs) return;
-          // Ya no se incluyen activities/puntos aquí: son colecciones
-          // globales del usuario, ligadas únicamente al horario destacado
-          // (ver enHorarioDestacado), no una copia propia de cada horario
-          // guardado — ver el comentario grande en reemplazarHorarioActual().
-          var datos = {
-            name: entry.name,
-            savedAt: new Date().toISOString(),
-            meta: state.meta,
-            settings: state.settings,
-            classes: clasesLimpias(),
-          };
+          if (!uidFs) return false;
+          var datos = snapshotHorarioActual(entry.name);
           var r = await window.firestoreCrud.ejecutarEscritura(function () {
             return window.firestoreCrud.actualizarSinVersion(uidFs, "schedules", entry.id, datos);
           });
-          if (!r.ok) toast("⚠ No se pudo actualizar el horario guardado. " + r.error.msg);
+          if (!r.ok) {
+            toast("⚠ No se pudo guardar el horario. " + r.error.msg);
+            return false;
+          }
+          if (entry.id === favoritoIdCache) publicarDestacado();
+          return true;
         }
-        function stopEditingSaved() {
-          currentSavedId = null;
-          updateSavedBanner();
-          renderActivities();
-          renderPuntos();
-          $("saveName").focus();
+        // Antes de cambiar de horario: lo pendiente del horario abierto
+        // (incluidas ediciones de Puntos que aún no se escribían) queda
+        // dentro de su documento. Los timers de Puntos se cancelan porque
+        // esos documentos en vivo se van a reemplazar — su contenido ya
+        // viaja en el snapshot de arriba.
+        async function guardarHorarioAbiertoAntesDeCambiar() {
+          Object.keys(_puntosGuardarTimers).forEach(function (k) {
+            clearTimeout(_puntosGuardarTimers[k]);
+          });
+          _puntosGuardarTimers = {};
+          return await guardarEnActualAhora();
+        }
+
+        // Copia pública (solo clases + días/horas, nunca puntos/actividades)
+        // del destacado ★ — es lo que leen los amigos.
+        var _publicarTimer = null;
+        function publicarDestacado() {
+          clearTimeout(_publicarTimer);
+          _publicarTimer = setTimeout(publicarDestacadoAhora, 300);
+        }
+        async function publicarDestacadoAhora() {
+          var uidFs = window.uidActual && window.uidActual();
+          if (!uidFs || !favoritoIdCache) return;
+          var entry = getSavedList().filter(function (x) {
+            return x.id === favoritoIdCache;
+          })[0];
+          if (!entry) return;
+          var abierto = entry.id === currentSavedId;
+          var datos = {
+            name: entry.name,
+            classes: abierto ? clasesLimpias() : entry.classes || [],
+            settings: Object.assign(
+              { days: 5, dayStart: "07:00", dayEnd: "19:00" },
+              (abierto ? state.settings : entry.settings) || {},
+            ),
+          };
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.actualizarSinVersion(uidFs, "compartido", "destacado", datos);
+          });
+          if (!r.ok) console.warn("[Destacado] No se pudo publicar:", r.error);
         }
 
         // ---------- Horarios guardados con nombre (Firestore: users/{uid}/schedules) ----------
         function getSavedList() {
           return savedListCache;
         }
-        async function saveNamedSchedule(name) {
+        function _nombreLibre(base) {
+          var nombres = {};
+          getSavedList().forEach(function (x) {
+            nombres[norm(x.name)] = true;
+          });
+          if (!nombres[norm(base)]) return base;
+          for (var i = 2; ; i++) {
+            if (!nombres[norm(base + " (" + i + ")")]) return base + " (" + i + ")";
+          }
+        }
+        // Crea un horario guardado NUEVO con `datos` y lo abre. El horario
+        // que estaba abierto se guarda antes, completo, y queda intacto.
+        async function abrirHorarioNuevo(name, datos, mensajeExito) {
           name = (name || "").trim();
           if (!name) {
-            toast("Escribe un nombre para guardar este horario.");
-            return;
+            toast("Escribe un nombre para el nuevo horario.");
+            return false;
           }
           var uidFs = window.uidActual && window.uidActual();
           if (!uidFs) {
             toast("⚠ Sesión no lista todavía, intenta de nuevo en un momento.");
-            return;
+            return false;
           }
-          var list = getSavedList();
-          var existing = list.filter(function (x) {
+          var clash = getSavedList().filter(function (x) {
             return norm(x.name) === norm(name);
           })[0];
-          var id = existing ? existing.id : uid();
-          // Igual que en guardarEnActualAhora(): sin activities/puntos, son
-          // globales y viven solo ligadas al destacado.
-          var datos = {
+          if (clash) {
+            toast('Ya existe un horario llamado "' + clash.name + '".');
+            return false;
+          }
+          if (!(await guardarHorarioAbiertoAntesDeCambiar())) return false;
+          var id = uid();
+          var doc = {
             name: name,
             savedAt: new Date().toISOString(),
-            meta: state.meta,
-            settings: state.settings,
-            classes: clasesLimpias(),
+            formato: FORMATO_HORARIO,
+            meta: Object.assign({ title: name, author: state.meta.author || "" }, datos.meta || {}),
+            settings: Object.assign({}, state.settings, datos.settings || {}),
+            classes: datos.classes || [],
+            activities: sanitizeActivities(datos.activities),
+            puntos: sanitizePuntos(datos.puntos),
           };
-          var r = existing
-            ? await window.firestoreCrud.ejecutarEscritura(function () {
-                return window.firestoreCrud.actualizarConVersion(uidFs, "schedules", id, datos, existing.version);
-              })
-            : await window.firestoreCrud.ejecutarEscritura(function () {
-                return window.firestoreCrud.crearDoc(uidFs, "schedules", id, datos);
-              });
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.crearDoc(uidFs, "schedules", id, doc);
+          });
           if (!r.ok) {
             toast("⚠ " + r.error.msg);
             return false;
           }
+          var ok = await reemplazarHorarioActual(doc, mensajeExito || 'Horario "' + name + '" creado.', true);
+          if (!ok) return false;
           currentSavedId = id;
+          _recordarHorarioAbierto(id);
+          resetForm();
           updateSavedBanner();
-          toast(existing ? 'Horario "' + name + '" actualizado.' : 'Horario "' + name + '" guardado.');
+          renderSavedList();
+          reconciliarPuntos();
           return true;
         }
+        async function crearNuevoHorario(name) {
+          var ok = await abrirHorarioNuevo(name, { classes: [], activities: [], puntos: { subjects: [] } });
+          if (ok) $("saveName").value = "";
+        }
+        // Copia fija del horario abierto (ej. el respaldo antes de aplicar
+        // una combinación del armador): se crea y NO se abre.
+        async function guardarCopiaDelActual(name) {
+          var uidFs = window.uidActual && window.uidActual();
+          if (!uidFs) return false;
+          name = _nombreLibre(name);
+          var r = await window.firestoreCrud.ejecutarEscritura(function () {
+            return window.firestoreCrud.crearDoc(uidFs, "schedules", uid(), snapshotHorarioActual(name));
+          });
+          if (!r.ok) {
+            toast("⚠ " + r.error.msg);
+            return false;
+          }
+          return true;
+        }
+        // Actividades/puntos que pertenecen a un horario guardado. Los
+        // documentos de antes (sin formato 2) no tenían copia propia fiable:
+        // arrancan con lo que tuvieran guardado, o vacíos.
+        function _contenidoDe(entry) {
+          return {
+            meta: entry.meta,
+            settings: entry.settings,
+            classes: entry.classes || [],
+            activities: entry.activities || [],
+            puntos: entry.puntos || { subjects: [] },
+          };
+        }
         async function loadNamedSchedule(id) {
-          // Ya no hace falta preguntar por "cambios sin guardar": todo lo
-          // que hubiera en el horario de trabajo actual ya está guardado
-          // (en vivo, y reflejado en el horario al que estuviera vinculado
-          // si había uno — ver programarGuardarEnActual).
+          if (id === currentSavedId) {
+            toast("Ese horario ya está abierto.");
+            return;
+          }
           var entry = getSavedList().filter(function (x) {
             return x.id === id;
           })[0];
           if (!entry) return;
-          var ok = await reemplazarHorarioActual(entry, 'Horario "' + entry.name + '" cargado.');
+          if (!(await guardarHorarioAbiertoAntesDeCambiar())) return;
+          var ok = await reemplazarHorarioActual(_contenidoDe(entry), 'Horario "' + entry.name + '" abierto.', true);
           if (!ok) return;
           currentSavedId = entry.id;
+          _recordarHorarioAbierto(entry.id);
           resetForm();
           updateSavedBanner();
+          renderSavedList();
+          reconciliarPuntos();
         }
         async function renameNamedSchedule(id) {
           var list = getSavedList();
@@ -4617,12 +4701,13 @@
           var uidFs = window.uidActual && window.uidActual();
           var oldName = entry.name;
           var r = await window.firestoreCrud.ejecutarEscritura(function () {
-            return window.firestoreCrud.actualizarConVersion(uidFs, "schedules", id, { name: name }, entry.version);
+            return window.firestoreCrud.actualizarSinVersion(uidFs, "schedules", id, { name: name });
           });
           if (!r.ok) {
             toast("⚠ " + r.error.msg);
             return;
           }
+          if (id === favoritoIdCache) publicarDestacado();
           toast('"' + oldName + '" ahora se llama "' + name + '".');
         }
         async function deleteNamedSchedule(id) {
@@ -4631,14 +4716,18 @@
           })[0];
           if (!entry) return;
           if (id === favoritoIdCache) {
-            toast("Tu horario destacado ★ no se puede eliminar.");
+            toast("Marca otro horario como destacado ★ antes de eliminar este.");
+            return;
+          }
+          if (id === currentSavedId) {
+            toast("Abre otro horario antes de eliminar el que estás usando.");
             return;
           }
           if (
             !confirm(
               '¿Eliminar el horario guardado "' +
                 entry.name +
-                '"? Esta acción no se puede deshacer.',
+                '" con sus clases, actividades y puntos? Esta acción no se puede deshacer.',
             )
           )
             return;
@@ -4650,8 +4739,6 @@
             toast("⚠ " + r.error.msg);
             return;
           }
-          if (currentSavedId === id) currentSavedId = null;
-          updateSavedBanner();
           toast('Horario "' + entry.name + '" eliminado.');
         }
         function renderSavedList() {
@@ -4661,7 +4748,7 @@
           var principalId = getPrincipalId();
           if (list.length === 0) {
             body.innerHTML =
-              '<div style="color:var(--ink-3);font-size:13px">Aún no has guardado horarios con nombre aquí. Escribe un nombre arriba y presiona "Guardar".</div>';
+              '<div style="color:var(--ink-3);font-size:13px">Aún no tienes horarios guardados. Escribe un nombre arriba y presiona "Crear".</div>';
             refreshCompareSelects();
             return;
           }
@@ -4689,10 +4776,10 @@
               '<div class="li-main"><div class="li-mat">' +
               esc(entry.name) +
               (entry.id === principalId
-                ? '<span class="li-badge">★ Mi horario</span>'
+                ? '<span class="li-badge">★ Destacado</span>'
                 : "") +
               (entry.id === currentSavedId
-                ? ' <span style="color:var(--accent-ink);font-weight:600">· editando</span>'
+                ? ' <span style="color:var(--accent-ink);font-weight:600">· abierto</span>'
                 : "") +
               '</div><div class="li-sub">' +
               count +
@@ -4700,33 +4787,31 @@
               (when ? " · " + esc(when) : "") +
               "</div></div>";
             html += '<div class="li-actions">';
-            // El destacado ★ es de una sola asignación (ver setPrincipalId):
-            // sin principalId todavía nada está fijo, así que cualquier
-            // entrada se puede marcar; una vez fijo, solo se muestra como
-            // indicador estático en SU entrada (sin data-star-saved, para
-            // que no quede clicable) y desaparece de las demás — mostrar
-            // ahí un botón que siempre va a rechazar el click es confuso.
-            if (!principalId) {
+            // El destacado ★ (lo que ven los amigos) se puede cambiar a
+            // cualquier horario cuando se quiera.
+            if (entry.id === principalId) {
+              html +=
+                '<span class="icon-btn star-btn on" title="Tu horario destacado: es el que ven tus amigos"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>';
+            } else {
               html +=
                 '<button class="icon-btn star-btn" data-star-saved="' +
                 entry.id +
-                '" title="Marcar como tu horario destacado"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>';
-            } else if (entry.id === principalId) {
-              html +=
-                '<span class="icon-btn star-btn on" title="Tu horario destacado — no se puede cambiar"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>';
+                '" title="Destacar: tus amigos verán este horario"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>';
             }
-            html +=
-              '<button class="icon-btn" data-load-saved="' +
-              entry.id +
-              '" title="Cargar este horario"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></button>';
+            if (entry.id !== currentSavedId) {
+              html +=
+                '<button class="icon-btn" data-load-saved="' +
+                entry.id +
+                '" title="Abrir este horario"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></button>';
+            }
             html +=
               '<button class="icon-btn" data-ren-saved="' +
               entry.id +
               '" title="Renombrar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>';
-            // El destacado tampoco se puede borrar (deleteNamedSchedule lo
-            // rechaza igual, esto solo evita mostrar un botón que siempre
-            // va a fallar).
-            if (entry.id !== principalId) {
+            // Ni el destacado ni el abierto se pueden borrar
+            // (deleteNamedSchedule lo rechaza igual, esto solo evita
+            // mostrar un botón que siempre va a fallar).
+            if (entry.id !== principalId && entry.id !== currentSavedId) {
               html +=
                 '<button class="icon-btn del" data-del-saved="' +
                 entry.id +
@@ -6091,16 +6176,14 @@
                   ? data
                   : null;
               if (!classes) throw new Error("estructura");
-              var ok = await reemplazarHorarioActual(
+              // Se abre como un horario guardado nuevo (con sus puntos y
+              // actividades): el que estaba abierto no se toca.
+              var nombre = _nombreLibre((data.meta && data.meta.title) || "Horario importado");
+              await abrirHorarioNuevo(
+                nombre,
                 { meta: data.meta, settings: data.settings, classes: classes, activities: data.activities, puntos: data.puntos },
-                "Horario cargado. Ya puedes editarlo.",
-                true, // .horario.json es un respaldo explícito: sí restaura puntos/actividades
+                'Horario importado como "' + nombre + '".',
               );
-              if (ok) {
-                currentSavedId = null;
-                resetForm();
-                updateSavedBanner();
-              }
             } catch (err) {
               toast("No se pudo leer el archivo. ¿Es un .horario.json válido?");
             }
@@ -6673,27 +6756,13 @@
             location.hash = "";
           }
         }
-        // Reemplaza TODO lo que hay en Firestore (classes/activities/
-        // settings) por el contenido de `datos` — usado tanto para cargar un
-        // horario compartido por enlace como para cargar un horario guardado
-        // con nombre: en ambos casos es "esto reemplaza mi horario actual".
-        //
-        // Por defecto NO toca activities/pointsSubjects: son colecciones
-        // GLOBALES del usuario, ligadas solo al horario destacado (ver
-        // enHorarioDestacado), no una copia particular de cada horario
-        // guardado. Antes SÍ se borraban y recreaban aquí a partir de la foto
-        // que ese horario tuviera guardada — eso es justo lo que hacía que
-        // "cambiar de horario" reiniciara los puntos: en cuanto se cargaba
-        // otro horario (o se volvía al destacado), sus créditos/notas reales
-        // se pisaban con la foto vieja que ese documento tuviera guardada
-        // (o con ceros, si nunca la había tenido). También evita compartir
-        // sin querer las notas/actividades propias al mandar un enlace de
-        // horario — eso nunca debió viajar con "compartir horario".
-        //
-        // incluirPuntosYActividades: true SOLO para restaurar un archivo
-        // .horario.json exportado (loadFile) — ahí sí es un respaldo
-        // explícito del usuario para sí mismo, no un horario alterno que
-        // esté solo mirando de paso.
+        // Reemplaza lo que hay en las colecciones en vivo (classes/settings,
+        // y activities/pointsSubjects si incluirPuntosYActividades) por el
+        // contenido de `datos`. Quien llama SIEMPRE guarda antes el horario
+        // abierto en su propio documento (guardarHorarioAbiertoAntesDeCambiar),
+        // así que esto nunca pierde nada: cada horario guardado es dueño de
+        // sus clases, actividades y puntos (ver el comentario de
+        // FORMATO_HORARIO más arriba).
         async function reemplazarHorarioActual(datos, mensajeExito, incluirPuntosYActividades) {
           var uidFs = window.uidActual && window.uidActual();
           if (!uidFs) {
@@ -6774,22 +6843,24 @@
             return true;
           } finally {
             // Se libera SOLO después de que reemplazarHorarioActual termina
-            // del todo. Quien llama (loadNamedSchedule, aplicarHorarioCompartido,
-            // _cargarDestacadoAlAbrir) actualiza currentSavedId justo después,
+            // del todo. Quien llama (loadNamedSchedule, abrirHorarioNuevo,
+            // _resolverHorarioAbierto) actualiza currentSavedId justo después,
             // de forma síncrona (sin await de por medio), así que para cuando
             // algo pueda volver a disparar programarGuardarEnActual(),
             // currentSavedId ya apunta al horario correcto.
             _reemplazandoHorario = false;
           }
         }
+        // Un horario compartido por enlace se abre como un horario guardado
+        // NUEVO (sin las actividades/puntos de quien lo compartió): el que
+        // estaba abierto queda intacto en "Horarios guardados".
         async function aplicarHorarioCompartido(data) {
-          var ok = await reemplazarHorarioActual(data, "Horario compartido cargado.");
-          if (ok) {
-            currentSavedId = null;
-            updateSavedBanner();
-            renderActivities();
-            renderPuntos();
-          }
+          var nombre = _nombreLibre("Compartido: " + ((data.meta && data.meta.title) || "sin título"));
+          await abrirHorarioNuevo(
+            nombre,
+            { meta: data.meta, settings: data.settings, classes: data.classes, activities: [], puntos: { subjects: [] } },
+            'Horario compartido abierto como "' + nombre + '".',
+          );
         }
 
         // ---------- Comparador de horarios ----------
@@ -7345,18 +7416,10 @@
             m2t(d.getHours() * 60 + d.getMinutes()) +
             ")";
           // El respaldo tiene que quedar guardado ANTES de borrar nada, y hay
-          // que esperar a que termine (antes se llamaba sin await, así que
-          // "aplicar" podía adelantarse a que el respaldo terminara de
-          // escribirse). saveNamedSchedule() vincula currentSavedId al
-          // respaldo recién creado — eso no es lo que queremos: un respaldo
-          // es una foto fija, no algo a lo que el autoguardado del horario
-          // vinculado deba seguir escribiendo con cada cambio futuro. Por eso
-          // se restaura el vínculo que hubiera antes justo después.
-          var vinculoAntes = currentSavedId;
-          var respaldoOk = await saveNamedSchedule(backupName);
-          currentSavedId = vinculoAntes;
-          updateSavedBanner();
-          if (!respaldoOk) return; // saveNamedSchedule ya mostró el error
+          // que esperar a que termine. Es una copia fija: se crea pero NO se
+          // abre, el horario abierto sigue siendo el mismo.
+          var respaldoOk = await guardarCopiaDelActual(backupName);
+          if (!respaldoOk) return; // guardarCopiaDelActual ya mostró el error
 
           var idsCombo = {};
           s.cls.forEach(function (c) {
@@ -7392,6 +7455,33 @@
         /* PUNTOSS */
         var puntosData = state.puntos;
         var puntosOpenId = null; // id de la materia desplegada (una a la vez)
+        var _puntosRenderPendiente = false; // llegó un cambio mientras se escribía en un campo
+
+        function _inputPuntosEnfocado() {
+          var host = $("puntosBody");
+          var el = document.activeElement;
+          return host && el && el.tagName === "INPUT" && host.contains(el) ? el : null;
+        }
+        // Cuando llega un snapshot de Firestore mientras se escribe, sus
+        // datos pueden ir una o dos teclas por detrás de lo que hay en el
+        // campo: lo que está escrito en pantalla manda.
+        function _reaplicarInputPuntos(inp) {
+          var cred = inp.getAttribute("data-cred");
+          var act = inp.getAttribute("data-act");
+          if (cred) {
+            var sc = puntosData.subjects.filter(function (x) {
+              return x.id === cred;
+            })[0];
+            if (sc) sc.creditos = +inp.value || 0;
+          } else if (act) {
+            var parts = act.split("|");
+            var s = puntosData.subjects.filter(function (x) {
+              return x.id === parts[0];
+            })[0];
+            var a = s && s.activities && s.activities[+parts[1]];
+            if (a) a[parts[2]] = parts[2] === "nombre" ? inp.value : +inp.value || 0;
+          }
+        }
 
         function loadPuntos() {
           // puntosData APUNTA a state.puntos: así viaja con guardar/cargar/compartir
@@ -7411,7 +7501,7 @@
           }, 600);
         }
         async function guardarSubjectPuntosAhora(sid) {
-          if (!enHorarioDestacado()) return;
+          delete _puntosGuardarTimers[sid];
           var uidFs = window.uidActual && window.uidActual();
           if (!uidFs) return;
           var s = puntosData.subjects.filter(function (x) {
@@ -7465,10 +7555,6 @@
         // --- crear/eliminar (escritura inmediata: son acciones puntuales,
         // no texto que se esté tecleando) ---
         async function addSubjectPuntos() {
-          if (!enHorarioDestacado()) {
-            toast("⭐ Abre tu horario destacado para editar Puntos.");
-            return;
-          }
           var uidFs = window.uidActual && window.uidActual();
           if (!uidFs) return;
           var nuevoId = uid();
@@ -7487,10 +7573,6 @@
           puntosOpenId = nuevoId;
         }
         async function delSubjectPuntos(id) {
-          if (!enHorarioDestacado()) {
-            toast("⭐ Abre tu horario destacado para editar Puntos.");
-            return;
-          }
           var uidFs = window.uidActual && window.uidActual();
           var r = await window.firestoreCrud.ejecutarEscritura(function () {
             return window.firestoreCrud.eliminarDoc(uidFs, "pointsSubjects", id);
@@ -7498,10 +7580,6 @@
           if (!r.ok) toast("⚠ " + r.error.msg);
         }
         async function addActPuntos(sid) {
-          if (!enHorarioDestacado()) {
-            toast("⭐ Abre tu horario destacado para editar Puntos.");
-            return;
-          }
           var s = puntosData.subjects.filter(function (x) {
             return x.id === sid;
           })[0];
@@ -7514,10 +7592,6 @@
           if (!r.ok) toast("⚠ " + r.error.msg);
         }
         async function delActPuntos(sid, idx) {
-          if (!enHorarioDestacado()) {
-            toast("⭐ Abre tu horario destacado para editar Puntos.");
-            return;
-          }
           var s = puntosData.subjects.filter(function (x) {
             return x.id === sid;
           })[0];
@@ -7535,13 +7609,21 @@
         function renderPuntos() {
           var host = $("puntosBody");
           if (!host) return;
-          var exportRow = $("puntosExportRow");
-          if (!enHorarioDestacado()) {
-            if (exportRow) exportRow.style.display = "none";
-            host.innerHTML = _gatePuntosActividadesHTML();
-            _wireGateBoton(host);
+          // Si el usuario está escribiendo en un campo de Puntos, NO se
+          // reconstruye el HTML (eso le quitaba el cursor a mitad de escribir
+          // cada vez que llegaba la confirmación de Firestore): solo se
+          // actualizan los números, y el repintado completo se hace al salir
+          // del campo (ver el focusout de wirePuntos).
+          if (_inputPuntosEnfocado()) {
+            _puntosRenderPendiente = true;
+            puntosData.subjects.forEach(function (s) {
+              syncPuntosScore(s.id);
+            });
+            syncPuntosGeneral();
             return;
           }
+          _puntosRenderPendiente = false;
+          var exportRow = $("puntosExportRow");
           if (exportRow) exportRow.style.display = "";
 
           // Resumen ponderado arriba
@@ -7756,6 +7838,23 @@
           var host = $("puntosBody");
           if (!host) return;
 
+          // Repintado que quedó pendiente mientras se escribía (ver
+          // renderPuntos). Se espera un poco antes de repintar para no
+          // destruir el botón que el usuario esté pulsando (el click llega
+          // después del focusout, y si el botón ya no existe hay que volver
+          // a pulsarlo).
+          if (!host._focusoutWired) {
+            host._focusoutWired = true;
+            host.addEventListener("focusout", function (e) {
+              if (!_puntosRenderPendiente) return;
+              var destino = e.relatedTarget;
+              if (destino && host.contains(destino)) return;
+              setTimeout(function () {
+                if (_puntosRenderPendiente && !_inputPuntosEnfocado()) renderPuntos();
+              }, 300);
+            });
+          }
+
           // agregar materia
           /* var addBtn = $("btnAddSubject");
           if (addBtn) addBtn.addEventListener("click", addSubjectPuntos); */
@@ -7961,6 +8060,10 @@
           // volver a "crear" (sobrescribir) una materia que en realidad ya
           // existe en Firestore con notas cargadas, perdiéndolas.
           if (!_primerasEntregas.pointsSubjects) return;
+          // Mientras se cambia de horario, classes y pointsSubjects llegan
+          // en entregas separadas y a mitad de camino no corresponden al
+          // mismo horario; quien cambia de horario la vuelve a llamar al final.
+          if (_reemplazandoHorario) return;
           var enHorario = {};
           (state.classes || []).forEach(function (c) {
             if (c.materia) enHorario[norm(c.materia)] = c.materia;
@@ -8110,10 +8213,6 @@
         }
         async function onActSubmit(e) {
           e.preventDefault();
-          if (!enHorarioDestacado()) {
-            toast("⭐ Abre tu horario destacado para agendar actividades.");
-            return;
-          }
           var materia = $("actMateria").value.trim();
           var fecha = $("actFecha").value;
           if (!materia) {
@@ -8148,10 +8247,6 @@
           toast("Actividad agendada.");
         }
         async function deleteActivity(id) {
-          if (!enHorarioDestacado()) {
-            toast("⭐ Abre tu horario destacado para editar actividades.");
-            return;
-          }
           var uidFs = window.uidActual && window.uidActual();
           var r = await window.firestoreCrud.ejecutarEscritura(function () {
             return window.firestoreCrud.eliminarDoc(uidFs, "activities", id);
@@ -8163,10 +8258,6 @@
           toast("Actividad eliminada.");
         }
         async function toggleActivityDone(id) {
-          if (!enHorarioDestacado()) {
-            toast("⭐ Abre tu horario destacado para editar actividades.");
-            return;
-          }
           var a = state.activities.filter(function (x) {
             return x.id === id;
           })[0];
@@ -8189,15 +8280,8 @@
             content = $("actContent"),
             cnt = $("actCount");
           if (gate && content) {
-            var ok = enHorarioDestacado();
-            content.style.display = ok ? "" : "none";
-            gate.style.display = ok ? "none" : "";
-            if (!ok) {
-              gate.innerHTML = _gatePuntosActividadesHTML();
-              _wireGateBoton(gate);
-              if (cnt) cnt.textContent = "—";
-              return;
-            }
+            content.style.display = "";
+            gate.style.display = "none";
           }
           fillActivityControls();
           var body = $("actList");
@@ -8310,20 +8394,12 @@
         function getPrincipalId() {
           return favoritoIdCache || "";
         }
-        // Cada cuenta tiene EXACTAMENTE un horario destacado ★, para siempre
-        // — una vez fijado no se puede cambiar ni quitar (ver
-        // _asegurarDestacado, que lo asigna solo si todavía no hay uno).
-        // Antes esto era un toggle libre; se volvió de una sola asignación
-        // porque Puntos/Actividades quedaron ligados solo al destacado
-        // (enHorarioDestacado) — si el destacado pudiera cambiar en
-        // cualquier momento, esos datos globales quedarían saltando de
-        // horario en horario cada vez que alguien lo reasigne.
-        async function setPrincipalId(id) {
-          var cur = getPrincipalId();
-          if (cur) {
-            if (cur !== id) toast("Tu horario destacado ★ ya está fijo y no se puede cambiar.");
-            return;
-          }
+        // El destacado ★ es el horario que ven tus amigos. Se puede cambiar
+        // libremente: como cada horario guardado ya es dueño de sus propias
+        // actividades y puntos, cambiar el destacado no mueve ningún dato,
+        // solo cambia cuál se publica (ver publicarDestacado).
+        async function setPrincipalId(id, silencioso) {
+          if (getPrincipalId() === id) return;
           var uidFs = window.uidActual && window.uidActual();
           var r = await window.firestoreCrud.ejecutarEscritura(function () {
             return window.firestoreCrud.guardarSingleton(uidFs, "favorites", { scheduleId: id });
@@ -8332,43 +8408,15 @@
             toast("⚠ " + r.error.msg);
             return;
           }
-          toast("Marcado como tu horario destacado.");
-          renderActivities();
-          renderPuntos();
-        }
-
-        // ---------- Puntos y Actividades: solo en el horario destacado ----------
-        // classes/activities/pointsSubjects son colecciones GLOBALES del
-        // usuario, no algo propio de cada horario guardado — por eso, si se
-        // editan estando "vinculado" a un horario distinto del destacado (o a
-        // ninguno), esos cambios terminan mezclados entre horarios que no
-        // tienen nada que ver (justo la familia de conflictos de sincronización
-        // resueltos arriba). En vez de seguir tapando carreras una por una, se
-        // restringe la funcionalidad al único horario donde tiene sentido:
-        // el destacado ★.
-        function enHorarioDestacado() {
-          return !!favoritoIdCache && currentSavedId === favoritoIdCache;
-        }
-        function _gatePuntosActividadesHTML() {
-          if (!favoritoIdCache) {
-            return (
-              '<div class="hint" style="margin:0">⭐ Todavía no tienes un horario marcado como <b>destacado</b>. ' +
-              'Ve a "Horarios guardados", guarda tu horario y márcalo con la estrella — ahí es donde se editan Puntos y Actividades, ' +
-              "para que nunca se mezclen entre horarios distintos.</div>"
-            );
-          }
-          return (
-            '<div class="hint" style="margin:0">⭐ Estás editando un horario distinto al <b>destacado</b>. ' +
-            "Actividades y Puntos solo se pueden editar ahí, para que no se mezclen entre horarios. " +
-            '<button type="button" class="btn" id="btnIrDestacadoGate" style="margin-top:10px">Abrir mi horario destacado</button></div>'
-          );
-        }
-        function _wireGateBoton(host) {
-          var btn = host.querySelector("#btnIrDestacadoGate");
-          if (btn) {
-            btn.addEventListener("click", function () {
-              loadNamedSchedule(favoritoIdCache);
-            });
+          favoritoIdCache = id;
+          renderSavedList();
+          updateSavedBanner();
+          publicarDestacado();
+          if (!silencioso) {
+            var entry = getSavedList().filter(function (x) {
+              return x.id === id;
+            })[0];
+            toast("★ Ahora tus amigos ven " + (entry ? '"' + entry.name + '"' : "este horario") + ".");
           }
         }
 
@@ -9600,77 +9648,110 @@
         function _todasListasParaImport() {
           return _primerasEntregas.classes && _primerasEntregas.activities && _primerasEntregas.pointsSubjects;
         }
-        // Se resuelve UNA sola vez, apenas las 5 fuentes ya entregaron su
-        // primer dato: si hay un enlace compartido pendiente tiene
-        // prioridad; si no, se "adopta" el horario destacado (ver
-        // _cargarDestacadoAlAbrir) para que la app abra siempre ahí.
+        // Se resuelve UNA sola vez, apenas todas las fuentes ya entregaron
+        // su primer dato: primero se sabe a qué horario guardado pertenece
+        // lo que hay en vivo (_resolverHorarioAbierto) y, solo después, si
+        // hay un enlace compartido pendiente se abre como horario nuevo —
+        // en ese orden, para que el horario abierto quede guardado antes.
         var _arranqueResuelto = false;
-        function _intentarResolverArranque() {
+        async function _intentarResolverArranque() {
           if (_arranqueResuelto) return;
-          if (!_todasListasParaImport() || !_primerasEntregas.schedules || !_primerasEntregas.favorito) return;
+          if (!_todasListasParaImport() || !_primerasEntregas.schedules || !_primerasEntregas.favorito || !_primerasEntregas.settings) return;
           _arranqueResuelto = true;
+          await _resolverHorarioAbierto();
           if (_importCompartidoPendiente) {
             var data = _importCompartidoPendiente;
             _importCompartidoPendiente = null;
             aplicarHorarioCompartido(data);
-            return;
-          }
-          _cargarDestacadoAlAbrir();
-        }
-        // El horario destacado ★ se abre siempre por defecto. classes YA es
-        // la fuente real y persiste sola entre sesiones (activities/
-        // pointsSubjects también, y son globales — ver enHorarioDestacado),
-        // así que si ya tiene contenido no se sobrescribe (eso podría perder
-        // una edición que aún no se hubiera reflejado en el horario
-        // guardado) — solo se "adopta" el destacado para que los próximos
-        // cambios se guarden ahí. Si el horario en vivo está vacío
-        // (dispositivo nuevo, por ejemplo), sí se trae su contenido.
-        function _cargarDestacadoAlAbrir() {
-          if (!favoritoIdCache) {
-            _asegurarDestacado();
-            return;
-          }
-          var entry = getSavedList().filter(function (x) {
-            return x.id === favoritoIdCache;
-          })[0];
-          if (!entry) return;
-          if (currentSavedId === favoritoIdCache) return;
-          var vacio = state.classes.length === 0;
-          if (vacio && (entry.classes || []).length > 0) {
-            reemplazarHorarioActual(entry, null).then(function (ok) {
-              if (ok) {
-                currentSavedId = entry.id;
-                updateSavedBanner();
-              }
-            });
-          } else {
-            currentSavedId = entry.id;
-            updateSavedBanner();
           }
         }
-        // La cuenta siempre debe tener EXACTAMENTE un horario destacado ★
-        // (ver setPrincipalId y deleteNamedSchedule: una vez fijado, no se
-        // puede cambiar ni borrar) — así Puntos/Actividades, que solo se
-        // editan en el destacado, siempre tienen un horario "de verdad" al
-        // que estar ligados, sin que el usuario tenga que configurarlo a
-        // mano. Si ya hay horarios guardados pero ninguno marcado, se
-        // adopta el más reciente; si no hay ninguno, se crea uno con lo
-        // que haya en el horario en vivo (vacío o no) y se marca.
-        async function _asegurarDestacado() {
+        // Decide a qué horario guardado pertenece lo que hay en vivo:
+        //  - el último abierto (settings.horarioAbiertoId), si sigue existiendo;
+        //  - si se borró (por ejemplo desde otro dispositivo), se abre el
+        //    destacado completo desde su documento;
+        //  - primera vez con esta versión (sin horarioAbiertoId): hasta
+        //    ahora actividades/puntos eran globales y pertenecían al
+        //    destacado, así que se copian a SU documento, y si las clases en
+        //    vivo no coinciden con las del destacado (porque se había cargado
+        //    otro horario), se restauran las del destacado.
+        // La cuenta siempre tiene un destacado ★: si no hay ninguno se
+        // adopta el más reciente, y si no hay horarios se crea "Mi horario"
+        // con lo que haya en vivo.
+        function _mismasClases(a, b) {
+          function clave(arr) {
+            return (arr || [])
+              .map(function (c) {
+                return [c.id, c.materia, c.curso, c.profesor, c.dia, c.inicio, c.fin, c.color].join("|");
+              })
+              .sort()
+              .join("\n");
+          }
+          return clave(a) === clave(b);
+        }
+        async function _resolverHorarioAbierto() {
+          var uidFs = window.uidActual && window.uidActual();
+          if (!uidFs) return;
           var list = getSavedList();
-          if (list.length > 0) {
+          function porId(id) {
+            return id
+              ? list.filter(function (x) {
+                  return x.id === id;
+                })[0]
+              : null;
+          }
+          if (list.length === 0) {
+            var nuevoId = uid();
+            var r = await window.firestoreCrud.ejecutarEscritura(function () {
+              return window.firestoreCrud.crearDoc(uidFs, "schedules", nuevoId, snapshotHorarioActual("Mi horario"));
+            });
+            if (!r.ok) {
+              toast("⚠ " + r.error.msg);
+              return;
+            }
+            currentSavedId = nuevoId;
+            _recordarHorarioAbierto(nuevoId);
+            await setPrincipalId(nuevoId, true);
+            updateSavedBanner();
+            renderSavedList();
+            return;
+          }
+          if (!porId(favoritoIdCache)) {
             var candidato = list.slice().sort(function (a, b) {
               return new Date(b.savedAt) - new Date(a.savedAt);
             })[0];
-            await setPrincipalId(candidato.id);
-            currentSavedId = candidato.id;
-            updateSavedBanner();
-            return;
+            await setPrincipalId(candidato.id, true);
           }
-          var uidFs = window.uidActual && window.uidActual();
-          if (!uidFs) return;
-          var ok = await saveNamedSchedule("Mi horario");
-          if (ok) await setPrincipalId(currentSavedId);
+          var fav = porId(favoritoIdCache);
+          var abierto = porId(horarioAbiertoIdCache);
+          if (!fav && !abierto) return; // no se pudo fijar el destacado (ya se mostró el error)
+          if (abierto) {
+            currentSavedId = abierto.id;
+          } else if (horarioAbiertoIdCache) {
+            if (await reemplazarHorarioActual(_contenidoDe(fav), null, true)) {
+              currentSavedId = fav.id;
+              _recordarHorarioAbierto(fav.id);
+              reconciliarPuntos();
+            }
+          } else {
+            if (fav.formato !== FORMATO_HORARIO) {
+              await window.firestoreCrud.ejecutarEscritura(function () {
+                return window.firestoreCrud.actualizarSinVersion(uidFs, "schedules", fav.id, {
+                  formato: FORMATO_HORARIO,
+                  activities: actividadesLimpias(),
+                  puntos: puntosLimpios(),
+                });
+              });
+            }
+            if ((fav.classes || []).length > 0 && !_mismasClases(fav.classes, state.classes)) {
+              await reemplazarHorarioActual({ meta: fav.meta, settings: fav.settings, classes: fav.classes }, null, false);
+              reconciliarPuntos();
+            }
+            currentSavedId = fav.id;
+            _recordarHorarioAbierto(fav.id);
+          }
+          updateSavedBanner();
+          renderSavedList();
+          publicarDestacado();
         }
 
         // ---------- Calendario (mes completo) ----------
@@ -10508,6 +10589,7 @@
             currentSavedId = null;
             savedListCache = [];
             favoritoIdCache = "";
+            horarioAbiertoIdCache = "";
             perfilCache = null;
             solicitudesRecibidasCache = [];
             solicitudesEnviadasCache = [];
@@ -10525,7 +10607,7 @@
             cerrarGrupoBoard();
             if ($("groupsModal")) $("groupsModal").classList.remove("show");
             _pintarPerfilMenu();
-            // También se reinicia el "arranque": sin esto, _asegurarDestacado
+            // También se reinicia el "arranque": sin esto, _resolverHorarioAbierto
             // (que crea/adopta el destacado ★ de una cuenta nueva) nunca
             // volvería a correr para la sesión anónima que reemplaza a la
             // que se acaba de cerrar, porque _arranqueResuelto ya había
@@ -10564,10 +10646,8 @@
             render();
             _primerasEntregas.activities = true;
             _intentarResolverArranque();
-            // Ya no dispara programarGuardarEnActual(): los horarios
-            // guardados dejaron de incluir una copia de activities (ver
-            // reemplazarHorarioActual), así que un cambio aquí no tiene
-            // nada que escribir en ese documento.
+            // Cada horario guardado lleva su propia copia de actividades.
+            programarGuardarEnActual();
             // Mismo motivo que en alActualizarClases: los puntitos de
             // "tiene actividad" del calendario dependen de state.activities.
             if (document.body.getAttribute("data-tab") === "calendario") {
@@ -10578,7 +10658,10 @@
           window.alActualizarPuntos = function (arr) {
             state.puntos.subjects = arr || [];
             puntosData = state.puntos;
+            var enfocado = _inputPuntosEnfocado();
+            if (enfocado) _reaplicarInputPuntos(enfocado);
             renderPuntos();
+            programarGuardarEnActual();
             var esPrimera = !_primerasEntregas.pointsSubjects;
             _primerasEntregas.pointsSubjects = true;
             // Si "classes" ya había llegado antes que "pointsSubjects", su
@@ -10587,8 +10670,6 @@
             // reintenta una vez.
             if (esPrimera) reconciliarPuntos();
             _intentarResolverArranque();
-            // Igual que en alActualizarActividades: ya no hay copia de
-            // puntos en el horario guardado que mantener al día.
           };
           window.alActualizarPerfil = function (data) {
             perfilCache = data;
@@ -10663,6 +10744,7 @@
           window.alActualizarFavorito = function (data) {
             favoritoIdCache = (data && data.scheduleId) || "";
             renderSavedList();
+            updateSavedBanner();
             refreshCompareSelects();
             renderActivities();
             renderPuntos();
@@ -10677,6 +10759,7 @@
             if (state.settings.days > 7) state.settings.days = 7;
             builderPrefs = Object.assign({ pinned: {}, noDays: {}, earliest: "", latest: "", windows: [] }, data.builderPrefs || {});
             notifOnCache = !!data.notifOn;
+            horarioAbiertoIdCache = data.horarioAbiertoId || "";
             if (typeof data.theme === "string") applyTheme(data.theme);
             if (typeof data.viewMode === "string") {
               viewMode = data.viewMode === "today" ? "today" : data.viewMode === "acts" ? "acts" : "week";
@@ -10686,6 +10769,8 @@
             render();
             if (window.__repintarBtnNotif) window.__repintarBtnNotif();
             programarGuardarEnActual();
+            _primerasEntregas.settings = true;
+            _intentarResolverArranque();
           };
           window.alErrorFirestore = function () {
             toast("⚠ Se perdió la conexión con la nube. Reintentando...");
@@ -10723,10 +10808,8 @@
             toggleTheme();
             render();
           });
-          $("btnStopEditing").addEventListener("click", stopEditingSaved);
           $("btnSaveNamed").addEventListener("click", function () {
-            saveNamedSchedule($("saveName").value);
-            $("saveName").value = "";
+            crearNuevoHorario($("saveName").value);
           });
           $("saveName").addEventListener("keydown", function (e) {
             if (e.key === "Enter") {
@@ -10981,7 +11064,6 @@
                 settings: { days: 5, dayStart: "07:00", dayEnd: "19:00" },
               });
             });
-            currentSavedId = null;
             resetForm();
             toast("Horario vaciado.");
           });
@@ -11764,16 +11846,16 @@
           {
             tab: "horarios",
             sel: ["#saveName"],
-            titulo: "Guardar tu horario",
+            titulo: "Crear un horario nuevo",
             cuerpo:
-              "Ponle un nombre y guárdalo en este navegador. Puedes tener varios horarios guardados (por ejemplo, distintas combinaciones de grupos) y cargar el que necesites.",
+              "Ponle un nombre y crea un horario nuevo. Cada horario guarda sus propias clases, actividades y puntos, y todo se guarda solo — el que tenías abierto queda intacto en la lista para volver a abrirlo cuando quieras.",
           },
           {
             tab: "horarios",
             sel: [".star-btn", "#savedList", "#savedCard"],
             titulo: "El horario destacado ★",
             cuerpo:
-              "Marca uno de tus horarios guardados con la estrella para volverlo tu “destacado”. Es el <b>único</b> que ven tus amigos, y el único donde funcionan Puntos y Actividades.",
+              "Marca uno de tus horarios guardados con la estrella para volverlo tu “destacado”. Es el <b>único</b> que ven tus amigos, y puedes cambiarlo cuando quieras.",
           },
           {
             sel: ["#btnAmigos"],

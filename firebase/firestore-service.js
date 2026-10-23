@@ -464,6 +464,23 @@ export async function quitarAmigo(miUid, otroUid) {
 // archivo no decide el permiso, solo lo pide.
 export async function leerHorarioCompletoDeAmigo(uid) {
   const fb = await getFirebase();
+  // Lo que un amigo ve es el horario DESTACADO ★ (copia pública en
+  // users/{uid}/compartido/destacado, ver publicarDestacado() en
+  // index.html) — no el que esa persona tenga abierto en ese momento.
+  // Si todavía no existe (cuenta sin actualizar, o reglas sin desplegar),
+  // se cae al horario en vivo como antes.
+  try {
+    const pub = await fb.getDoc(fb.doc(fb.db, "users", uid, "compartido", "destacado"));
+    if (pub.exists()) {
+      const d = pub.data();
+      return {
+        classes: Array.isArray(d.classes) ? d.classes : [],
+        settings: d.settings || { days: 5, dayStart: "07:00", dayEnd: "19:00" },
+      };
+    }
+  } catch (e) {
+    console.warn("[Amigos] Sin copia pública del destacado, uso el horario en vivo:", e);
+  }
   const [classesSnap, settingsSnap] = await Promise.all([
     fb.getDocs(fb.collection(fb.db, "users", uid, "classes")),
     fb.getDoc(fb.doc(fb.db, "users", uid, "settings", "singleton")),
@@ -472,11 +489,10 @@ export async function leerHorarioCompletoDeAmigo(uid) {
   classesSnap.forEach(function (d) {
     classes.push(Object.assign({ id: d.id }, d.data()));
   });
+  const sData = settingsSnap.exists() ? settingsSnap.data() : {};
   return {
     classes: classes,
-    settings: settingsSnap.exists()
-      ? settingsSnap.data()
-      : { days: 5, dayStart: "07:00", dayEnd: "19:00" },
+    settings: sData.settings || { days: 5, dayStart: "07:00", dayEnd: "19:00" },
   };
 }
 
